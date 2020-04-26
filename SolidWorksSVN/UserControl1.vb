@@ -10,17 +10,22 @@ Imports System.Collections.Generic
 <ProgId("SVN_AddIn")>
 Public Class UserControl1
 
-    Dim iswApp As SldWorks
+    Dim WithEvents iSwApp As SldWorks
     'Dim userAddin As SwAddin = New SwAddin() 'couldn't get access to swapp in here!
     Public Const sTortPath As String = "C:\Users\benne\Documents\SVN\TortoiseProc.exe"
     Public Const sRepoLocalPath As String = "C:\Users\benne\Documents\SVN\fsae1"
     Public Const sSVNPath As String = "C:\Program Files\TortoiseSVN\bin\svn.exe"
 
-    Friend Sub getSwApp(ByRef swAppin As Object)
-        iswApp = swAppin
+    Friend Sub getSwApp(ByRef swAppin As SldWorks)
+        Debug.Print(vbCrLf & "=========================" & vbCrLf & "=========================" & vbCrLf & "=========================")
+        iSwApp = swAppin
     End Sub
     Private Sub butCheckinWithDependents_Click(sender As Object, e As EventArgs) Handles butCheckinWithDependents.Click
         myCheckinWithDependents()
+        'Debug.Print("Hello")
+        'Dim modDoc As ModelDoc2
+        'modDoc = iSwApp.ActiveDoc()
+        'Debug.Print(modDoc.GetPathName)
     End Sub
 
     Private Sub butCheckinAll_Click(sender As Object, e As EventArgs) Handles butCheckinAll.Click
@@ -36,6 +41,7 @@ Public Class UserControl1
     End Sub
 
     Private Sub butCheckoutActiveDoc_Click(sender As Object, e As EventArgs) Handles butCheckoutActiveDoc.Click
+
         myCheckoutActiveDoc()
     End Sub
 
@@ -50,7 +56,6 @@ Public Class UserControl1
     Private Sub butGetLatestAllRepo_Click(sender As Object, e As EventArgs) Handles butGetLatestAllRepo.Click
         myGetLatestAllRepo()
     End Sub
-
 
     '============= Start sub definitions
 
@@ -186,7 +191,7 @@ Public Class UserControl1
         'Debug.Print(sTempFileName)
         status = getFileSVNStatus(sActiveDocPath, True)
 
-        If status(0).errorMessage(0) <> "" Then
+        If Not status(0).errorMessage Is Nothing Then
             ' Some sort of error from the svn command
             For i = 0 To status(0).errorMessage.Length - 1
                 If status(0).errorMessage(i).Contains("W155007:") Then
@@ -207,7 +212,7 @@ Public Class UserControl1
                             "Error: " & status(0).errorMessage(i)
                 End If
             Next
-            iswApp.SendMsgToUser("Status Check failed with the following " & sCatMessage)
+            iSwApp.SendMsgToUser("Status Check failed with the following " & sCatMessage)
             If status(0).upToDate9 Is Nothing Then Exit Sub
         End If
 
@@ -270,6 +275,8 @@ Public Class UserControl1
 
         'Run SVN to see status of all
         Dim mySVNStatus As SVNStatus() = getFileSVNStatus(sOpenDocPath, bCheckServer:=True)
+
+        'TODO There's no error checking from the getSVNfile status! remember to use not mySVNStatus.sErrorMessage is nothing
 
         Dim modDocArr(mySVNStatus.Length - 1) As ModelDoc2
         For i = 0 To mySVNStatus.Length - 1
@@ -390,7 +397,7 @@ Public Class UserControl1
     End Function
     Function formatFilePathArrForTortoiseProc(ByRef sFilePathArr() As String) As String
         Dim sFilePathCat As String = """" & sFilePathArr(0)
-        For i = 1 To sFilePathArr(0).Length - 1
+        For i = 0 To sFilePathArr.Length - 1
             If sFilePathArr(i) Is Nothing Then Continue For
             sFilePathCat &= "*" & sFilePathArr(i)
         Next
@@ -450,7 +457,7 @@ Public Class UserControl1
         Dim sDocPaths(modDoc.Length - 1) As String
         Dim sStolenLockPaths As String = ""
         Dim i As Integer
-        Dim j As Integer
+        Dim j As Integer = 0
         Dim sCatErrorMessage As String = ""
 
         ' Now the file couldve been locked or not by the user in the dialog box
@@ -462,12 +469,13 @@ Public Class UserControl1
         Next
 
         status = getFileSVNStatus(sDocPaths, False)
-        If status(0).errorMessage(0) <> "" Then
+        ' TODO Also fix getFileSVNStatus error checking? commonize? Bring into the function? 
+        If Not status(0).errorMessage(0) Is Nothing Then
             For i = 0 To status(0).errorMessage.Length - 1
                 sCatErrorMessage &= vbCrLf & status(0).errorFile(i) &
                     vbCrLf & status(0).errorMessage(i)
             Next
-            iswApp.SendMsgToUser("Status Check Issues: " &
+            iSwApp.SendMsgToUser("Status Check Issues: " &
                         vbCrLf & sCatErrorMessage)
         End If
 
@@ -538,7 +546,7 @@ Public Class UserControl1
         k = sOutputErrorLines.Length - 1
 
         'Error Checking
-        If (sOutputErrorLines(0) Is Nothing) Or (sOutputLines(0) Is Nothing) Then
+        If (sOutputErrorLines Is Nothing) Or (sOutputLines Is Nothing) Then
             output(0).errorMessage(i) = "Error: SVN status output standard error is nothing. Must of not connected/read to SVN process"
             Return output
         End If
@@ -600,6 +608,7 @@ Public Class UserControl1
             j = j + 1
             If bCheckServer Then bExpectStatusAgainstRevision = True
         Next i
+
         'Else
         '   output(0).errorMessage = "Error. First read line from SVN Status: " & sOutputLines(0)
         'End If
