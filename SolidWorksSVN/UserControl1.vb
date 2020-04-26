@@ -22,10 +22,6 @@ Public Class UserControl1
     End Sub
     Private Sub butCheckinWithDependents_Click(sender As Object, e As EventArgs) Handles butCheckinWithDependents.Click
         myCheckinWithDependents()
-        'Debug.Print("Hello")
-        'Dim modDoc As ModelDoc2
-        'modDoc = iSwApp.ActiveDoc()
-        'Debug.Print(modDoc.GetPathName)
     End Sub
 
     Private Sub butCheckinAll_Click(sender As Object, e As EventArgs) Handles butCheckinAll.Click
@@ -60,14 +56,18 @@ Public Class UserControl1
     '============= Start sub definitions
 
     Public Sub myUnlockActive()
-        unlockDocs(iswApp.ActiveDoc())
+        Dim modDoc() As ModelDoc2 = {iSwApp.ActiveDoc()}
+        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found")
+        unlockDocs(moddoc)
     End Sub
     Public Sub myUnlockWithDependents()
-        Dim modDoc As ModelDoc2 = iswApp.ActiveDoc()
-        If modDoc.GetType <> swDocumentTypes_e.swDocASSEMBLY Then
-            unlockDocs(iswApp.ActiveDoc())
+        Dim modDoc() As ModelDoc2 = {iSwApp.ActiveDoc()}
+        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found")
+
+        If modDoc(0).GetType <> swDocumentTypes_e.swDocASSEMBLY Then
+            unlockDocs(modDoc)
         Else
-            unlockDocs(getComponentsOfAssembly(modDoc))
+            unlockDocs(getComponentsOfAssembly(modDoc(0)))
         End If
     End Sub
     Sub myUnlockAll()
@@ -82,42 +82,66 @@ Public Class UserControl1
         If Not bSuccess Then iswApp.SendMsgToUser("Releasing Locks Failed.")
 
     End Sub
+    Public Function createBoolArray(ByRef iUbound As Integer, ByRef value As Boolean) As Boolean()
+        Dim i As Integer
+        Dim output(iUbound) As Boolean
+        For i = 0 To iUbound
+            output(i) = value
+        Next
+    End Function
     Public Sub myCheckinWithDependents()
-        Dim modDocArr1() As ModelDoc2 = {iswApp.ActiveDoc()}
-        If modDocArr1(0).GetType = swDocumentTypes_e.swDocASSEMBLY Then
-            checkInDocs(getComponentsOfAssembly(modDocArr1(0)))
+        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()
+        Dim modDocArr1() As ModelDoc2
+        Dim bRequired() As Boolean
+
+        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found")
+
+        If modDoc.GetType = swDocumentTypes_e.swDocASSEMBLY Then
+            modDocArr1 = getComponentsOfAssembly(modDoc)
+            bRequired = createBoolArray(UBound(modDocArr1), False)
+            bRequired(0) = True
+            checkInDocs(modDocArr1, )
         Else
-            checkInDocs(modDocArr1)
+            modDocArr1 = {modDoc}
+            checkInDocs(modDocArr1, createBoolArray(1, True))
         End If
     End Sub
-    Sub checkInDocs(ByRef modDocsArr() As ModelDoc2)
-
-        'Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()
-        'Dim sActiveDocPath As String = modDoc.GetPathName()
-        Dim modDocArr() As ModelDoc2 = {iswApp.ActiveDoc()}
-        'Dim swErrors As Long
-        'Dim swWarnings As Long
+    Sub checkInDocs(ByRef modDocArr() As ModelDoc2,
+                    Optional ByVal bRequiredDoc() As Boolean = Nothing)
         Dim bSuccess As Boolean = False
         Dim sErrorFiles As String = ""
         Dim i As Integer
         Dim j As Integer = 0
 
-        For i = 0 To modDocsArr.Length - 1
+        If bRequiredDoc Is Nothing Then bRequiredDoc = createBoolArray(UBound(modDocArr), True)
+
+        If modDocArr Is Nothing Then
+            iSwApp.SendMsgToUser("Active Document not found")
+            Exit Sub
+        ElseIf modDocArr.Length = 0 Then
+            iSwApp.SendMsgToUser("Active Document not found")
+            Exit Sub
+        End If
+
+        For i = 0 To UBound(modDocArr)
             If modDocArr(i).IsOpenedReadOnly() Or modDocArr(i).IsOpenedViewOnly() Then
-                sErrorFiles &= modDocArr(i).GetPathName & vbCrLf
+
+                If bRequiredDoc(i) Then
+                    sErrorFiles &= modDocArr(i).GetPathName & vbCrLf
+                End If
                 modDocArr(i) = Nothing
+                j += 1
                 'Else
                 '    'Cleans up the loop to remove empty elements
                 '    modDocArr(j) = modDocArr(i)
-                '    j += 1
                 '    modDocArr(i) = Nothing
             End If
         Next
         If sErrorFiles <> "" Then
-            iswApp.SendMsgToUser("The following file(s) are Read-Only. You need write access to check in. " &
-                                 "If you believe you have the file locked, you can try File > Reload" &
+            iSwApp.SendMsgToUser("The following file(s) are Read-Only. You need write access to check in. " &
+                                 "If you believe you have the file locked, you can try File > Reload" & vbCrLf &
                                  sErrorFiles)
-            Exit Sub
+            If j = (i - 1) Then Exit Sub 'All Files were removed
         End If
 
         save3AndShowErrorMessages(modDocArr)
@@ -153,10 +177,16 @@ Public Class UserControl1
 
     End Sub
     Public Sub myCheckoutActiveDoc()
-        checkoutDocs({iswApp.ActiveDoc()})
+        Dim modDoc() As ModelDoc2 = {iSwApp.ActiveDoc()}
+        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found")
+
+        checkoutDocs(modDoc)
     End Sub
     Public Sub myCheckoutWithDependents()
-        checkoutDocs(getComponentsOfAssembly(iswApp.ActiveDoc()))
+        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()
+        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found")
+
+        checkoutDocs(getComponentsOfAssembly(modDoc))
     End Sub
     Sub myRepoStatus()
         Dim bSuccess As Boolean
@@ -173,7 +203,9 @@ Public Class UserControl1
                        "Try closing all open files and trying again. Or close SolidWorks and use ToroiseSVN to clean up. ")
     End Sub
     Sub checkoutDocs(ByRef modDocArr() As ModelDoc2)
-        Dim modDoc As ModelDoc2 = iswApp.ActiveDoc()
+        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()
+        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found")
+
         'Dim modDocArr() As ModelDoc2 = {modDoc}
         Dim sActiveDocPath() As String = getFilePathsFromModDocArr(modDocArr)
         Dim sDocPathsToCheckout(modDocArr.Length - 1) As String
@@ -181,6 +213,7 @@ Public Class UserControl1
         Dim bSuccess As Boolean = False
         Dim i As Integer
         Dim sCatMessage As String = ""
+        Dim sCatMessageLocked As String = ""
 
         'Using objReader As System.IO.TextReader = System.IO.File.OpenText("C:\Users\benne\AppData\Local\Temp\tmp9BF6.tmp") 'System.IO.StreamReader(sTempFileName)
         '    sLine1 = objReader.ReadLine()
@@ -233,15 +266,24 @@ Public Class UserControl1
                 '     "If you steal their lock (Not recommended) then " &
                 '     vbCrLf & "1. Make sure you discuss it with them so that work isn't lost!" &
                 '     vbCrLf & "2. In SolidWorks you'll have to do file > Get Write Access after you have the lock.")
+                sCatMessageLocked &= vbCrLf & status(i).filename
+                sDocPathsToCheckout(i) = status(i).filename
             Else
                 sDocPathsToCheckout(i) = status(i).filename
             End If
         Next
-
+        'If sCatMessage <> "" And sCatMessageLocked <> "" Then
+        '    iSwApp.SendMsgToUser("The following files are out of date. Get Latest and try again. " & vbCrLf &
+        '        sCatMessage & vbCrLf &
+        '        "The following files are locked "
+        'End If
         If sCatMessage <> "" Then
-            iswApp.SendMsgToUser("Local copy is out of date. Update from Vault and try again." & vbCrLf & sCatMessage)
+            iSwApp.SendMsgToUser("Local copy is out of date. Update from Vault and try again." & vbCrLf & sCatMessage)
+            If sDocPathsToCheckout(0) Is Nothing Then Exit Sub
         End If
-
+        If sDocPathsToCheckout(0) Is Nothing Then
+            iSwApp.SendMsgToUser("No Files available to be locked.")
+        End If
         bSuccess = runTortoiseProcexeWithMonitor("/command:lock /path:" & formatFilePathArrForTortoiseProc(sDocPathsToCheckout) & " /closeonend:3")
 
         setReadWriteFromLockStatus(modDocArr)
@@ -470,7 +512,7 @@ Public Class UserControl1
 
         status = getFileSVNStatus(sDocPaths, False)
         ' TODO Also fix getFileSVNStatus error checking? commonize? Bring into the function? 
-        If Not status(0).errorMessage(0) Is Nothing Then
+        If Not status(0).errorMessage Is Nothing Then
             For i = 0 To status(0).errorMessage.Length - 1
                 sCatErrorMessage &= vbCrLf & status(0).errorFile(i) &
                     vbCrLf & status(0).errorMessage(i)
@@ -622,25 +664,60 @@ Public Class UserControl1
         End If
 
         Dim mdComponentList As New List(Of ModelDoc2)()
-        Dim i As Integer = 0
-        Dim swFeat As IFeature
-        Dim entity As Entity
-        Dim component As IComponent2
+        Dim swConfMgr As ConfigurationManager
+        Dim swConf As Configuration
+        Dim swRootComp As Component2
 
-        swFeat = modDoc.FirstFeature
+        swConfMgr = modDoc.ConfigurationManager
+        swConf = swConfMgr.ActiveConfiguration
+        swRootComp = swConf.GetRootComponent3(True)
 
-        While Not swFeat Is Nothing
-            entity = swFeat
-            If entity.GetType = swSelectType_e.swSelCOMPONENTS Then
-                component = swFeat.GetSpecificFeature2
-                mdComponentList.Add(component.GetModelDoc2)
-            End If
-            swFeat = modDoc.GetNextFeature
-        End While
+        TraverseComponent(swRootComp, mdComponentList, 1)
+        'Dim i As Integer = 0
+        'Dim swFeat As IFeature
+        'Dim entity As Entity
+        'Dim component As IComponent2
+
+        'swFeat = modDoc.FirstFeature
+
+        'While Not swFeat Is Nothing
+        '    entity = swFeat
+        '    If entity.GetType = swSelectType_e.swSelCOMPONENTS Then
+        '        component = swFeat.GetSpecificFeature2
+        '        mdComponentList.Add(component.GetModelDoc2)
+        '    End If
+        '    swFeat = modDoc.GetNextFeature
+        'End While
 
         Dim mdComponentArr() As ModelDoc2 = mdComponentList.ToArray
         Return mdComponentArr
     End Function
+
+    Sub TraverseComponent(ByRef swComp As Component2, ByRef mdComponentList As List(Of ModelDoc2), ByVal nLevel As Long)
+        'https://help.solidworks.com/2016/English/api/sldworksapi/Traverse_Assembly_at_Component_and_Feature_Levels_Using_Recursion_Example_VBNET.htm
+        Dim vChildComp As Object
+        Dim swChildComp As Component2
+        Dim sPadStr As String = " "
+        Dim i As Long
+        Dim modDoc As ModelDoc2
+
+        mdComponentList.Add(swComp.GetModelDoc2)
+
+        vChildComp = swComp.GetChildren
+
+        For i = 0 To UBound(vChildComp)
+            swChildComp = vChildComp(i)
+            modDoc = swChildComp.GetModelDoc2
+            If modDoc.GetType <> swDocumentTypes_e.swDocASSEMBLY Then
+                'Is part file
+                mdComponentList.Add(modDoc)
+            Else
+                'Is assembly
+                TraverseComponent(swChildComp, mdComponentList, nLevel + 1)
+            End If
+        Next i
+
+    End Sub
     Structure SVNStatus
         ' Each 1-9 is a one character string
         ' See http://svnbook.red-bean.com/en/1.8/svn.ref.svn.c.status.html
