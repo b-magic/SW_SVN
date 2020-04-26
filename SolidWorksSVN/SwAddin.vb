@@ -13,12 +13,12 @@ Imports System.Collections.Generic
 Imports System.Diagnostics
 
 <Guid("ca5108e0-c3c5-47f0-8453-cd9b6a5e12af")>
-<ComVisible(True)> _
-<SwAddin( _
-        Description:="SolidWorksSVN description", _
-        Title:="SolidWorksSVN", _
-        LoadAtStartup:=True _
-        )> _
+<ComVisible(True)>
+<SwAddin(
+        Description:="Version Control from a Central SVN Server",
+        Title:="SolidWorks_SVN",
+        LoadAtStartup:=True
+        )>
 Public Class SwAddin
     Implements SolidWorks.Interop.swpublished.SwAddin
 
@@ -32,6 +32,9 @@ Public Class SwAddin
     Dim iBmp As BitmapHandler
 
     Public Const mainCmdGroupID As Integer = 0
+
+    Dim myTaskPaneView As TaskpaneView
+    Dim myTaskPaneHost As UserControl1
 
     'Update all 3 of these!
     Public iNumFlyoutButtons As Integer = 3
@@ -129,16 +132,17 @@ Public Class SwAddin
         iSwApp.SetAddinCallbackInfo(0, Me, addinID)
 
         ' Setup the Command Manager
-        iCmdMgr = iSwApp.GetCommandManager(Cookie)
-        AddCommandMgr()
+        'iCmdMgr = iSwApp.GetCommandManager(Cookie)
+        'AddCommandMgr()
 
         'Setup the Event Handlers
-        SwEventPtr = iSwApp
-        openDocs = New Hashtable
-        AttachEventHandlers()
+        'SwEventPtr = iSwApp
+        'openDocs = New Hashtable
+        'AttachEventHandlers()
 
         'Setup Sample Property Manager
-        AddPMP()
+        'AddPMP()
+        AddTaskPane()
 
         ConnectToSW = True
     End Function
@@ -146,7 +150,7 @@ Public Class SwAddin
     Function DisconnectFromSW() As Boolean Implements SolidWorks.Interop.swpublished.SwAddin.DisconnectFromSW
 
         RemoveCommandMgr()
-        RemovePMP()
+        RemoveTaskPane()
         DetachEventHandlers()
 
         System.Runtime.InteropServices.Marshal.ReleaseComObject(iCmdMgr)
@@ -160,170 +164,190 @@ Public Class SwAddin
         GC.Collect()
         GC.WaitForPendingFinalizers()
 
+
+
         DisconnectFromSW = True
     End Function
 #End Region
 
 #Region "UI Methods"
-    Public Sub AddCommandMgr()
+    Public Sub AddTaskPane()
 
-        Dim cmdGroup As ICommandGroup
-
-        If iBmp Is Nothing Then
-            iBmp = New BitmapHandler()
-        End If
-
-        Dim thisAssembly As Assembly
-
-        Dim cmdIndex(3) As Integer
-        'Dim cmdIndex0 As Integer, cmdIndex1 As Integer
-        Dim Title As String = "VB Addin"
-        Dim ToolTip As String = "VB Addin"
-
-
-        Dim docTypes() As Integer = {swDocumentTypes_e.swDocASSEMBLY, _
-                                       swDocumentTypes_e.swDocDRAWING, _
-                                       swDocumentTypes_e.swDocPART}
-
-        thisAssembly = System.Reflection.Assembly.GetAssembly(Me.GetType())
-
-        Dim cmdGroupErr As Integer = 0
-        Dim ignorePrevious As Boolean = False
-
-        Dim registryIDs As Object = Nothing
-        Dim getDataResult As Boolean = iCmdMgr.GetGroupDataFromRegistry(mainCmdGroupID, registryIDs)
-
-        'Dim knownIDs As Integer() = New Integer(1) {mainItemID(0), mainItemID(1)}
-
-        If getDataResult Then
-            If Not CompareIDs(registryIDs, mainItemID) Then 'knownIDs) Then 'if the IDs don't match, reset the commandGroup
-                ignorePrevious = True
-            End If
-        End If
-
-        cmdGroup = iCmdMgr.CreateCommandGroup2(mainCmdGroupID, Title, ToolTip, "", -1, ignorePrevious, cmdGroupErr)
-        If cmdGroup Is Nothing Or thisAssembly Is Nothing Then
-            Throw New NullReferenceException()
-        End If
-
-
-
-        cmdGroup.LargeIconList = iBmp.CreateFileFromResourceBitmap("SolidWorksSVN.ToolbarLarge.bmp", thisAssembly)
-        cmdGroup.SmallIconList = iBmp.CreateFileFromResourceBitmap("SolidWorksSVN.ToolbarSmall.bmp", thisAssembly)
-        cmdGroup.LargeMainIcon = iBmp.CreateFileFromResourceBitmap("SolidWorksSVN.MainIconLarge.bmp", thisAssembly)
-        cmdGroup.SmallMainIcon = iBmp.CreateFileFromResourceBitmap("SolidWorksSVN.MainIconSmall.bmp", thisAssembly)
-
-        'Dim menuToolbarOption As Integer = swCommandItemType_e.swMenuItem Or swCommandItemType_e.swToolbarItem
-
-        'cmdIndex = {0, 1, 2} 'cmdIndex0, cmdIndex1
-        ''                      AddCommandItem2(Name, Position, HintString, ToolTip, ImageListIndex, CallbackFunction, EnableMethod, UserID, MenuTBOption)
-        'cmdIndex(0) = cmdGroup.AddCommandItem2("CreateCube", -1, "Mouseover", "Label", 0, "CreateCube", "", mainItemID(0), menuToolbarOption)
-        'cmdIndex(1) = cmdGroup.AddCommandItem2("Show PMP", -1, "Mouseover", "Label", 2, "ShowPMP", "PMPEnable", mainItemID(1), menuToolbarOption)
-
-        'cmdGroup.HasToolbar = True
-        'cmdGroup.HasMenu = True
-        'cmdGroup.Activate()
-
-        'Dim flyGroup1 As FlyoutGroup
-        ''flyGroup1 = iCmdMgr.CreateFlyoutGroup(flyoutGroupID(0), "Dynamic Flyout", "Flyout Tooltip", "Flyout Hint",
-        ''      cmdGroup.SmallMainIcon, cmdGroup.LargeMainIcon, cmdGroup.SmallIconList, cmdGroup.LargeIconList, "FlyoutCallback", "FlyoutEnable")
-        'flyGroup1 = iCmdMgr.CreateFlyoutGroup(flyoutGroupID(0), "Dynamic Flyout", "Flyout Tooltip", "Flyout Hint",
-        '      cmdGroup.SmallMainIcon, cmdGroup.LargeMainIcon, cmdGroup.SmallIconList, cmdGroup.LargeIconList, "NoCallbackSub", "FlyoutEnable")
-        ''        AddCommandItem(Name,     Mouseover,  ImageListIndex,  CallbackFunction, UpdateCallbackFunction
-        ''flyGroup1.AddCommandItem("FlyoutCommand 1", "test", 0, "FlyoutCommandItem1", "FlyoutEnable") '"FlyoutEnable") '"FlyoutDisabled
-        'flyGroup1.RemoveAllCommandItems()
-        'flyGroup1.AddCommandItem(System.DateTime.Now.ToLongTimeString(), "test", 0, "FlyoutCommandItem1", "FlyoutEnable")
-        ''flyGroup1.FlyoutType = swCommandFlyoutStyle_e.swCommandFlyoutStyle_Simple
-        'flyGroup1.FlyoutType = 1 'swCommandFlyoutStyle_e.swCommandFlyoutStyle_Favorite
-
-        Dim flyGroupLock As FlyoutGroup
-        flyGroupLock = iCmdMgr.CreateFlyoutGroup(flyoutGroupID(0), "Lock and Checkout", "Lock/Checkout", "Lock and checkout the current document",
-              cmdGroup.SmallMainIcon, cmdGroup.LargeMainIcon, cmdGroup.SmallIconList, cmdGroup.LargeIconList, "NoCallbackSub", "FlyoutEnable")
-        flyGroupLock.RemoveAllCommandItems()
-        flyGroupLock.AddCommandItem("Lock/Checkout", "Lock and checkout the current document", 0, "myCheckoutActiveDoc", "FlyoutEnable")
-        flyGroupLock.FlyoutType = 1 'swCommandFlyoutStyle_e.swCommandFlyoutStyle_Favorite
-
-        Dim flyGroupCheckin As FlyoutGroup
-        flyGroupCheckin = iCmdMgr.CreateFlyoutGroup(flyoutGroupID(1), "Checkin", "Checkin", "Checkin the current document",
-              cmdGroup.SmallMainIcon, cmdGroup.LargeMainIcon, cmdGroup.SmallIconList, cmdGroup.LargeIconList, "NoCallbackSub", "FlyoutEnable")
-        flyGroupCheckin.RemoveAllCommandItems()
-        flyGroupCheckin.AddCommandItem("Checkin ActiveDoc", "Checkin the current document", 0, "myCheckinActiveDoc", "FlyoutEnable")
-        flyGroupCheckin.AddCommandItem("Checkin All", "Checkin Any/All documents", 0, "myCheckinAll", "FlyoutEnable")
-        flyGroupCheckin.FlyoutType = swCommandFlyoutStyle_e.swCommandFlyoutStyle_Favorite
-
-        Dim flyGroupGetLatest As FlyoutGroup
-        flyGroupGetLatest = iCmdMgr.CreateFlyoutGroup(flyoutGroupID(2), "Get Latest", "Get Latest", "Get The Latest Files from The Vault",
-              cmdGroup.SmallMainIcon, cmdGroup.LargeMainIcon, cmdGroup.SmallIconList, cmdGroup.LargeIconList, "NoCallbackSub", "FlyoutEnable")
-        flyGroupGetLatest.RemoveAllCommandItems()
-        flyGroupGetLatest.AddCommandItem("Get Latest All", "Get Latest All", 0, "myGetLatestAll", "FlyoutEnable")
-        flyGroupGetLatest.AddCommandItem("Get Latest Open Files Only", "Get Latest Open Docs", 0, "myGetLatestOpenOnly", "FlyoutEnable")
-        flyGroupGetLatest.FlyoutType = swCommandFlyoutStyle_e.swCommandFlyoutStyle_Favorite
-
-        For Each docType As Integer In docTypes
-            Dim cmdTab As ICommandTab = iCmdMgr.GetCommandTab(docType, Title)
-            Dim bResult As Boolean
-
-            If Not cmdTab Is Nothing And Not getDataResult Or ignorePrevious Then 'if tab exists, but we have ignored the registry info, re-create the tab.  Otherwise the ids won't matchup and the tab will be blank
-                Dim res As Boolean = iCmdMgr.RemoveCommandTab(cmdTab)
-                cmdTab = Nothing
-            End If
-
-            If cmdTab Is Nothing Then
-                cmdTab = iCmdMgr.AddCommandTab(docType, Title)
-
-                'Dim cmdBox0 As CommandTabBox = cmdTab.AddCommandTabBox
-
-                'Dim cmdIDs(cmdIndex.Length) As Integer
-                'Dim TextType(cmdIndex.Length) As Integer
-
-                'cmdIDs(0) = cmdGroup.CommandID(cmdIndex(0))
-                'TextType(0) = swCommandTabButtonTextDisplay_e.swCommandTabButton_TextHorizontal
-
-                'cmdIDs(1) = cmdGroup.CommandID(cmdIndex(1))
-                'TextType(1) = swCommandTabButtonTextDisplay_e.swCommandTabButton_TextHorizontal
-
-                'cmdIDs(2) = cmdGroup.ToolbarId
-                'TextType(2) = swCommandTabButtonTextDisplay_e.swCommandTabButton_TextHorizontal
-
-
-                'bResult = cmdBox0.AddCommands(cmdIDs, TextType)
-
-                Dim cmdBox1 As CommandTabBox = cmdTab.AddCommandTabBox()
-                Dim cmdIDs(iNumFlyoutButtons) as Integer
-                Dim TextType(iNumFlyoutButtons) As Integer
-
-                cmdIDs(0) = flyGroupLock.CmdID
-                TextType(0) = swCommandTabButtonTextDisplay_e.swCommandTabButton_TextBelow
-
-                cmdIDs(1) = flyGroupCheckin.CmdID
-                TextType(1) = swCommandTabButtonTextDisplay_e.swCommandTabButton_TextBelow
-
-                cmdIDs(2) = flyGroupGetLatest.CmdID
-                TextType(2) = swCommandTabButtonTextDisplay_e.swCommandTabButton_TextBelow
-
-                bResult = cmdBox1.AddCommands(cmdIDs, TextType)
-
-                cmdTab.AddSeparator(cmdBox1, cmdIDs(0))
-                cmdTab.AddSeparator(cmdBox1, cmdIDs(1))
-
-            End If
-        Next
-
-        thisAssembly = Nothing
+        myTaskPaneView = SwApp.CreateTaskpaneView2("", "Sample Task Pane")
+        myTaskPaneHost = myTaskPaneView.AddControl("SVN_AddIn", "")
+        myTaskPaneHost.getSwApp(SwApp)
 
     End Sub
 
-
-    Public Sub RemoveCommandMgr()
+    Public Sub RemoveTaskPane()
         Try
-            iBmp.Dispose()
-            iCmdMgr.RemoveCommandGroup(mainCmdGroupID)
-            For Each flyoutGroupID_element In flyoutGroupID
-                iCmdMgr.RemoveFlyoutGroup(flyoutGroupID_element)
-            Next flyoutGroupID_element
-        Catch e As Exception
+            myTaskPaneHost = Nothing
+            myTaskPaneView.DeleteView()
+            Marshal.ReleaseComObject(myTaskPaneView)
+            myTaskPaneView = Nothing
+        Catch ex As Exception
         End Try
     End Sub
+
+    'Public Sub AddCommandMgr()
+
+    '    Dim cmdGroup As ICommandGroup
+
+    '    If iBmp Is Nothing Then
+    '        iBmp = New BitmapHandler()
+    '    End If
+
+    '    Dim thisAssembly As Assembly
+
+    '    Dim cmdIndex(3) As Integer
+    '    'Dim cmdIndex0 As Integer, cmdIndex1 As Integer
+    '    Dim Title As String = "VB Addin"
+    '    Dim ToolTip As String = "VB Addin"
+
+
+    '    Dim docTypes() As Integer = {swDocumentTypes_e.swDocASSEMBLY, _
+    '                                   swDocumentTypes_e.swDocDRAWING, _
+    '                                   swDocumentTypes_e.swDocPART}
+
+    '    thisAssembly = System.Reflection.Assembly.GetAssembly(Me.GetType())
+
+    '    Dim cmdGroupErr As Integer = 0
+    '    Dim ignorePrevious As Boolean = False
+
+    '    Dim registryIDs As Object = Nothing
+    '    Dim getDataResult As Boolean = iCmdMgr.GetGroupDataFromRegistry(mainCmdGroupID, registryIDs)
+
+    '    'Dim knownIDs As Integer() = New Integer(1) {mainItemID(0), mainItemID(1)}
+
+    '    If getDataResult Then
+    '        If Not CompareIDs(registryIDs, mainItemID) Then 'knownIDs) Then 'if the IDs don't match, reset the commandGroup
+    '            ignorePrevious = True
+    '        End If
+    '    End If
+
+    '    cmdGroup = iCmdMgr.CreateCommandGroup2(mainCmdGroupID, Title, ToolTip, "", -1, ignorePrevious, cmdGroupErr)
+    '    If cmdGroup Is Nothing Or thisAssembly Is Nothing Then
+    '        Throw New NullReferenceException()
+    '    End If
+
+
+
+    '    cmdGroup.LargeIconList = iBmp.CreateFileFromResourceBitmap("SolidWorksSVN.ToolbarLarge.bmp", thisAssembly)
+    '    cmdGroup.SmallIconList = iBmp.CreateFileFromResourceBitmap("SolidWorksSVN.ToolbarSmall.bmp", thisAssembly)
+    '    cmdGroup.LargeMainIcon = iBmp.CreateFileFromResourceBitmap("SolidWorksSVN.MainIconLarge.bmp", thisAssembly)
+    '    cmdGroup.SmallMainIcon = iBmp.CreateFileFromResourceBitmap("SolidWorksSVN.MainIconSmall.bmp", thisAssembly)
+
+    '    'Dim menuToolbarOption As Integer = swCommandItemType_e.swMenuItem Or swCommandItemType_e.swToolbarItem
+
+    '    'cmdIndex = {0, 1, 2} 'cmdIndex0, cmdIndex1
+    '    ''                      AddCommandItem2(Name, Position, HintString, ToolTip, ImageListIndex, CallbackFunction, EnableMethod, UserID, MenuTBOption)
+    '    'cmdIndex(0) = cmdGroup.AddCommandItem2("CreateCube", -1, "Mouseover", "Label", 0, "CreateCube", "", mainItemID(0), menuToolbarOption)
+    '    'cmdIndex(1) = cmdGroup.AddCommandItem2("Show PMP", -1, "Mouseover", "Label", 2, "ShowPMP", "PMPEnable", mainItemID(1), menuToolbarOption)
+
+    '    'cmdGroup.HasToolbar = True
+    '    'cmdGroup.HasMenu = True
+    '    'cmdGroup.Activate()
+
+    '    'Dim flyGroup1 As FlyoutGroup
+    '    ''flyGroup1 = iCmdMgr.CreateFlyoutGroup(flyoutGroupID(0), "Dynamic Flyout", "Flyout Tooltip", "Flyout Hint",
+    '    ''      cmdGroup.SmallMainIcon, cmdGroup.LargeMainIcon, cmdGroup.SmallIconList, cmdGroup.LargeIconList, "FlyoutCallback", "FlyoutEnable")
+    '    'flyGroup1 = iCmdMgr.CreateFlyoutGroup(flyoutGroupID(0), "Dynamic Flyout", "Flyout Tooltip", "Flyout Hint",
+    '    '      cmdGroup.SmallMainIcon, cmdGroup.LargeMainIcon, cmdGroup.SmallIconList, cmdGroup.LargeIconList, "NoCallbackSub", "FlyoutEnable")
+    '    ''        AddCommandItem(Name,     Mouseover,  ImageListIndex,  CallbackFunction, UpdateCallbackFunction
+    '    ''flyGroup1.AddCommandItem("FlyoutCommand 1", "test", 0, "FlyoutCommandItem1", "FlyoutEnable") '"FlyoutEnable") '"FlyoutDisabled
+    '    'flyGroup1.RemoveAllCommandItems()
+    '    'flyGroup1.AddCommandItem(System.DateTime.Now.ToLongTimeString(), "test", 0, "FlyoutCommandItem1", "FlyoutEnable")
+    '    ''flyGroup1.FlyoutType = swCommandFlyoutStyle_e.swCommandFlyoutStyle_Simple
+    '    'flyGroup1.FlyoutType = 1 'swCommandFlyoutStyle_e.swCommandFlyoutStyle_Favorite
+
+    '    Dim flyGroupLock As FlyoutGroup
+    '    flyGroupLock = iCmdMgr.CreateFlyoutGroup(flyoutGroupID(0), "Lock and Checkout", "Lock/Checkout", "Lock and checkout the current document",
+    '          cmdGroup.SmallMainIcon, cmdGroup.LargeMainIcon, cmdGroup.SmallIconList, cmdGroup.LargeIconList, "NoCallbackSub", "FlyoutEnable")
+    '    flyGroupLock.RemoveAllCommandItems()
+    '    flyGroupLock.AddCommandItem("Lock/Checkout", "Lock and checkout the current document", 0, "myCheckoutActiveDoc", "FlyoutEnable")
+    '    flyGroupLock.FlyoutType = 1 'swCommandFlyoutStyle_e.swCommandFlyoutStyle_Favorite
+
+    '    Dim flyGroupCheckin As FlyoutGroup
+    '    flyGroupCheckin = iCmdMgr.CreateFlyoutGroup(flyoutGroupID(1), "Checkin", "Checkin", "Checkin the current document",
+    '          cmdGroup.SmallMainIcon, cmdGroup.LargeMainIcon, cmdGroup.SmallIconList, cmdGroup.LargeIconList, "NoCallbackSub", "FlyoutEnable")
+    '    flyGroupCheckin.RemoveAllCommandItems()
+    '    flyGroupCheckin.AddCommandItem("Checkin ActiveDoc", "Checkin the current document", 0, "myCheckinActiveDoc", "FlyoutEnable")
+    '    flyGroupCheckin.AddCommandItem("Checkin All", "Checkin Any/All documents", 0, "myCheckinAll", "FlyoutEnable")
+    '    flyGroupCheckin.FlyoutType = swCommandFlyoutStyle_e.swCommandFlyoutStyle_Favorite
+
+    '    Dim flyGroupGetLatest As FlyoutGroup
+    '    flyGroupGetLatest = iCmdMgr.CreateFlyoutGroup(flyoutGroupID(2), "Get Latest", "Get Latest", "Get The Latest Files from The Vault",
+    '          cmdGroup.SmallMainIcon, cmdGroup.LargeMainIcon, cmdGroup.SmallIconList, cmdGroup.LargeIconList, "NoCallbackSub", "FlyoutEnable")
+    '    flyGroupGetLatest.RemoveAllCommandItems()
+    '    flyGroupGetLatest.AddCommandItem("Get Latest All", "Get Latest All", 0, "myGetLatestAll", "FlyoutEnable")
+    '    flyGroupGetLatest.AddCommandItem("Get Latest Open Files Only", "Get Latest Open Docs", 0, "myGetLatestOpenOnly", "FlyoutEnable")
+    '    flyGroupGetLatest.FlyoutType = swCommandFlyoutStyle_e.swCommandFlyoutStyle_Favorite
+
+    '    For Each docType As Integer In docTypes
+    '        Dim cmdTab As ICommandTab = iCmdMgr.GetCommandTab(docType, Title)
+    '        Dim bResult As Boolean
+
+    '        If Not cmdTab Is Nothing And Not getDataResult Or ignorePrevious Then 'if tab exists, but we have ignored the registry info, re-create the tab.  Otherwise the ids won't matchup and the tab will be blank
+    '            Dim res As Boolean = iCmdMgr.RemoveCommandTab(cmdTab)
+    '            cmdTab = Nothing
+    '        End If
+
+    '        If cmdTab Is Nothing Then
+    '            cmdTab = iCmdMgr.AddCommandTab(docType, Title)
+
+    '            'Dim cmdBox0 As CommandTabBox = cmdTab.AddCommandTabBox
+
+    '            'Dim cmdIDs(cmdIndex.Length) As Integer
+    '            'Dim TextType(cmdIndex.Length) As Integer
+
+    '            'cmdIDs(0) = cmdGroup.CommandID(cmdIndex(0))
+    '            'TextType(0) = swCommandTabButtonTextDisplay_e.swCommandTabButton_TextHorizontal
+
+    '            'cmdIDs(1) = cmdGroup.CommandID(cmdIndex(1))
+    '            'TextType(1) = swCommandTabButtonTextDisplay_e.swCommandTabButton_TextHorizontal
+
+    '            'cmdIDs(2) = cmdGroup.ToolbarId
+    '            'TextType(2) = swCommandTabButtonTextDisplay_e.swCommandTabButton_TextHorizontal
+
+
+    '            'bResult = cmdBox0.AddCommands(cmdIDs, TextType)
+
+    '            Dim cmdBox1 As CommandTabBox = cmdTab.AddCommandTabBox()
+    '            Dim cmdIDs(iNumFlyoutButtons) as Integer
+    '            Dim TextType(iNumFlyoutButtons) As Integer
+
+    '            cmdIDs(0) = flyGroupLock.CmdID
+    '            TextType(0) = swCommandTabButtonTextDisplay_e.swCommandTabButton_TextBelow
+
+    '            cmdIDs(1) = flyGroupCheckin.CmdID
+    '            TextType(1) = swCommandTabButtonTextDisplay_e.swCommandTabButton_TextBelow
+
+    '            cmdIDs(2) = flyGroupGetLatest.CmdID
+    '            TextType(2) = swCommandTabButtonTextDisplay_e.swCommandTabButton_TextBelow
+
+    '            bResult = cmdBox1.AddCommands(cmdIDs, TextType)
+
+    '            cmdTab.AddSeparator(cmdBox1, cmdIDs(0))
+    '            cmdTab.AddSeparator(cmdBox1, cmdIDs(1))
+
+    '        End If
+    '    Next
+
+    '    thisAssembly = Nothing
+
+    'End Sub
+
+
+    'Public Sub RemoveCommandMgr()
+    '    Try
+    '        iBmp.Dispose()
+    '        iCmdMgr.RemoveCommandGroup(mainCmdGroupID)
+    '        For Each flyoutGroupID_element In flyoutGroupID
+    '            iCmdMgr.RemoveFlyoutGroup(flyoutGroupID_element)
+    '        Next flyoutGroupID_element
+    '    Catch e As Exception
+    '    End Try
+    'End Sub
 
 
     Function AddPMP() As Boolean
@@ -361,179 +385,134 @@ Public Class SwAddin
 #End Region
 
 #Region "Event Methods"
-    Sub AttachEventHandlers()
-        AttachSWEvents()
+    'Sub AttachEventHandlers()
+    '    AttachSWEvents()
 
-        'Listen for events on all currently open docs
-        AttachEventsToAllDocuments()
-    End Sub
+    '    'Listen for events on all currently open docs
+    '    AttachEventsToAllDocuments()
+    'End Sub
 
-    Sub DetachEventHandlers()
-        DetachSWEvents()
+    'Sub DetachEventHandlers()
+    '    DetachSWEvents()
 
-        'Close events on all currently open docs
-        Dim docHandler As DocumentEventHandler
-        Dim key As ModelDoc2
-        Dim numKeys As Integer
-        numKeys = openDocs.Count
-        If numKeys > 0 Then
-            Dim keys() As Object = New Object(numKeys - 1) {}
+    '    'Close events on all currently open docs
+    '    Dim docHandler As DocumentEventHandler
+    '    Dim key As ModelDoc2
+    '    Dim numKeys As Integer
+    '    numKeys = openDocs.Count
+    '    If numKeys > 0 Then
+    '        Dim keys() As Object = New Object(numKeys - 1) {}
 
-            'Remove all document event handlers
-            openDocs.Keys.CopyTo(keys, 0)
-            For Each key In keys
-                docHandler = openDocs.Item(key)
-                docHandler.DetachEventHandlers() 'This also removes the pair from the hash
-                docHandler = Nothing
-                key = Nothing
-            Next
-        End If
-    End Sub
+    '        'Remove all document event handlers
+    '        openDocs.Keys.CopyTo(keys, 0)
+    '        For Each key In keys
+    '            docHandler = openDocs.Item(key)
+    '            docHandler.DetachEventHandlers() 'This also removes the pair from the hash
+    '            docHandler = Nothing
+    '            key = Nothing
+    '        Next
+    '    End If
+    'End Sub
 
-    Sub AttachSWEvents()
-        Try
-            AddHandler iSwApp.ActiveDocChangeNotify, AddressOf Me.SldWorks_ActiveDocChangeNotify
-            AddHandler iSwApp.DocumentLoadNotify2, AddressOf Me.SldWorks_DocumentLoadNotify2
-            AddHandler iSwApp.FileNewNotify2, AddressOf Me.SldWorks_FileNewNotify2
-            AddHandler iSwApp.ActiveModelDocChangeNotify, AddressOf Me.SldWorks_ActiveModelDocChangeNotify
-            AddHandler iSwApp.FileOpenPostNotify, AddressOf Me.SldWorks_FileOpenPostNotify
-        Catch e As Exception
-            Console.WriteLine(e.Message)
-        End Try
-    End Sub
+    'Sub AttachSWEvents()
+    '    Try
+    '        AddHandler iSwApp.ActiveDocChangeNotify, AddressOf Me.SldWorks_ActiveDocChangeNotify
+    '        AddHandler iSwApp.DocumentLoadNotify2, AddressOf Me.SldWorks_DocumentLoadNotify2
+    '        AddHandler iSwApp.FileNewNotify2, AddressOf Me.SldWorks_FileNewNotify2
+    '        AddHandler iSwApp.ActiveModelDocChangeNotify, AddressOf Me.SldWorks_ActiveModelDocChangeNotify
+    '        AddHandler iSwApp.FileOpenPostNotify, AddressOf Me.SldWorks_FileOpenPostNotify
+    '    Catch e As Exception
+    '        Console.WriteLine(e.Message)
+    '    End Try
+    'End Sub
 
-    Sub DetachSWEvents()
-        Try
-            RemoveHandler iSwApp.ActiveDocChangeNotify, AddressOf Me.SldWorks_ActiveDocChangeNotify
-            RemoveHandler iSwApp.DocumentLoadNotify2, AddressOf Me.SldWorks_DocumentLoadNotify2
-            RemoveHandler iSwApp.FileNewNotify2, AddressOf Me.SldWorks_FileNewNotify2
-            RemoveHandler iSwApp.ActiveModelDocChangeNotify, AddressOf Me.SldWorks_ActiveModelDocChangeNotify
-            RemoveHandler iSwApp.FileOpenPostNotify, AddressOf Me.SldWorks_FileOpenPostNotify
-        Catch e As Exception
-            Console.WriteLine(e.Message)
-        End Try
-    End Sub
+    'Sub DetachSWEvents()
+    '    Try
+    '        RemoveHandler iSwApp.ActiveDocChangeNotify, AddressOf Me.SldWorks_ActiveDocChangeNotify
+    '        RemoveHandler iSwApp.DocumentLoadNotify2, AddressOf Me.SldWorks_DocumentLoadNotify2
+    '        RemoveHandler iSwApp.FileNewNotify2, AddressOf Me.SldWorks_FileNewNotify2
+    '        RemoveHandler iSwApp.ActiveModelDocChangeNotify, AddressOf Me.SldWorks_ActiveModelDocChangeNotify
+    '        RemoveHandler iSwApp.FileOpenPostNotify, AddressOf Me.SldWorks_FileOpenPostNotify
+    '    Catch e As Exception
+    '        Console.WriteLine(e.Message)
+    '    End Try
+    'End Sub
 
-    Sub AttachEventsToAllDocuments()
-        Dim modDoc As ModelDoc2
-        modDoc = iSwApp.GetFirstDocument()
-        While Not modDoc Is Nothing
-            If Not openDocs.Contains(modDoc) Then
-                AttachModelDocEventHandler(modDoc)
-            End If
-            modDoc = modDoc.GetNext()
-        End While
-    End Sub
+    'Sub AttachEventsToAllDocuments()
+    '    Dim modDoc As ModelDoc2
+    '    modDoc = iSwApp.GetFirstDocument()
+    '    While Not modDoc Is Nothing
+    '        If Not openDocs.Contains(modDoc) Then
+    '            AttachModelDocEventHandler(modDoc)
+    '        End If
+    '        modDoc = modDoc.GetNext()
+    '    End While
+    'End Sub
 
-    Function AttachModelDocEventHandler(ByVal modDoc As ModelDoc2) As Boolean
-        If modDoc Is Nothing Then
-            Return False
-        End If
-        Dim docHandler As DocumentEventHandler = Nothing
+    'Function AttachModelDocEventHandler(ByVal modDoc As ModelDoc2) As Boolean
+    '    If modDoc Is Nothing Then
+    '        Return False
+    '    End If
+    '    Dim docHandler As DocumentEventHandler = Nothing
 
-        If Not openDocs.Contains(modDoc) Then
-            Select Case modDoc.GetType
-                Case swDocumentTypes_e.swDocPART
-                    docHandler = New PartEventHandler()
-                Case swDocumentTypes_e.swDocASSEMBLY
-                    docHandler = New AssemblyEventHandler()
-                Case swDocumentTypes_e.swDocDRAWING
-                    docHandler = New DrawingEventHandler()
-            End Select
+    '    If Not openDocs.Contains(modDoc) Then
+    '        Select Case modDoc.GetType
+    '            Case swDocumentTypes_e.swDocPART
+    '                docHandler = New PartEventHandler()
+    '            Case swDocumentTypes_e.swDocASSEMBLY
+    '                docHandler = New AssemblyEventHandler()
+    '            Case swDocumentTypes_e.swDocDRAWING
+    '                docHandler = New DrawingEventHandler()
+    '        End Select
 
-            docHandler.Init(iSwApp, Me, modDoc)
-            docHandler.AttachEventHandlers()
-            openDocs.Add(modDoc, docHandler)
-        End If
-    End Function
+    '        docHandler.Init(iSwApp, Me, modDoc)
+    '        docHandler.AttachEventHandlers()
+    '        openDocs.Add(modDoc, docHandler)
+    '    End If
+    'End Function
 
-    Sub DetachModelEventHandler(ByVal modDoc As ModelDoc2)
-        Dim docHandler As DocumentEventHandler
-        docHandler = openDocs.Item(modDoc)
-        openDocs.Remove(modDoc)
-        modDoc = Nothing
-        docHandler = Nothing
-    End Sub
+    'Sub DetachModelEventHandler(ByVal modDoc As ModelDoc2)
+    '    Dim docHandler As DocumentEventHandler
+    '    docHandler = openDocs.Item(modDoc)
+    '    openDocs.Remove(modDoc)
+    '    modDoc = Nothing
+    '    docHandler = Nothing
+    'End Sub
 #End Region
 
 #Region "Event Handlers"
-    Function SldWorks_ActiveDocChangeNotify() As Integer
-        'TODO: Add your implementation here
-    End Function
+    'Function SldWorks_ActiveDocChangeNotify() As Integer
+    '    'TODO: Add your implementation here
+    'End Function
 
-    Function SldWorks_DocumentLoadNotify2(ByVal docTitle As String, ByVal docPath As String) As Integer
+    'Function SldWorks_DocumentLoadNotify2(ByVal docTitle As String, ByVal docPath As String) As Integer
 
-    End Function
+    'End Function
 
-    Function SldWorks_FileNewNotify2(ByVal newDoc As Object, ByVal doctype As Integer, ByVal templateName As String) As Integer
-        AttachEventsToAllDocuments()
-    End Function
+    'Function SldWorks_FileNewNotify2(ByVal newDoc As Object, ByVal doctype As Integer, ByVal templateName As String) As Integer
+    '    AttachEventsToAllDocuments()
+    'End Function
 
-    Function SldWorks_ActiveModelDocChangeNotify() As Integer
-        'TODO: Add your implementation here
-    End Function
+    'Function SldWorks_ActiveModelDocChangeNotify() As Integer
+    '    'TODO: Add your implementation here
+    'End Function
 
-    Function SldWorks_FileOpenPostNotify(ByVal FileName As String) As Integer
-        AttachEventsToAllDocuments()
-    End Function
+    'Function SldWorks_FileOpenPostNotify(ByVal FileName As String) As Integer
+    '    AttachEventsToAllDocuments()
+    'End Function
 #End Region
 
 #Region "UI Callbacks"
-    Sub CreateCube()
-
-        'make sure we have a part open
-        Dim partTemplate As String
-        Dim model As ModelDoc2
-        Dim featMan As FeatureManager
-
-        partTemplate = iSwApp.GetUserPreferenceStringValue(swUserPreferenceStringValue_e.swDefaultTemplatePart)
-        If Not partTemplate = "" Then
-            model = iSwApp.NewDocument(partTemplate, swDwgPaperSizes_e.swDwgPaperA2size, 0.0, 0.0)
-
-            model.InsertSketch2(True)
-            model.SketchRectangle(0, 0, 0, 0.1, 0.1, 0.1, False)
-
-            'Extrude the sketch
-            featMan = model.FeatureManager
-            featMan.FeatureExtrusion(True, _
-                                      False, False, _
-                                      swEndConditions_e.swEndCondBlind, swEndConditions_e.swEndCondBlind, _
-                                      0.1, 0.0, _
-                                      False, False, _
-                                      False, False, _
-                                      0.0, 0.0, _
-                                      False, False, _
-                                      False, False, _
-                                      True, _
-                                      False, False)
-        Else
-            System.Windows.Forms.MessageBox.Show("There is no part template available. Please check your options and make sure there is a part template selected, or select a new part template.")
-        End If
-    End Sub
-    Sub ShowPMP()
-        If Not ppage Is Nothing Then
-            ppage.Show()
-        End If
-    End Sub
-
-    Function PMPEnable() As Integer
-        If iSwApp.ActiveDoc Is Nothing Then
-            PMPEnable = 0
-        Else
-            PMPEnable = 1
-        End If
-    End Function
     Sub myUnlockActive()
         unlockDocs(iSwApp.ActiveDoc())
     End Sub
-    Sub myUnlockActiveWithDependents()
+    Sub myUnlockWithDependents()
         unlockDocs(getComponentsOfAssembly(iSwApp.ActiveDoc()))
     End Sub
     Sub myUnlockAll()
         Dim bSuccess As Boolean = runTortoiseProcexeWithMonitor("/command:unlock /path:" & sRepoLocalPath & " /closeonend:3")
         If Not bSuccess Then iSwApp.SendMsgToUser("Releasing Locks Failed.")
     End Sub
-
     Sub unlockDocs(ByRef modDocArr() As ModelDoc2)
         Dim bSuccess As Boolean = runTortoiseProcexeWithMonitor("/command:unlock /path:" &
                                          formatFilePathArrForTortoiseProc(
@@ -542,8 +521,7 @@ Public Class SwAddin
         If Not bSuccess Then iSwApp.SendMsgToUser("Releasing Locks Failed.")
 
     End Sub
-
-    Sub myCheckinActiveDocWithDependents()
+    Sub myCheckinWithDependents()
         Dim modDocArr1() As ModelDoc2 = {iSwApp.ActiveDoc()}
         If modDocArr1(0).GetType = swDocumentTypes_e.swDocASSEMBLY Then
             checkInDocs(getComponentsOfAssembly(modDocArr1(0)))
@@ -551,7 +529,6 @@ Public Class SwAddin
             checkInDocs(modDocArr1)
         End If
     End Sub
-
     Sub checkInDocs(ByRef modDocsArr() As ModelDoc2)
 
         'Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()
@@ -591,7 +568,6 @@ Public Class SwAddin
         setReadWriteFromLockStatus(modDocArr)
 
     End Sub
-
     Sub myCheckinAll()
         Dim bSuccess As Boolean
         'Dim OpenDocPathList() As String
@@ -615,7 +591,6 @@ Public Class SwAddin
         setReadWriteFromLockStatus(OpenDocModels)
 
     End Sub
-
     Sub myCheckoutActiveDoc()
         checkoutDocs({iSwApp.ActiveDoc()})
     End Sub
@@ -636,7 +611,6 @@ Public Class SwAddin
                        "to open a file that SolidWorks is currently accessing. This occurs even when the file is read only. " &
                        "Try closing all open files and trying again. Or close SolidWorks and use ToroiseSVN to clean up. ")
     End Sub
-
     Sub checkoutDocs(ByRef modDocArr() As ModelDoc2)
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()
         'Dim modDocArr() As ModelDoc2 = {modDoc}
@@ -712,15 +686,12 @@ Public Class SwAddin
         setReadWriteFromLockStatus(modDocArr)
 
     End Sub
-
-    Sub myGetLatestAll()
+    Sub myGetLatestAllRepo()
         myGetLatest(1)
     End Sub
-
     Sub myGetLatestOpenOnly()
         myGetLatest(0)
     End Sub
-
     Sub myGetLatest(ByVal updateClosedDocs As Integer)
         'Dim bSuccess As Boolean
         'Dim OpenDocPathList() As String
@@ -807,15 +778,12 @@ Public Class SwAddin
     Sub NoCallbackSub()
 
     End Sub
-
     Sub FlyoutCommandItem1()
         iSwApp.SendMsgToUser("Flyout command 1")
     End Sub
-
     Function FlyoutEnable() As Integer
         Return 1
     End Function
-
     Function FlyoutDisable() As Integer
         Return 0
     End Function
