@@ -68,12 +68,14 @@ Public Class PartEventHandler
     Inherits DocumentEventHandler
 
     Dim WithEvents iPart As PartDoc
+    Dim swAddin As SwAddin
 
     Overrides Function Init(ByVal sw As SldWorks, ByVal addin As SwAddin, ByVal model As ModelDoc2) As Boolean
         userAddin = addin
         iPart = model
         iDocument = iPart
         iSwApp = sw
+        swAddin = addin
     End Function
 
     Overrides Function AttachEventHandlers() As Boolean
@@ -93,7 +95,13 @@ Public Class PartEventHandler
     End Function
 
     Function PartDoc_ActiveModelDocChangeNotify() As Integer
-        'TODO add in for part as well
+        Dim UC1 As UserControl1 = swAddin.myTaskPaneHost
+        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
+        Dim status As UserControl1.SVNStatus
+
+        status = UC1.getFileSVNStatus(bCheckServer:=False, UC1.getComponentsOfAssemblyOptionalUpdateTree(modDoc))
+        UC1.getComponentsOfAssemblyOptionalUpdateTree(modDoc, status)
+
     End Function
 
     Function PartDoc_DestroyNotify() As Integer
@@ -129,7 +137,7 @@ Public Class AssemblyEventHandler
         AddHandler iAssembly.ComponentVisualPropertiesChangeNotify, AddressOf Me.AssemblyDoc_ComponentVisiblePropertiesChangeNotify
         AddHandler iAssembly.ComponentDisplayStateChangeNotify, AddressOf Me.AssemblyDoc_ComponentDisplayStateChangeNotify
         AddHandler iSwApp.ActiveModelDocChangeNotify, AddressOf Me.AssemblyDoc_ActiveModelDocChangeNotify
-
+        AddHandler iSwApp.FileOpenPostNotify, AddressOf Me.DSldWorksEvents_FileOpenPostNotifyEventHandler
 
         ConnectModelViews()
     End Function
@@ -142,20 +150,31 @@ Public Class AssemblyEventHandler
         RemoveHandler iAssembly.ComponentVisualPropertiesChangeNotify, AddressOf Me.AssemblyDoc_ComponentVisiblePropertiesChangeNotify
         RemoveHandler iAssembly.ComponentDisplayStateChangeNotify, AddressOf Me.AssemblyDoc_ComponentDisplayStateChangeNotify
         RemoveHandler iSwApp.ActiveModelDocChangeNotify, AddressOf Me.AssemblyDoc_ActiveModelDocChangeNotify
+        RemoveHandler iSwApp.FileOpenPostNotify, AddressOf Me.DSldWorksEvents_FileOpenPostNotifyEventHandler
 
         DisconnectModelViews()
 
         userAddin.DetachModelEventHandler(iDocument)
     End Function
     Function AssemblyDoc_ActiveModelDocChangeNotify() As Integer
-        'TODO add in code
-        'iSwApp.SendMsgToUser("handler called")
         Dim UC1 As UserControl1 = swAddin.myTaskPaneHost
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
-        UC1.TreeView1.Nodes.Clear()
-        UC1.getComponentsOfAssembly(modDoc, UC1)
+        Dim status As UserControl1.SVNStatus
 
+        status = UC1.getFileSVNStatus(bCheckServer:=False, UC1.getComponentsOfAssemblyOptionalUpdateTree(modDoc))
+
+        UC1.getComponentsOfAssemblyOptionalUpdateTree(modDoc, status)
     End Function
+    Function DSldWorksEvents_FileOpenPostNotifyEventHandler() As Integer
+        Dim UC1 As UserControl1 = swAddin.myTaskPaneHost
+        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
+        Dim status As UserControl1.SVNStatus
+
+        status = UC1.getFileSVNStatus(bCheckServer:=False, UC1.getComponentsOfAssemblyOptionalUpdateTree(modDoc))
+
+        UC1.getComponentsOfAssemblyOptionalUpdateTree(modDoc, status)
+    End Function
+
     Function AssemblyDoc_DestroyNotify() As Integer
         DetachEventHandlers()
     End Function

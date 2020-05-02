@@ -6,6 +6,7 @@ Imports SolidWorks.Interop.swconst
 
 Imports System.Collections.Generic
 Imports System.Windows.Forms
+Imports System.Drawing
 
 <ProgId("SVN_AddIn")>
 Public Class UserControl1
@@ -61,23 +62,29 @@ Public Class UserControl1
     Private Sub StatusStrip2_ItemClicked(sender As Object, e As Windows.Forms.ToolStripItemClickedEventArgs) Handles StatusStrip2.ItemClicked
         updateStatusStrip()
     End Sub
+    Private Sub butCleanup_Click(sender As Object, e As EventArgs) Handles butCleanup.Click
+        myCleanupAndRelease()
+    End Sub
+    Private Sub butStatus_Click(sender As Object, e As EventArgs) Handles butStatus.Click
+        myRepoStatus()
+    End Sub
     Public Sub updateStatusStrip()
         Dim modDoc() As ModelDoc2 = {iSwApp.ActiveDoc}
         'Doesn't check the server because thats faster... But then it wont know if someone else has is checked out
-        Dim status As SVNStatus = getFileSVNStatus(bCheckServer:=False, Nothing, modDoc)
+        Dim status As SVNStatus = getFileSVNStatus(bCheckServer:=False, modDoc)
+        Dim myCol As myColours = New myColours()
+        myCol.initialize()
         If status.fp(0).lock6 = "K" Then
             StatusStrip2.Text = "Locked by you"
-            StatusStrip2.BackColor = Drawing.Color.Aqua
+            StatusStrip2.BackColor = myCol.lockedByYou
         ElseIf status.fp(0).lock6 = "O" Then
             StatusStrip2.Text = "Locked By someone Else"
-            StatusStrip2.BackColor = Drawing.Color.Red
+            StatusStrip2.BackColor = myCol.lockedBySomeoneElse
         ElseIf status.fp(0).lock6 = " " Then
             StatusStrip2.Text = "Available"
-            StatusStrip2.BackColor = Drawing.Color.Goldenrod
+            StatusStrip2.BackColor = myCol.available
         End If
-
     End Sub
-
     '============= Start sub definitions
 
     Public Sub myUnlockActive()
@@ -94,7 +101,7 @@ Public Class UserControl1
         If modDoc(0).GetType <> swDocumentTypes_e.swDocASSEMBLY Then
             unlockDocs(modDoc)
         Else
-            unlockDocs(getComponentsOfAssembly(modDoc(0)))
+            unlockDocs(getComponentsOfAssemblyOptionalUpdateTree(modDoc(0)))
         End If
     End Sub
     Sub myUnlockAll()
@@ -105,7 +112,7 @@ Public Class UserControl1
     End Sub
     Sub unlockDocs(ByRef modDocArr() As ModelDoc2)
 
-        Dim Status As SVNStatus = getFileSVNStatus(bCheckServer:=True, Nothing, modDocArr)
+        Dim Status As SVNStatus = getFileSVNStatus(bCheckServer:=True, modDocArr)
 
 
         Dim bSuccess As Boolean = runTortoiseProcexeWithMonitor("/command:unlock /path:" &
@@ -114,9 +121,10 @@ Public Class UserControl1
 
         If Not bSuccess Then iSwApp.SendMsgToUserv("Releasing Locks Failed.")
 
-        Status = getFileSVNStatus(bCheckServer:=False, Nothing, modDocArr)
+        Status = getFileSVNStatus(bCheckServer:=False, modDocArr)
         Status.setReadWriteFromLockStatus()
         Status.releaseFileSystemAccessToReadOnlyModels()
+        getComponentsOfAssemblyOptionalUpdateTree(iSwApp.ActiveDoc, Status)
 
         bSuccess = runTortoiseProcexeWithMonitor("/command:revert /path:" &
                                          formatFilePathArrForTortoiseProc(
@@ -144,7 +152,7 @@ Public Class UserControl1
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found")
 
         If modDoc.GetType = swDocumentTypes_e.swDocASSEMBLY Then
-            modDocArr1 = getComponentsOfAssembly(modDoc)
+            modDocArr1 = getComponentsOfAssemblyOptionalUpdateTree(modDoc)
             bRequired = createBoolArray(UBound(modDocArr1), False)
             bRequired(0) = True
             checkInDocs(modDocArr1, bRequired)
@@ -193,9 +201,9 @@ Public Class UserControl1
                                                  formatFilePathArrForTortoiseProc(
                                                     getFilePathsFromModDocArr(modDocArr)) & " /closeonend:3")
 
-        Dim mySVNStatus As SVNStatus = getFileSVNStatus(bCheckServer:=True, Nothing, modDocArr) 'Error when checking in Assembly. 
+        Dim mySVNStatus As SVNStatus = getFileSVNStatus(bCheckServer:=True, modDocArr) 'Error when checking in Assembly. 
         mySVNStatus.setReadWriteFromLockStatus()
-
+        getComponentsOfAssemblyOptionalUpdateTree(iSwApp.ActiveDoc, mySVNStatus)
     End Sub
     Public Sub myCheckinAll()
         Dim bSuccess As Boolean
@@ -204,7 +212,7 @@ Public Class UserControl1
         'Dim i As Integer
         'Dim index As Integer
 
-        iswApp.RunCommand(19, vbEmpty) 'Save All
+        iSwApp.RunCommand(19, vbEmpty) 'Save All
 
         bSuccess = runTortoiseProcexeWithMonitor("/command:commit /path:""" & sRepoLocalPath & """ /closeonend:3")
         If Not bSuccess Then
@@ -217,8 +225,9 @@ Public Class UserControl1
 
         'Dim sOpenDocPath() As String = getFilePathsFromModDocArr(OpenDocModels)
 
-        Dim mySVNStatus As SVNStatus = getFileSVNStatus(bCheckServer:=True, Nothing, OpenDocModels)
+        Dim mySVNStatus As SVNStatus = getFileSVNStatus(bCheckServer:=True, OpenDocModels)
         mySVNStatus.setReadWriteFromLockStatus()
+        getComponentsOfAssemblyOptionalUpdateTree(iSwApp.ActiveDoc, mySVNStatus)
 
     End Sub
     Public Sub myCheckoutActiveDoc()
@@ -231,11 +240,15 @@ Public Class UserControl1
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found")
 
-        checkoutDocs(getComponentsOfAssembly(modDoc))
+        checkoutDocs(getComponentsOfAssemblyOptionalUpdateTree(modDoc))
     End Sub
     Sub myRepoStatus()
         Dim bSuccess As Boolean
-        bSuccess = runTortoiseProcexeWithMonitor("/command:repostatus /path:" & sRepoLocalPath & " /remote")
+        Dim modDocArr() As ModelDoc2 = getComponentsOfAssemblyOptionalUpdateTree(iSwApp.ActiveDoc)
+        'HELP
+        bSuccess = runTortoiseProcexeWithMonitor("/command:repostatus /path:" &
+                                                 formatFilePathArrForTortoiseProc(modDocArr) &
+                                                 " /remote")
         If Not bSuccess Then iswApp.SendMsgToUser("Status Check Failed.")
     End Sub
     Sub myCleanupAndRelease()
@@ -243,6 +256,7 @@ Public Class UserControl1
 
         Dim mySVNStatus As SVNStatus = getFileSVNStatus(bCheckServer:=True)
         mySVNStatus.setReadWriteFromLockStatus()
+        getComponentsOfAssemblyOptionalUpdateTree(iSwApp.ActiveDoc, mySVNStatus)
         'setReadWriteFromLockStatus(getAllOpenDocs(bMustBeVisible:=False))
 
         bSuccess = runTortoiseProcexeWithMonitor("/command:cleanup /cleanup /path:" & sRepoLocalPath)
@@ -270,7 +284,7 @@ Public Class UserControl1
         ''objReader.Close()
         ''My.Computer.FileSystem.DeleteFile(sTempFileName)
         'Debug.Print(sTempFileName)
-        status = getFileSVNStatus(bCheckServer:=True, Nothing, modDocArr)
+        status = getFileSVNStatus(bCheckServer:=True, modDocArr)
 
 
 
@@ -318,9 +332,9 @@ Public Class UserControl1
         End If
         bSuccess = runTortoiseProcexeWithMonitor("/command:lock /path:" & formatFilePathArrForTortoiseProc(sDocPathsToCheckout) & " /closeonend:3")
 
-        status = getFileSVNStatus(bCheckServer:=False, Nothing, modDocArr)
+        status = getFileSVNStatus(bCheckServer:=False, modDocArr)
         status.setReadWriteFromLockStatus()
-
+        getComponentsOfAssemblyOptionalUpdateTree(iSwApp.ActiveDoc, status)
     End Sub
     Function catWithNewLine(stringArr() As String) As String
         Dim i As Integer
@@ -356,7 +370,7 @@ Public Class UserControl1
         'If Not openDocModels Is Nothing Then
         '    Dim sOpenDocPath() As String = getFilePathsFromModDocArr(openDocModels)
         'End If
-        Dim mySVNStatus As SVNStatus = getFileSVNStatus(bCheckServer:=True, Nothing, openDocModels)
+        Dim mySVNStatus As SVNStatus = getFileSVNStatus(bCheckServer:=True, openDocModels)
 
         Dim sFileList(UBound(mySVNStatus.fp)) As String
 
@@ -382,6 +396,7 @@ Public Class UserControl1
         Next
 
         mySVNStatus.setReadWriteFromLockStatus()
+        getComponentsOfAssemblyOptionalUpdateTree(iSwApp.ActiveDoc, mySVNStatus)
 
         If j = 0 Then iSwApp.SendMsgToUser("All Files Checked Are Up to Date!") : Exit Sub
 
@@ -462,7 +477,7 @@ Public Class UserControl1
         ReDim Preserve modDocOutput(i - 1)
         Return modDocOutput
     End Function
-    Function formatFilePathArrForTortoiseProc(ByRef sFilePathArr() As String) As String
+    Overloads Function formatFilePathArrForTortoiseProc(ByRef sFilePathArr() As String) As String
         Dim sFilePathCat As String = """" & sFilePathArr(0)
         For i = 0 To sFilePathArr.Length - 1
             If sFilePathArr(i) Is Nothing Then Continue For
@@ -471,6 +486,16 @@ Public Class UserControl1
         sFilePathCat &= """"
         Return sFilePathCat
     End Function
+    Overloads Function formatFilePathArrForTortoiseProc(ByRef modDocArr() As ModelDoc2) As String
+        Dim sFilePathCat As String = """" & modDocArr(0).GetPathName
+        For i = 1 To UBound(modDocArr)
+            If modDocArr(i) Is Nothing Then Continue For
+            sFilePathCat &= "*" & modDocArr(i).GetPathName
+        Next
+        sFilePathCat &= """"
+        Return sFilePathCat
+    End Function
+
     Function runTortoiseProcexeWithMonitor(ByRef sArguments As String) As Boolean
         ' See https://tortoisesvn.net/docs/release/TortoiseSVN_en/tsvn-automation.html
         Dim oTortProcess As New Process()
@@ -530,9 +555,9 @@ Public Class UserControl1
         unknown
     End Enum
 
-    Function getFileSVNStatus(ByVal bCheckServer As Boolean,
-                              Optional ByVal sFilePath() As String = Nothing,
+    Public Function getFileSVNStatus(ByVal bCheckServer As Boolean,
                               Optional ByRef modDocArr() As ModelDoc2 = Nothing,
+                              Optional ByVal sFilePath() As String = Nothing,
                               Optional ByVal iRecursiveLevel As Integer = 0) As SVNStatus
         'Pass sFilePath = Create from the file path
         'Pass modDocArr = create from the modDocArr
@@ -634,7 +659,7 @@ Public Class UserControl1
                     End If
                     'Open a log in, and then try again. 
                     runTortoiseProcexeWithMonitor("/command:repostatus /remote /path:" & sRepoLocalPath) 'log in
-                    Return getFileSVNStatus(bCheckServer, sFilePath, iRecursiveLevel:=1)
+                    Return getFileSVNStatus(bCheckServer, modDocArr, sFilePath, iRecursiveLevel:=1)
                 End If
             End If
         End If
@@ -742,18 +767,38 @@ Public Class UserControl1
         Next
         Return -1
     End Function
+    Function findStatusForFile(ByRef sFileName As String, ByRef status As SVNStatus) As SVNStatus
+        Dim i As Integer
+        Dim output As SVNStatus = New SVNStatus()
 
-    Function getComponentsOfAssembly(ByRef modDoc As ModelDoc2, Optional ByRef UC As UserControl1 = Nothing) As ModelDoc2()
-        Dim bUC As Boolean = If(UC Is Nothing, False, True)
-        Dim sFileNameTemp As String = System.IO.Path.GetFileNameWithoutExtension(modDoc.GetPathName)
+        ReDim output.fp(0)
+        ReDim output.statError(UBound(status.statError))
+        output.statError = status.statError
+        For i = 0 To UBound(status.fp)
+            If (Strings.InStr(status.fp(i).filename, sFileName, CompareMethod.Text) <> 0) Then Exit For
+        Next
+        If i = (UBound(status.fp) + 1) Then Return Nothing
+        output.fp(0) = status.fp(i)
+        Return output
+    End Function
+
+    Public Function getComponentsOfAssemblyOptionalUpdateTree(
+                                    ByRef modDoc As ModelDoc2,
+                                    Optional mySVNStatus As SVNStatus = Nothing) As ModelDoc2()
+        Dim bUC As Boolean = If(mySVNStatus Is Nothing, False, True)
+        Dim sFileNameTemp As String = System.IO.Path.GetFileName(modDoc.GetPathName)
         Dim parentNode As TreeNode = Nothing
 
         If bUC Then
+            TreeView1.Nodes.Clear()
             parentNode = New TreeNode(sFileNameTemp)
-            UC.TreeView1.Nodes.Add(parentNode)
         End If
 
         If modDoc.GetType <> swDocumentTypes_e.swDocASSEMBLY Then
+            If bUC Then
+                setNodeColorFromStatus(parentNode, mySVNStatus)
+                TreeView1.Nodes.Add(parentNode)
+            End If
             Return {modDoc}
             'iswApp.SendMsgToUser("Error: Model is not an assembly.")
             'Throw New System.Exception("modDoc is not an Assembly")
@@ -768,24 +813,11 @@ Public Class UserControl1
         swConf = swConfMgr.ActiveConfiguration
         swRootComp = swConf.GetRootComponent3(True)
 
-        TraverseComponent(swRootComp, mdComponentList, 1, parentNode)
-        'Dim i As Integer = 0
-        'Dim swFeat As IFeature
-        'Dim entity As Entity
-        'Dim component As IComponent2
-
-        'swFeat = modDoc.FirstFeature
-
-        'While Not swFeat Is Nothing
-        '    entity = swFeat
-        '    If entity.GetType = swSelectType_e.swSelCOMPONENTS Then
-        '        component = swFeat.GetSpecificFeature2
-        '        mdComponentList.Add(component.GetModelDoc2)
-        '    End If
-        '    swFeat = modDoc.GetNextFeature
-        'End While
+        TraverseComponent(swRootComp, mdComponentList, 1, parentNode, mySVNStatus)
 
         Dim mdComponentArr() As ModelDoc2 = mdComponentList.ToArray
+        If bUC Then TreeView1.Nodes.Add(parentNode) : TreeView1.ExpandAll()
+
         Return mdComponentArr
     End Function
 
@@ -793,7 +825,8 @@ Public Class UserControl1
                          ByRef swComp As Component2,
                          ByRef mdComponentList As List(Of ModelDoc2),
                          ByVal nLevel As Long,
-                         Optional ByRef rootNode As TreeNode = Nothing)
+                         Optional ByRef rootNode As TreeNode = Nothing,
+                         Optional mySVNStatus As SVNStatus = Nothing)
 
         'https://help.solidworks.com/2016/English/api/sldworksapi/Traverse_Assembly_at_Component_and_Feature_Levels_Using_Recursion_Example_VBNET.htm
         Dim bUC As Boolean = If(rootNode Is Nothing, False, True)
@@ -803,12 +836,21 @@ Public Class UserControl1
         Dim i As Long
         Dim modDocChild As ModelDoc2
         Dim sChildFileName As String
-        Dim ParentNode As Object = Nothing
+        Dim parentNode As TreeNode = Nothing
+        Dim childNode As TreeNode = Nothing
         Dim modDocParent As ModelDoc2 = swComp.GetModelDoc2
-        Dim sParentFileName As String = modDocParent.GetPathName
+        Dim sParentFileName As String = System.IO.Path.GetFileName(modDocParent.GetPathName)
+        Dim tempStatus As SVNStatus = New SVNStatus()
 
         mdComponentList.Add(modDocParent)
-        If bUC Then ParentNode = New TreeNode(sParentFileName)
+        If bUC Then
+            'If nLevel = 1 Then
+            'ParentNode = rootNode
+            'Else
+            parentNode = New TreeNode(sParentFileName)
+            setNodeColorFromStatus(parentNode, mySVNStatus)
+            'End If
+        End If
 
         vChildComp = swComp.GetChildren
         For i = 0 To UBound(vChildComp)
@@ -816,9 +858,12 @@ Public Class UserControl1
             modDocChild = swChildComp.GetModelDoc2
             If modDocChild.GetType <> swDocumentTypes_e.swDocASSEMBLY Then
                 'Is part file
+                If mdComponentList.Contains(modDocChild) Then Continue For 'avoid duplicates
                 If bUC Then
-                    sChildFileName = System.IO.Path.GetFileNameWithoutExtension(modDocChild.GetPathName)
-                    ParentNode.nodes.Add(sChildFileName)
+                    sChildFileName = System.IO.Path.GetFileName(modDocChild.GetPathName)
+                    childNode = New TreeNode(sChildFileName)
+                    setNodeColorFromStatus(childNode, mySVNStatus)
+                    parentNode.Nodes.Add(childNode)
                 End If
 
                 mdComponentList.Add(modDocChild)
@@ -828,9 +873,50 @@ Public Class UserControl1
             End If
         Next i
 
-        If bUC Then rootNode.Nodes.Add(ParentNode)
+        If bUC Then
+            If nLevel = 1 Then
+                rootNode = ParentNode
+            Else
+                rootNode.Nodes.Add(ParentNode)
+            End If
+        End If
 
     End Sub
+    Sub setNodeColorFromStatus(
+        ByRef rootNode As TreeNode,
+        ByRef mySVNStatus As SVNStatus)
+        Dim myCol As myColours = New myColours()
+        myCol.initialize()
+
+        Dim status1 As SVNStatus = findStatusForFile(rootNode.Text, mySVNStatus)
+        If status1 Is Nothing Then
+            rootNode.BackColor = myCol.unknown
+        ElseIf status1.fp(0).lock6 = "K" Then
+            rootNode.BackColor = myCol.lockedByYou
+        ElseIf status1.fp(0).upToDate9 = "*" Then
+            rootNode.BackColor = myCol.outOfDate
+        ElseIf status1.fp(0).lock6 = "O" Then
+            rootNode.BackColor = myCol.lockedBySomeoneElse
+        ElseIf status1.fp(0).lock6 = " " Then
+            rootNode.BackColor = myCol.available
+        Else
+            rootNode.BackColor = myCol.unknown
+        End If
+    End Sub
+    Class myColours
+        Public lockedByYou As Drawing.Color
+        Public lockedBySomeoneElse As Drawing.Color
+        Public available As Drawing.Color
+        Public unknown As Drawing.Color
+        Public outOfDate As Drawing.Color
+        Public Sub initialize()
+            lockedByYou = Drawing.Color.Aquamarine
+            lockedBySomeoneElse = Drawing.Color.Khaki
+            available = Drawing.Color.Bisque
+            unknown = Drawing.Color.LightGray
+            outOfDate = Drawing.Color.FromArgb(255, 77, 77) 'light red
+        End Sub
+    End Class
     Class SVNStatus
         Public fp(0) As filePpty
         Public statError(0) As statusError

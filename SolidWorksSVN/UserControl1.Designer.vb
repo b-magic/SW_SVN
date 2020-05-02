@@ -22,6 +22,7 @@ Partial Class UserControl1
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
+        Me.components = New System.ComponentModel.Container()
         Me.butCheckinWithDependents = New System.Windows.Forms.Button()
         Me.butCheckinAll = New System.Windows.Forms.Button()
         Me.butUnlockWithDependents = New System.Windows.Forms.Button()
@@ -32,6 +33,9 @@ Partial Class UserControl1
         Me.butGetLatestAllRepo = New System.Windows.Forms.Button()
         Me.StatusStrip2 = New System.Windows.Forms.StatusStrip()
         Me.TreeView1 = New System.Windows.Forms.TreeView()
+        Me.ContextMenuStrip1 = New System.Windows.Forms.ContextMenuStrip(Me.components)
+        Me.butCleanup = New System.Windows.Forms.Button()
+        Me.butStatus = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'butCheckinWithDependents
@@ -128,15 +132,44 @@ Partial Class UserControl1
         '
         'TreeView1
         '
-        Me.TreeView1.Location = New System.Drawing.Point(6, 409)
+        Me.TreeView1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
+            Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.TreeView1.Location = New System.Drawing.Point(6, 589)
         Me.TreeView1.Name = "TreeView1"
-        Me.TreeView1.Size = New System.Drawing.Size(628, 297)
+        Me.TreeView1.Size = New System.Drawing.Size(639, 388)
         Me.TreeView1.TabIndex = 10
+        '
+        'ContextMenuStrip1
+        '
+        Me.ContextMenuStrip1.ImageScalingSize = New System.Drawing.Size(32, 32)
+        Me.ContextMenuStrip1.Name = "ContextMenuStrip1"
+        Me.ContextMenuStrip1.Size = New System.Drawing.Size(61, 4)
+        '
+        'butCleanup
+        '
+        Me.butCleanup.Location = New System.Drawing.Point(6, 504)
+        Me.butCleanup.Name = "butCleanup"
+        Me.butCleanup.Size = New System.Drawing.Size(148, 79)
+        Me.butCleanup.TabIndex = 12
+        Me.butCleanup.Text = "Cleanup"
+        Me.butCleanup.UseVisualStyleBackColor = True
+        '
+        'butStatus
+        '
+        Me.butStatus.Location = New System.Drawing.Point(166, 504)
+        Me.butStatus.Name = "butStatus"
+        Me.butStatus.Size = New System.Drawing.Size(148, 79)
+        Me.butStatus.TabIndex = 13
+        Me.butStatus.Text = "Status"
+        Me.butStatus.UseVisualStyleBackColor = True
         '
         'UserControl1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(12.0!, 25.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
+        Me.Controls.Add(Me.butStatus)
+        Me.Controls.Add(Me.butCleanup)
         Me.Controls.Add(Me.TreeView1)
         Me.Controls.Add(Me.StatusStrip2)
         Me.Controls.Add(Me.butGetLatestAllRepo)
@@ -165,4 +198,7 @@ Partial Class UserControl1
     Friend WithEvents butGetLatestAllRepo As Windows.Forms.Button
     Friend WithEvents StatusStrip2 As Windows.Forms.StatusStrip
     Friend WithEvents TreeView1 As Windows.Forms.TreeView
+    Friend WithEvents ContextMenuStrip1 As Windows.Forms.ContextMenuStrip
+    Friend WithEvents butCleanup As Windows.Forms.Button
+    Friend WithEvents butStatus As Windows.Forms.Button
 End Class
