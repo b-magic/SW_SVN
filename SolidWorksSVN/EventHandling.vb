@@ -79,16 +79,21 @@ Public Class PartEventHandler
     Overrides Function AttachEventHandlers() As Boolean
         AddHandler iPart.DestroyNotify, AddressOf Me.PartDoc_DestroyNotify
         AddHandler iPart.NewSelectionNotify, AddressOf Me.PartDoc_NewSelectionNotify
+        AddHandler iSwApp.ActiveModelDocChangeNotify, AddressOf Me.PartDoc_ActiveModelDocChangeNotify
         ConnectModelViews()
     End Function
 
     Overrides Function DetachEventHandlers() As Boolean
         RemoveHandler iPart.DestroyNotify, AddressOf Me.PartDoc_DestroyNotify
         RemoveHandler iPart.NewSelectionNotify, AddressOf Me.PartDoc_NewSelectionNotify
-
+        RemoveHandler iSwApp.ActiveModelDocChangeNotify, AddressOf Me.PartDoc_ActiveModelDocChangeNotify
         DisconnectModelViews()
 
         userAddin.DetachModelEventHandler(iDocument)
+    End Function
+
+    Function PartDoc_ActiveModelDocChangeNotify() As Integer
+        'TODO add in for part as well
     End Function
 
     Function PartDoc_DestroyNotify() As Integer
@@ -123,7 +128,7 @@ Public Class AssemblyEventHandler
         AddHandler iAssembly.ComponentStateChangeNotify2, AddressOf Me.AssemblyDoc_ComponentStateChangeNotify2
         AddHandler iAssembly.ComponentVisualPropertiesChangeNotify, AddressOf Me.AssemblyDoc_ComponentVisiblePropertiesChangeNotify
         AddHandler iAssembly.ComponentDisplayStateChangeNotify, AddressOf Me.AssemblyDoc_ComponentDisplayStateChangeNotify
-
+        AddHandler iSwApp.ActiveModelDocChangeNotify, AddressOf Me.AssemblyDoc_ActiveModelDocChangeNotify
 
 
         ConnectModelViews()
@@ -136,12 +141,21 @@ Public Class AssemblyEventHandler
         RemoveHandler iAssembly.ComponentStateChangeNotify2, AddressOf Me.AssemblyDoc_ComponentStateChangeNotify2
         RemoveHandler iAssembly.ComponentVisualPropertiesChangeNotify, AddressOf Me.AssemblyDoc_ComponentVisiblePropertiesChangeNotify
         RemoveHandler iAssembly.ComponentDisplayStateChangeNotify, AddressOf Me.AssemblyDoc_ComponentDisplayStateChangeNotify
+        RemoveHandler iSwApp.ActiveModelDocChangeNotify, AddressOf Me.AssemblyDoc_ActiveModelDocChangeNotify
 
         DisconnectModelViews()
 
         userAddin.DetachModelEventHandler(iDocument)
     End Function
+    Function AssemblyDoc_ActiveModelDocChangeNotify() As Integer
+        'TODO add in code
+        'iSwApp.SendMsgToUser("handler called")
+        Dim UC1 As UserControl1 = swAddin.myTaskPaneHost
+        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
+        UC1.TreeView1.Nodes.Clear()
+        UC1.getComponentsOfAssembly(modDoc, UC1)
 
+    End Function
     Function AssemblyDoc_DestroyNotify() As Integer
         DetachEventHandlers()
     End Function

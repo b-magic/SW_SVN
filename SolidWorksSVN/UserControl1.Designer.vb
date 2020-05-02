@@ -24,110 +24,145 @@ Partial Class UserControl1
     Private Sub InitializeComponent()
         Me.butCheckinWithDependents = New System.Windows.Forms.Button()
         Me.butCheckinAll = New System.Windows.Forms.Button()
-        Me.butUnlockActive = New System.Windows.Forms.Button()
         Me.butUnlockWithDependents = New System.Windows.Forms.Button()
+        Me.butUnlockAll = New System.Windows.Forms.Button()
         Me.butCheckoutActiveDoc = New System.Windows.Forms.Button()
         Me.butCheckoutWithDependents = New System.Windows.Forms.Button()
         Me.butGetLatestOpenOnly = New System.Windows.Forms.Button()
         Me.butGetLatestAllRepo = New System.Windows.Forms.Button()
+        Me.StatusStrip2 = New System.Windows.Forms.StatusStrip()
+        Me.TreeView1 = New System.Windows.Forms.TreeView()
         Me.SuspendLayout()
         '
         'butCheckinWithDependents
         '
-        Me.butCheckinWithDependents.Location = New System.Drawing.Point(3, 106)
+        Me.butCheckinWithDependents.Location = New System.Drawing.Point(6, 38)
+        Me.butCheckinWithDependents.Margin = New System.Windows.Forms.Padding(6)
         Me.butCheckinWithDependents.Name = "butCheckinWithDependents"
-        Me.butCheckinWithDependents.Size = New System.Drawing.Size(74, 41)
+        Me.butCheckinWithDependents.Size = New System.Drawing.Size(148, 79)
         Me.butCheckinWithDependents.TabIndex = 0
         Me.butCheckinWithDependents.Text = "Checkin" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Active"
         Me.butCheckinWithDependents.UseVisualStyleBackColor = True
         '
         'butCheckinAll
         '
-        Me.butCheckinAll.Location = New System.Drawing.Point(3, 153)
+        Me.butCheckinAll.Location = New System.Drawing.Point(166, 38)
+        Me.butCheckinAll.Margin = New System.Windows.Forms.Padding(6)
         Me.butCheckinAll.Name = "butCheckinAll"
-        Me.butCheckinAll.Size = New System.Drawing.Size(74, 41)
+        Me.butCheckinAll.Size = New System.Drawing.Size(148, 79)
         Me.butCheckinAll.TabIndex = 1
         Me.butCheckinAll.Text = "Checkin" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "All"
         Me.butCheckinAll.UseVisualStyleBackColor = True
         '
-        'butUnlockActive
-        '
-        Me.butUnlockActive.Location = New System.Drawing.Point(83, 106)
-        Me.butUnlockActive.Name = "butUnlockActive"
-        Me.butUnlockActive.Size = New System.Drawing.Size(74, 41)
-        Me.butUnlockActive.TabIndex = 2
-        Me.butUnlockActive.Text = "Release" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Active"
-        Me.butUnlockActive.UseVisualStyleBackColor = True
-        '
         'butUnlockWithDependents
         '
-        Me.butUnlockWithDependents.Location = New System.Drawing.Point(83, 153)
+        Me.butUnlockWithDependents.Location = New System.Drawing.Point(6, 129)
+        Me.butUnlockWithDependents.Margin = New System.Windows.Forms.Padding(6)
         Me.butUnlockWithDependents.Name = "butUnlockWithDependents"
-        Me.butUnlockWithDependents.Size = New System.Drawing.Size(74, 41)
-        Me.butUnlockWithDependents.TabIndex = 3
-        Me.butUnlockWithDependents.Text = "Release" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "All"
+        Me.butUnlockWithDependents.Size = New System.Drawing.Size(148, 79)
+        Me.butUnlockWithDependents.TabIndex = 2
+        Me.butUnlockWithDependents.Text = "Release" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Active"
         Me.butUnlockWithDependents.UseVisualStyleBackColor = True
+        '
+        'butUnlockAll
+        '
+        Me.butUnlockAll.Location = New System.Drawing.Point(166, 129)
+        Me.butUnlockAll.Margin = New System.Windows.Forms.Padding(6)
+        Me.butUnlockAll.Name = "butUnlockAll"
+        Me.butUnlockAll.Size = New System.Drawing.Size(148, 79)
+        Me.butUnlockAll.TabIndex = 3
+        Me.butUnlockAll.Text = "Release" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "All"
+        Me.butUnlockAll.UseVisualStyleBackColor = True
         '
         'butCheckoutActiveDoc
         '
-        Me.butCheckoutActiveDoc.Location = New System.Drawing.Point(163, 106)
+        Me.butCheckoutActiveDoc.Location = New System.Drawing.Point(6, 220)
+        Me.butCheckoutActiveDoc.Margin = New System.Windows.Forms.Padding(6)
         Me.butCheckoutActiveDoc.Name = "butCheckoutActiveDoc"
-        Me.butCheckoutActiveDoc.Size = New System.Drawing.Size(74, 41)
+        Me.butCheckoutActiveDoc.Size = New System.Drawing.Size(148, 79)
         Me.butCheckoutActiveDoc.TabIndex = 4
         Me.butCheckoutActiveDoc.Text = "Checkout" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "Active"
         Me.butCheckoutActiveDoc.UseVisualStyleBackColor = True
         '
         'butCheckoutWithDependents
         '
-        Me.butCheckoutWithDependents.Location = New System.Drawing.Point(163, 153)
+        Me.butCheckoutWithDependents.Location = New System.Drawing.Point(166, 220)
+        Me.butCheckoutWithDependents.Margin = New System.Windows.Forms.Padding(6)
         Me.butCheckoutWithDependents.Name = "butCheckoutWithDependents"
-        Me.butCheckoutWithDependents.Size = New System.Drawing.Size(74, 41)
+        Me.butCheckoutWithDependents.Size = New System.Drawing.Size(148, 79)
         Me.butCheckoutWithDependents.TabIndex = 5
         Me.butCheckoutWithDependents.Text = "Checkout" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "+Dependents"
         Me.butCheckoutWithDependents.UseVisualStyleBackColor = True
         '
         'butGetLatestOpenOnly
         '
-        Me.butGetLatestOpenOnly.Location = New System.Drawing.Point(243, 106)
+        Me.butGetLatestOpenOnly.Location = New System.Drawing.Point(6, 311)
+        Me.butGetLatestOpenOnly.Margin = New System.Windows.Forms.Padding(6)
         Me.butGetLatestOpenOnly.Name = "butGetLatestOpenOnly"
-        Me.butGetLatestOpenOnly.Size = New System.Drawing.Size(74, 41)
+        Me.butGetLatestOpenOnly.Size = New System.Drawing.Size(148, 79)
         Me.butGetLatestOpenOnly.TabIndex = 6
         Me.butGetLatestOpenOnly.Text = "Get Latest" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "All Open"
         Me.butGetLatestOpenOnly.UseVisualStyleBackColor = True
         '
         'butGetLatestAllRepo
         '
-        Me.butGetLatestAllRepo.Location = New System.Drawing.Point(243, 153)
+        Me.butGetLatestAllRepo.Location = New System.Drawing.Point(166, 311)
+        Me.butGetLatestAllRepo.Margin = New System.Windows.Forms.Padding(6)
         Me.butGetLatestAllRepo.Name = "butGetLatestAllRepo"
-        Me.butGetLatestAllRepo.Size = New System.Drawing.Size(74, 41)
+        Me.butGetLatestAllRepo.Size = New System.Drawing.Size(148, 79)
         Me.butGetLatestAllRepo.TabIndex = 7
         Me.butGetLatestAllRepo.Text = "Get Latest" & Global.Microsoft.VisualBasic.ChrW(13) & Global.Microsoft.VisualBasic.ChrW(10) & "All Repo"
         Me.butGetLatestAllRepo.UseVisualStyleBackColor = True
         '
+        'StatusStrip2
+        '
+        Me.StatusStrip2.BackColor = System.Drawing.SystemColors.ActiveCaption
+        Me.StatusStrip2.Font = New System.Drawing.Font("Segoe UI", 14.0!)
+        Me.StatusStrip2.ImageScalingSize = New System.Drawing.Size(32, 32)
+        Me.StatusStrip2.Location = New System.Drawing.Point(0, 980)
+        Me.StatusStrip2.Name = "StatusStrip2"
+        Me.StatusStrip2.Size = New System.Drawing.Size(645, 22)
+        Me.StatusStrip2.SizingGrip = False
+        Me.StatusStrip2.TabIndex = 9
+        Me.StatusStrip2.Text = "StatusStrip2"
+        '
+        'TreeView1
+        '
+        Me.TreeView1.Location = New System.Drawing.Point(6, 409)
+        Me.TreeView1.Name = "TreeView1"
+        Me.TreeView1.Size = New System.Drawing.Size(628, 297)
+        Me.TreeView1.TabIndex = 10
+        '
         'UserControl1
         '
-        Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
+        Me.AutoScaleDimensions = New System.Drawing.SizeF(12.0!, 25.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
+        Me.Controls.Add(Me.TreeView1)
+        Me.Controls.Add(Me.StatusStrip2)
         Me.Controls.Add(Me.butGetLatestAllRepo)
         Me.Controls.Add(Me.butGetLatestOpenOnly)
         Me.Controls.Add(Me.butCheckoutWithDependents)
         Me.Controls.Add(Me.butCheckoutActiveDoc)
+        Me.Controls.Add(Me.butUnlockAll)
         Me.Controls.Add(Me.butUnlockWithDependents)
-        Me.Controls.Add(Me.butUnlockActive)
         Me.Controls.Add(Me.butCheckinAll)
         Me.Controls.Add(Me.butCheckinWithDependents)
+        Me.Margin = New System.Windows.Forms.Padding(6)
         Me.Name = "UserControl1"
-        Me.Size = New System.Drawing.Size(345, 521)
+        Me.Size = New System.Drawing.Size(645, 1002)
         Me.ResumeLayout(False)
+        Me.PerformLayout()
 
     End Sub
 
     Friend WithEvents butCheckinWithDependents As Windows.Forms.Button
     Friend WithEvents butCheckinAll As Windows.Forms.Button
-    Friend WithEvents butUnlockActive As Windows.Forms.Button
     Friend WithEvents butUnlockWithDependents As Windows.Forms.Button
+    Friend WithEvents butUnlockAll As Windows.Forms.Button
     Friend WithEvents butCheckoutActiveDoc As Windows.Forms.Button
     Friend WithEvents butCheckoutWithDependents As Windows.Forms.Button
     Friend WithEvents butGetLatestOpenOnly As Windows.Forms.Button
     Friend WithEvents butGetLatestAllRepo As Windows.Forms.Button
+    Friend WithEvents StatusStrip2 As Windows.Forms.StatusStrip
+    Friend WithEvents TreeView1 As Windows.Forms.TreeView
 End Class

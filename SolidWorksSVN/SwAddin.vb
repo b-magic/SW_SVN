@@ -30,11 +30,12 @@ Public Class SwAddin
     Dim SwEventPtr As SldWorks
     Dim ppage As UserPMPage
     Dim iBmp As BitmapHandler
+    Dim iAppInitTimes As Integer = 0
 
     Public Const mainCmdGroupID As Integer = 0
 
     Dim myTaskPaneView As TaskpaneView
-    Dim myTaskPaneHost As UserControl1
+    Public myTaskPaneHost As UserControl1
 
     'Update all 3 of these!
     Public iNumFlyoutButtons As Integer = 3
@@ -121,6 +122,8 @@ Public Class SwAddin
 #Region "ISwAddin Implementation"
 
     Function ConnectToSW(ByVal ThisSW As Object, ByVal Cookie As Integer) As Boolean Implements SolidWorks.Interop.swpublished.SwAddin.ConnectToSW
+        'If iAppInitTimes > 0 Then Return True
+
         iSwApp = ThisSW
         addinID = Cookie
 
@@ -132,14 +135,17 @@ Public Class SwAddin
         'AddCommandMgr()
 
         'Setup the Event Handlers
-        'SwEventPtr = iSwApp
-        'openDocs = New Hashtable
-        'AttachEventHandlers()
+        SwEventPtr = iSwApp
+        openDocs = New Hashtable
+        AttachEventHandlers()
 
         'Setup Sample Property Manager
         'AddPMP()
-        AddTaskPane()
-
+        'HELP
+        If myTaskPaneView Is Nothing Then
+            AddTaskPane()
+        End If
+        'iAppInitTimes += 1
         ConnectToSW = True
     End Function
 
@@ -169,10 +175,9 @@ Public Class SwAddin
 #Region "UI Methods"
     Public Sub AddTaskPane()
 
-        myTaskPaneView = iSwApp.CreateTaskpaneView2("", "Sample Task Pane")
-        myTaskPaneHost = myTaskPaneView.AddControl("SVN_AddIn", "")
+        myTaskPaneView = iSwApp.CreateTaskpaneView2("", "SVN Task Pane")
+            myTaskPaneHost = myTaskPaneView.AddControl("SVN_AddIn", "")
         myTaskPaneHost.getSwApp(iSwApp)
-
     End Sub
 
     Public Sub RemoveTaskPane()
