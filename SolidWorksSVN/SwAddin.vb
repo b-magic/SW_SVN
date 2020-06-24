@@ -38,9 +38,9 @@ Public Class SwAddin
     Public myTaskPaneHost As UserControl1
 
     'Update all 3 of these!
-    Public iNumFlyoutButtons As Integer = 3
-    Public mainItemID() As Integer = {0, 1, 2}
-    Public flyoutGroupID() As Integer = {91, 92, 93}
+    'Public iNumFlyoutButtons As Integer = 3
+    'Public mainItemID() As Integer = {0, 1, 2}
+    'Public flyoutGroupID() As Integer = {91, 92, 93}
 
     ' Public Properties
     ReadOnly Property SwApp() As SldWorks

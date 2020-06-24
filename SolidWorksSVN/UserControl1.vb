@@ -14,11 +14,15 @@ Public Class UserControl1
     Dim WithEvents iSwApp As SldWorks
     'Dim userAddin As SwAddin = New SwAddin() 'couldn't get access to swapp in here!
     Public Const sTortPath As String = "C:\Users\benne\Documents\SVN\TortoiseProc.exe"
-    Public Const sRepoLocalPath As String = "C:\Users\benne\Documents\SVN\fsae1"
+    Public Const sRepoLocalPath As String = "C:\Users\benne\Documents\SVN\cad1"
     Public Const sSVNPath As String = "C:\Program Files\TortoiseSVN\bin\svn.exe"
 
+    Public statusAllOpenModels As SVNStatus
+    Public allOpenDocs As ModelDoc2()
+    Public allTreeViews As TreeView()
+
     Friend Sub getSwApp(ByRef swAppin As SldWorks)
-        Debug.Print(vbCrLf & "=========================" & vbCrLf & "=========================" & vbCrLf & "=========================")
+        'Allows for swApp to be passed into this class.
         iSwApp = swAppin
     End Sub
     Private Sub butCheckinWithDependents_Click(sender As Object, e As EventArgs) Handles butCheckinWithDependents.Click
@@ -68,8 +72,15 @@ Public Class UserControl1
     Private Sub butStatus_Click(sender As Object, e As EventArgs) Handles butStatus.Click
         myRepoStatus()
     End Sub
+    Public Sub updateStatusOfAllModelsVariable()
+        statusAllOpenModels = getFileSVNStatus(bCheckServer:=True, getAllOpenDocs(bMustBeVisible:=False))
+    End Sub
+
+
+
     Public Sub updateStatusStrip()
         Dim modDoc() As ModelDoc2 = {iSwApp.ActiveDoc}
+        If modDoc Is Nothing Then Exit Sub
         'Doesn't check the server because thats faster... But then it wont know if someone else has is checked out
         Dim status As SVNStatus = getFileSVNStatus(bCheckServer:=False, modDoc)
         Dim myCol As myColours = New myColours()
@@ -89,14 +100,14 @@ Public Class UserControl1
 
     Public Sub myUnlockActive()
         Dim modDoc() As ModelDoc2 = {iSwApp.ActiveDoc()}
-        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found")
+        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
         unlockDocs(moddoc)
     End Sub
     Public Sub myUnlockWithDependents()
         'TODO Needs work. It currently tries to unlock all dependents whether they are locked or not
         ' creating a small error
         Dim modDoc() As ModelDoc2 = {iSwApp.ActiveDoc()}
-        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found")
+        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
 
         If modDoc(0).GetType <> swDocumentTypes_e.swDocASSEMBLY Then
             unlockDocs(modDoc)
@@ -114,6 +125,8 @@ Public Class UserControl1
 
         Dim Status As SVNStatus = getFileSVNStatus(bCheckServer:=True, modDocArr)
 
+        Dim activeDoc As ModelDoc2 = iSwApp.ActiveDoc
+        If activeDoc Is Nothing Then Exit Sub
 
         Dim bSuccess As Boolean = runTortoiseProcexeWithMonitor("/command:unlock /path:" &
                                          formatFilePathArrForTortoiseProc(
@@ -124,14 +137,11 @@ Public Class UserControl1
         Status = getFileSVNStatus(bCheckServer:=False, modDocArr)
         Status.setReadWriteFromLockStatus()
         Status.releaseFileSystemAccessToReadOnlyModels()
-        getComponentsOfAssemblyOptionalUpdateTree(iSwApp.ActiveDoc, Status)
+        getComponentsOfAssemblyOptionalUpdateTree(activeDoc, Status)
 
         bSuccess = runTortoiseProcexeWithMonitor("/command:revert /path:" &
                                          formatFilePathArrForTortoiseProc(
                                             getFilePathsFromModDocArr(modDocArr)) & " /closeonend:3")
-        'Status.reattachDocsToFileSystem()
-        'Status = getFileSVNStatus(bCheckServer:=False, Nothing, modDocArr)
-        'Status.setReadWriteFromLockStatus()
 
         If Not bSuccess Then iSwApp.SendMsgToUser("Reverting to Vault copies failed.")
 
@@ -149,7 +159,7 @@ Public Class UserControl1
         Dim modDocArr1() As ModelDoc2
         Dim bRequired() As Boolean
 
-        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found")
+        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
 
         If modDoc.GetType = swDocumentTypes_e.swDocASSEMBLY Then
             modDocArr1 = getComponentsOfAssemblyOptionalUpdateTree(modDoc)
@@ -167,6 +177,9 @@ Public Class UserControl1
         Dim sErrorFiles As String = ""
         Dim i As Integer
         Dim j As Integer = 0
+
+        Dim activeDoc As ModelDoc2 = iSwApp.ActiveDoc
+        If activeDoc Is Nothing Then Exit Sub
 
         If bRequiredDoc Is Nothing Then bRequiredDoc = createBoolArray(UBound(modDocArr), True)
 
@@ -203,7 +216,7 @@ Public Class UserControl1
 
         Dim mySVNStatus As SVNStatus = getFileSVNStatus(bCheckServer:=True, modDocArr) 'Error when checking in Assembly. 
         mySVNStatus.setReadWriteFromLockStatus()
-        getComponentsOfAssemblyOptionalUpdateTree(iSwApp.ActiveDoc, mySVNStatus)
+        getComponentsOfAssemblyOptionalUpdateTree(activeDoc, mySVNStatus)
     End Sub
     Public Sub myCheckinAll()
         Dim bSuccess As Boolean
@@ -223,7 +236,7 @@ Public Class UserControl1
         'OpenDocPathList = CType(getAllOpenDocs(True, True), String())
         Dim OpenDocModels() As ModelDoc2 = getAllOpenDocs(bMustBeVisible:=True)
 
-        'Dim sOpenDocPath() As String = getFilePathsFromModDocArr(OpenDocModels)
+        'Dim sOpenDocPath() As String = getFilePathsFromModDoiSwApp.SendMsgToUser("Active Document not found") cArr(OpenDocModels)
 
         Dim mySVNStatus As SVNStatus = getFileSVNStatus(bCheckServer:=True, OpenDocModels)
         mySVNStatus.setReadWriteFromLockStatus()
@@ -232,23 +245,31 @@ Public Class UserControl1
     End Sub
     Public Sub myCheckoutActiveDoc()
         Dim modDoc() As ModelDoc2 = {iSwApp.ActiveDoc()}
-        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found")
+        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
 
         checkoutDocs(modDoc)
     End Sub
     Public Sub myCheckoutWithDependents()
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()
-        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found")
+        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
 
         checkoutDocs(getComponentsOfAssemblyOptionalUpdateTree(modDoc))
     End Sub
     Sub myRepoStatus()
         Dim bSuccess As Boolean
-        Dim modDocArr() As ModelDoc2 = getComponentsOfAssemblyOptionalUpdateTree(iSwApp.ActiveDoc)
-        'HELP
-        bSuccess = runTortoiseProcexeWithMonitor("/command:repostatus /path:" &
+        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
+        Dim modDocArr() As ModelDoc2
+
+        If modDoc Is Nothing Then
+            iSwApp.SendMsgToUser("A File must be open")
+            Exit Sub
+            'bSuccess = runTortoiseProcexeWithMonitor("/command:repostatus /remote")
+        Else
+            modDocArr = getComponentsOfAssemblyOptionalUpdateTree(iSwApp.ActiveDoc)
+            bSuccess = runTortoiseProcexeWithMonitor("/command:repostatus /path:" &
                                                  formatFilePathArrForTortoiseProc(modDocArr) &
                                                  " /remote")
+        End If
         If Not bSuccess Then iswApp.SendMsgToUser("Status Check Failed.")
     End Sub
     Sub myCleanupAndRelease()
@@ -266,7 +287,7 @@ Public Class UserControl1
     End Sub
     Sub checkoutDocs(ByRef modDocArr() As ModelDoc2)
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()
-        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found")
+        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
 
         'Dim modDocArr() As ModelDoc2 = {modDoc}
         'Dim sActiveDocPath() As String = getFilePathsFromModDocArr(modDocArr)
@@ -788,6 +809,8 @@ Public Class UserControl1
         Dim bUC As Boolean = If(mySVNStatus Is Nothing, False, True)
         Dim sFileNameTemp As String = System.IO.Path.GetFileName(modDoc.GetPathName)
         Dim parentNode As TreeNode = Nothing
+
+        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Couldn't find model") : Return Nothing
 
         If bUC Then
             TreeView1.Nodes.Clear()

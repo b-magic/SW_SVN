@@ -90,6 +90,9 @@
   <PropertyGroup>
     <OptionInfer>On</OptionInfer>
   </PropertyGroup>
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="SolidWorks.Interop.sldworks">
       <HintPath>..\..\..\..\..\..\PROGRA~1\SOLIDW~1\SOLIDW~1\\SolidWorks.Interop.sldworks.dll</HintPath>
@@ -135,6 +138,11 @@
     <Compile Include="EventHandling.vb">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="My Project\Resources.Designer.vb">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="PMPHandler.vb">
       <SubType>Code</SubType>
     </Compile>
@@ -150,6 +158,11 @@
     <Compile Include="UserPMPage.vb">
       <SubType>Code</SubType>
     </Compile>
+    <EmbeddedResource Include="My Project\Resources.resx">
+      <CustomToolNamespace>My.Resources</CustomToolNamespace>
+      <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.vb</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="ToolbarLarge.bmp" />
     <EmbeddedResource Include="ToolbarSmall.bmp" />
     <EmbeddedResource Include="UserControl1.resx">
@@ -161,7 +174,7 @@
     <EmbeddedResource Include="MainIconSmall.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="My Project\" />
+    <None Include="icons\CheckInActive.png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
@@ -172,6 +185,33 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{94E38DFF-614B-4CBD-B67C-F211BB35CE8B}" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icons\ReleaseAll.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icons\ReleaseActive.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icons\CheckInAll.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icons\CheckOutWithDependents.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icons\CheckOutActive.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icons\GetLatestAllRepo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icons\GetLatestAllOpen.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icons\Status.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icons\Cleanup.png" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
