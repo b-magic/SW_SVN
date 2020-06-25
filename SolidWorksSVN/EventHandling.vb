@@ -95,12 +95,15 @@ Public Class PartEventHandler
     End Function
 
     Function PartDoc_ActiveModelDocChangeNotify() As Integer
-        Dim UC1 As UserControl1 = swAddin.myTaskPaneHost
-        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
-        Dim status As UserControl1.SVNStatus
+        'Dim UC1 As UserControl1 = swAddin.myTaskPaneHost
+        'Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
+        'Dim status As UserControl1.SVNStatus
 
-        status = UC1.getFileSVNStatus(bCheckServer:=False, UC1.getComponentsOfAssemblyOptionalUpdateTree(modDoc))
-        UC1.getComponentsOfAssemblyOptionalUpdateTree(modDoc, status)
+        'status = UC1.getFileSVNStatus(bCheckServer:=False, UC1.getComponentsOfAssemblyOptionalUpdateTree(modDoc))
+        'UC1.getComponentsOfAssemblyOptionalUpdateTree(modDoc, status)
+
+        'HELP ME
+        swAddin.myTaskPaneHost.switchTreeViewToCurrentModel()
 
     End Function
 
@@ -159,20 +162,15 @@ Public Class AssemblyEventHandler
     Function AssemblyDoc_ActiveModelDocChangeNotify() As Integer
         Dim UC1 As UserControl1 = swAddin.myTaskPaneHost
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
-        Dim status As UserControl1.SVNStatus
 
-        status = UC1.getFileSVNStatus(bCheckServer:=False, UC1.getComponentsOfAssemblyOptionalUpdateTree(modDoc))
-
-        UC1.getComponentsOfAssemblyOptionalUpdateTree(modDoc, status)
+        UC1.switchTreeViewToCurrentModel()
     End Function
     Function DSldWorksEvents_FileOpenPostNotifyEventHandler() As Integer
         Dim UC1 As UserControl1 = swAddin.myTaskPaneHost
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
-        Dim status As UserControl1.SVNStatus
 
-        status = UC1.getFileSVNStatus(bCheckServer:=False, UC1.getComponentsOfAssemblyOptionalUpdateTree(modDoc))
+        UC1.switchTreeViewToCurrentModel()
 
-        UC1.getComponentsOfAssemblyOptionalUpdateTree(modDoc, status)
     End Function
 
     Function AssemblyDoc_DestroyNotify() As Integer

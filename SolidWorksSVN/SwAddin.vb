@@ -12,6 +12,10 @@ Imports SolidWorksTools.File
 Imports System.Collections.Generic
 Imports System.Diagnostics
 
+Imports System.Drawing
+Imports System.ComponentModel
+Imports System.Windows.Forms
+
 <Guid("ca5108e0-c3c5-47f0-8453-cd9b6a5e12af")>
 <ComVisible(True)>
 <SwAddin(
@@ -175,8 +179,10 @@ Public Class SwAddin
 #Region "UI Methods"
     Public Sub AddTaskPane()
 
-        myTaskPaneView = iSwApp.CreateTaskpaneView2("", "SVN Task Pane")
-            myTaskPaneHost = myTaskPaneView.AddControl("SVN_AddIn", "")
+        Dim imageList1() As String = {"C:\Users\benne\source\repos\SolidWorksVB\SolidWorksSVN\Resources\SWImage.bmp"}
+
+        myTaskPaneView = iSwApp.CreateTaskpaneView3(imageList1, "SVN Task Pane")
+        myTaskPaneHost = myTaskPaneView.AddControl("SVN_AddIn", "")
         myTaskPaneHost.getSwApp(iSwApp)
     End Sub
 
@@ -351,14 +357,14 @@ Public Class SwAddin
     'End Sub
 
 
-    Function AddPMP() As Boolean
-        ppage = New UserPMPage
-        ppage.Init(iSwApp, Me)
-    End Function
+    'Function AddPMP() As Boolean
+    '    ppage = New UserPMPage
+    '    ppage.Init(iSwApp, Me)
+    'End Function
 
-    Function RemovePMP() As Boolean
-        ppage = Nothing
-    End Function
+    'Function RemovePMP() As Boolean
+    '    ppage = Nothing
+    'End Function
 
     Function CompareIDs(ByVal storedIDs() As Integer, ByVal addinIDs() As Integer) As Boolean
 
