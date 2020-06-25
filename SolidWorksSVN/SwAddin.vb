@@ -143,9 +143,6 @@ Public Class SwAddin
         openDocs = New Hashtable
         AttachEventHandlers()
 
-        'Setup Sample Property Manager
-        'AddPMP()
-        'HELP
         If myTaskPaneView Is Nothing Then
             AddTaskPane()
         End If

@@ -93,6 +93,7 @@ Public Class UserControl1
 
         Dim myCol As myColours = New myColours()
         Dim status As SVNStatus = findStatusForFile(modDoc.GetPathName)
+        If IsNothing(status) Then Exit Sub
 
         myCol.initialize()
         If IsNothing(status) Then
@@ -136,6 +137,7 @@ Public Class UserControl1
     Sub unlockDocs(ByRef modDocArr() As ModelDoc2)
 
         Dim Status As SVNStatus = getFileSVNStatus(bCheckServer:=True, modDocArr)
+        If IsNothing(Status) Then Exit Sub
 
         Dim activeDoc As ModelDoc2 = iSwApp.ActiveDoc
         If activeDoc Is Nothing Then Exit Sub
@@ -147,6 +149,7 @@ Public Class UserControl1
         If Not bSuccess Then iSwApp.SendMsgToUserv("Releasing Locks Failed.")
 
         Status = getFileSVNStatus(bCheckServer:=False, modDocArr)
+        If IsNothing(Status) Then Exit Sub
         Status.setReadWriteFromLockStatus()
         Status.releaseFileSystemAccessToReadOnlyModels()
 
@@ -230,7 +233,7 @@ Public Class UserControl1
         If Not bSuccess Then iSwApp.SendMsgToUser("Tortoise App Failed.") : Exit Sub
 
         bSuccess = updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True)
-        If Not bSuccess Then iSwApp.SendMsgToUser("Status Update Failed.") : Exit Sub
+        If Not bSuccess Then Exit Sub
 
         switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
         statusOfAllOpenModels.setReadWriteFromLockStatus()
@@ -254,7 +257,7 @@ Public Class UserControl1
         'Dim sOpenDocPath() As String = getFilePathsFromModDoiSwApp.SendMsgToUser("Active Document not found") cArr(OpenDocModels)
 
         bSuccess = updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True)
-        If Not bSuccess Then iSwApp.SendMsgToUser("Status Update Failed.") : Exit Sub
+        If Not bSuccess Then Exit Sub
 
         switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
         statusOfAllOpenModels.setReadWriteFromLockStatus()
@@ -293,7 +296,7 @@ Public Class UserControl1
         Dim bSuccess As Boolean
 
         bSuccess = updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True)
-        If Not bSuccess Then iSwApp.SendMsgToUser("Status Update Failed.") : Exit Sub
+        If Not bSuccess Then Exit Sub
 
         switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
         statusOfAllOpenModels.setReadWriteFromLockStatus()
@@ -317,15 +320,16 @@ Public Class UserControl1
         Dim sCatMessageLocked As String = ""
 
         status = getFileSVNStatus(bCheckServer:=True, modDocArr)
-        If IsNothing(status) Then iSwApp.SendMsgToUser("Error Contacting SVN Server") : Exit Sub
-        If Not IsNothing(status.statError(0).sMessage) Then
-            If status.statError(0).sMessage <> "" Then
-                iSwApp.SendMsgToUser(status.statError(0).sMessage)
-            Else
-                iSwApp.SendMsgToUser("Error Contacting SVN Server")
-            End If
-            Exit Sub
-        End If
+        If IsNothing(status) Then Exit Sub
+        'If Not IsNothing(status.statError(0).sMessage) Then
+        '    'If status.statError(0).sMessage <> "" Then
+        '    '    iSwApp.SendMsgToUser(status.statError(0).sMessage)
+        '    'Else
+        '    '    iSwApp.SendMsgToUser("Error Contacting SVN Server")
+        '    'End If
+        '    'Exit Sub
+
+        'End If
 
         sDocPathsToCheckout = statusOfAllOpenModels.sFilterUpToDate9("*", bFilterNot:=True)
 
@@ -345,7 +349,7 @@ Public Class UserControl1
         'status = getFileSVNStatus(bCheckServer:=False, modDocArr)
 
         bSuccess = updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True)
-        If Not bSuccess Then iSwApp.SendMsgToUser("Status Update Failed.") : Exit Sub
+        If Not bSuccess Then Exit Sub
 
         switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
 
@@ -379,33 +383,11 @@ Public Class UserControl1
         Dim m As Integer = 0
         Dim n As Integer = 0
         Dim bSuccess As Boolean
-        'DEFAULTS
-        'If OpenDocModels Is Nothing Then OpenDocModels = getAllOpenDocs(bMustBeVisible:=False)
 
-        'Dim sFileListToUpdate(UBound(OpenDocModels)) As String
-        'If Not openDocModels Is Nothing Then
-        '    Dim sOpenDocPath() As String = getFilePathsFromModDocArr(openDocModels)
-        'End If
         bSuccess = updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True)
-        If Not bSuccess Then
-            'If Not IsNothing(statusOfAllOpenModels.statError(0).sMessage) Then
-            '    If Not IsNothing(statusOfAllOpenModels.statError(1).sMessage) Then
-            '        iSwApp.SendMsgToUser(statusOfAllOpenModels.statError(0).sMessage & vbCrLf &
-            '                             statusOfAllOpenModels.statError(1).sMessage)
-            '    Else
-            '        iSwApp.SendMsgToUser(statusOfAllOpenModels.statError(0).sMessage)
-            '    End If
-            'Else
-            '    iSwApp.SendMsgToUser("Status Update Failed.")
-            'End If
-            Exit Sub
-        End If
-            'Dim mySVNStatus As SVNStatus = getFileSVNStatus(bCheckServer:=True, openDocModels)
+        If Not bSuccess Then Exit Sub
 
-            Dim sFileList(UBound(statusOfAllOpenModels.fp)) As String
-
-        'Dim modDocArr(UBound(mySVNStatus)) As ModelDoc2
-        'Dim mdFilesToReconnectWith(UBound(mySVNStatus.fp)) As ModelDoc2
+        Dim sFileList(UBound(statusOfAllOpenModels.fp)) As String
 
         For i = 0 To UBound(statusOfAllOpenModels.fp)
             'modDocTemp = iSwApp.GetOpenDocumentByName(mySVNStatus.fp(i).filename)
@@ -585,7 +567,6 @@ Public Class UserControl1
         stealAndDoNotOverwrite
         unknown
     End Enum
-
     Public Function getFileSVNStatus(ByVal bCheckServer As Boolean,
                               Optional ByRef modDocArr() As ModelDoc2 = Nothing,
                               Optional ByVal iRecursiveLevel As Integer = 0) As SVNStatus
@@ -607,6 +588,7 @@ Public Class UserControl1
         Dim iLineStep As Integer = 1
         Dim sModDocPathArr() As String = getFilePathsFromModDocArr(modDocArr)
         Dim sFileStartIndex As String
+        Dim sCatMessage As String = ""
 
         'Dim iOutputUbound As Integer
         Dim i As Integer = 0
@@ -633,10 +615,7 @@ Public Class UserControl1
             If nResponding > 3000 Then 'Sort of milliseconds because of the sleep command. But not exactly.
                 oSVNProcess.Kill()
                 iSwApp.SendMsgToUser("SVN timed out while attempting to connect to the vault")
-                Dim badOutput As SVNStatus = New SVNStatus()
-                'ReDim badOutput.statError(0) : ReDim badOutput.fp(0)
-                badOutput.statError(0).sMessage = "Error: SVN Process timed out"
-                Return badOutput
+                Return Nothing
             End If
             System.Threading.Thread.Sleep(1)
         Loop
@@ -657,84 +636,61 @@ Public Class UserControl1
 
         'Error Checking
         If (sOutputErrorLines Is Nothing) Or (sOutputLines Is Nothing) Then
-            ReDim output.statError(0)
-            output.statError(0).sMessage = "Error: SVN status output standard error is nothing. Must of not connected/read to SVN process"
-            Return output
+            iSwApp.SendMsgToUser("Error: SVN status output standard error is nothing. Must of not connected/read to SVN process")
+            Return Nothing
         End If
 
         If sOutputErrorLines.Length <> 0 Then
             'We got some errors if length > 0
-            ReDim output.statError(UBound(sOutputErrorLines))
             For i = 0 To UBound(sOutputErrorLines)
-                'All error messages are an array stored in the first element of the output structure
-                output.statError(i).sMessage = sOutputErrorLines(i)
-            Next
-
-            If sOutputErrorLines.Length >= 2 Then
-                If sOutputErrorLines(1).Contains("E215004") Then
+                If sOutputErrorLines(i).Contains("E215004") Then
                     'Log in Failed!
                     If iRecursiveLevel <> 0 Then
-                        Return output
+                        Return Nothing
                     End If
                     'Open a log in, and then try again. 
+                    iSwApp.SendMsgToUser(catWithNewLine(sOutputErrorLines))
                     runTortoiseProcexeWithMonitor("/command:repostatus /remote /path:" & sRepoLocalPath) 'log in
                     Return getFileSVNStatus(bCheckServer, modDocArr, iRecursiveLevel:=1)
-                End If
-                If sOutputErrorLines(1).Contains("E170013") Then
+                ElseIf sOutputErrorLines(1).Contains("E170013") Then
                     'Couldn't connect. Server is off or no internet connection
-                    Return output
+                    iSwApp.SendMsgToUser(catWithNewLine(sOutputErrorLines))
+                    Return Nothing
+                ElseIf sOutputErrorLines(i).Contains("W155007:") Then
+                    'Common error. File not saved into repository
+                    sCatMessage &= vbCrLf &
+                        sOutputErrorLines(i) & vbCrLf &
+                        "Error W155007 File is not saved inside repository. " &
+                        "Save the file inside the repository and try again. "
+                Else
+                    'Other Errors
+                    sCatMessage &= vbCrLf &
+                        sOutputErrorLines(i) & vbCrLf &
+                        "Error: " & sOutputErrorLines(i)
                 End If
+            Next i
+        End If
+
+        If (bCheckServer) Then
+            If sOutputLines(0).Substring(0, 23) = "Status against revision" Then
+                iSwApp.SendMsgToUser("Status Returned from SVN Server with No Items") 'If you change the string, change it other places in the code too!
+                Return output
+            ElseIf (sOutputLines.Length = 1) Then
+                'If we are checking the server, we should expect a line 2. If its not there then theres an error.
+                iSwApp.SendMsgToUser("Error: Incomplete SVN Status. Could not Read Line 2. Line 1:" & sOutputLines(0))
+                Return output
             End If
-            If sOutputLines.Length = 0 Then Return output
         End If
 
         If sOutputLines.Length = 0 Then
             'If output(0).errorMessage Is Nothing Then ReDim Preserve output(0).errorMessage(0)
             'ReDim output.statError(0)
-            If output.statError(0).sMessage Is Nothing Then
-                output.statError(0).sMessage = "Error: No Usable output lines returned from SVN. " &
-                "Possible Reasons: No connection to server."
-            End If
-
+            iSwApp.SendMsgToUser(sCatMessage & vbCrLf & "Error: No Usable output lines returned from SVN. " &
+                    "Possible Reasons: No connection to server.")
             Return output
-        End If
-
-            If (bCheckServer) Then
-            If sOutputLines(0).Substring(0, 23) = "Status against revision" Then
-                ReDim output.statError(0)
-                output.statError(0).sMessage = "Status Returned from SVN Server with No Items" 'If you change the string, change it other places in the code too!
-                Return output
-
-            ElseIf (sOutputLines.Length = 1) Then
-                'If we are checking the server, we should expect a line 2. If its not there then theres an error.
-                ReDim output.statError(0)
-                output.statError(0).sMessage = "Error: Incomplete SVN Status. Could not Read Line 2. Line 1:" & sOutputLines(0)
-                Return output
-            End If
-        End If
-
-        Dim sCatMessage As String = ""
-        If Not output.statError(0).sMessage Is Nothing Then
-            ' Some sort of error from the svn command
-            For i = 0 To UBound(output.statError)
-                If output.statError(i).sMessage.Contains("W155007:") Then
-                    'Common error. File not saved into repository
-                    sCatMessage &= vbCrLf &
-                        output.statError(i).sMessage & vbCrLf &
-                            "Error W155007 File is not saved inside repository. " &
-                            "Save the file inside the repository and try again. "
-                ElseIf output.statError(i).sMessage = "Status Returned from SVN Server with No Items" Then
-                    sCatMessage &= vbCrLf &
-                        output.statError(i).sFile & vbCrLf &
-                    "Error: Current save file For model Not found. Save it inside the repository."
-                Else
-                    'Other Errors
-                    sCatMessage &= vbCrLf &
-                        output.statError(i).sFile & vbCrLf &
-                            "Error: " & output.statError(i).sMessage
-                End If
-            Next
-            iSwApp.SendMsgToUser("Status Check failed with the following " & sCatMessage)
+        ElseIf sCatMessage <> "" Then
+            iSwApp.SendMsgToUser(sCatMessage)
+            'Unknown other error. Continue running svnstatus function.
         End If
 
         ReDim output.fp(UBound(sOutputLines))
@@ -786,12 +742,11 @@ Public Class UserControl1
 
         If IsNothing(statusOfAllOpenModels) Then
             bSuccess = updateStatusOfAllModelsVariable()
-            If Not bSuccess Then iSwApp.SendMsgToUser("Status Update Failed.") : Return Nothing
+            If Not bSuccess Then Return Nothing
         End If
 
         ReDim output.fp(0)
-        ReDim output.statError(UBound(statusOfAllOpenModels.statError))
-        output.statError = statusOfAllOpenModels.statError
+
         For i = 0 To UBound(statusOfAllOpenModels.fp)
             If (Strings.InStr(statusOfAllOpenModels.fp(i).filename, sFileName, CompareMethod.Text) <> 0) Then
                 Exit For
@@ -1001,7 +956,7 @@ Public Class UserControl1
     End Class
     Class SVNStatus
         Public fp(0) As filePpty
-        Public statError(0) As statusError
+        'Public statError(0) As statusError
 
         Public Function Clone() As SVNStatus
             Dim myClone As SVNStatus = DirectCast(Me.MemberwiseClone(), SVNStatus)
@@ -1009,7 +964,6 @@ Public Class UserControl1
             'myClone.statError = New statusError
             Return myClone
         End Function
-
         Structure filePpty
             Public filename As String
             Public modDoc As ModelDoc2
@@ -1027,11 +981,11 @@ Public Class UserControl1
             'col 8 is blank
             Public upToDate9 As String
         End Structure
-        Structure statusError
-            Public sMessage As String
-            Public sFile As String
-            Public modDocArr As ModelDoc2
-        End Structure
+        'Structure statusError
+        '    Public sMessage As String
+        '    Public sFile As String
+        '    Public modDocArr As ModelDoc2
+        'End Structure
         Sub addOutputLineToSVNStatus(ByRef sOutputLine As String,
                                      ByRef j As Integer,
                                      ByRef sFilePathTemp As String,
