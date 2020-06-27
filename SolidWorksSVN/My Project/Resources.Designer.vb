@@ -183,9 +183,49 @@ Namespace My.Resources
         '''<summary>
         '''  Looks up a localized resource of type System.Drawing.Bitmap.
         '''</summary>
-        Friend ReadOnly Property SWImage() As System.Drawing.Bitmap
+        Friend ReadOnly Property VaultLogo128() As System.Drawing.Bitmap
             Get
-                Dim obj As Object = ResourceManager.GetObject("SWImage", resourceCulture)
+                Dim obj As Object = ResourceManager.GetObject("VaultLogo128", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property VaultLogo20() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("VaultLogo20", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property VaultLogo40() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("VaultLogo40", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property VaultLogo64() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("VaultLogo64", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property VaultLogo96() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("VaultLogo96", resourceCulture)
                 Return CType(obj,System.Drawing.Bitmap)
             End Get
         End Property

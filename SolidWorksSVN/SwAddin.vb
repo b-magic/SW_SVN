@@ -156,8 +156,9 @@ Public Class SwAddin
         RemoveTaskPane()
         DetachEventHandlers()
 
-        System.Runtime.InteropServices.Marshal.ReleaseComObject(iCmdMgr)
-        iCmdMgr = Nothing
+        'todo disconnect task pane/manager slash release com object for side bar task manager?
+        'System.Runtime.InteropServices.Marshal.ReleaseComObject(iCmdMgr)
+        'iCmdMgr = Nothing
         System.Runtime.InteropServices.Marshal.ReleaseComObject(iSwApp)
         iSwApp = Nothing
         'The addin _must_ call GC.Collect() here in order to retrieve all managed code pointers 
@@ -166,8 +167,6 @@ Public Class SwAddin
 
         GC.Collect()
         GC.WaitForPendingFinalizers()
-
-
 
         DisconnectFromSW = True
     End Function
@@ -397,7 +396,7 @@ Public Class SwAddin
         AttachSWEvents()
 
         'Listen for events on all currently open docs
-        AttachEventsToAllDocuments()
+        'AttachEventsToAllDocuments()
     End Sub
 
     Sub DetachEventHandlers()
@@ -425,7 +424,7 @@ Public Class SwAddin
     Sub AttachSWEvents()
         Try
             AddHandler iSwApp.ActiveDocChangeNotify, AddressOf Me.SldWorks_ActiveDocChangeNotify
-            AddHandler iSwApp.DocumentLoadNotify2, AddressOf Me.SldWorks_DocumentLoadNotify2
+            'AddHandler iSwApp.DocumentLoadNotify2, AddressOf Me.SldWorks_DocumentLoadNotify2
             AddHandler iSwApp.FileNewNotify2, AddressOf Me.SldWorks_FileNewNotify2
             AddHandler iSwApp.ActiveModelDocChangeNotify, AddressOf Me.SldWorks_ActiveModelDocChangeNotify
             AddHandler iSwApp.FileOpenPostNotify, AddressOf Me.SldWorks_FileOpenPostNotify
@@ -437,7 +436,7 @@ Public Class SwAddin
     Sub DetachSWEvents()
         Try
             RemoveHandler iSwApp.ActiveDocChangeNotify, AddressOf Me.SldWorks_ActiveDocChangeNotify
-            RemoveHandler iSwApp.DocumentLoadNotify2, AddressOf Me.SldWorks_DocumentLoadNotify2
+            'RemoveHandler iSwApp.DocumentLoadNotify2, AddressOf Me.SldWorks_DocumentLoadNotify2
             RemoveHandler iSwApp.FileNewNotify2, AddressOf Me.SldWorks_FileNewNotify2
             RemoveHandler iSwApp.ActiveModelDocChangeNotify, AddressOf Me.SldWorks_ActiveModelDocChangeNotify
             RemoveHandler iSwApp.FileOpenPostNotify, AddressOf Me.SldWorks_FileOpenPostNotify
@@ -493,20 +492,20 @@ Public Class SwAddin
         'TODO: Add your implementation here
     End Function
 
-    Function SldWorks_DocumentLoadNotify2(ByVal docTitle As String, ByVal docPath As String) As Integer
-
-    End Function
+    'Function SldWorks_DocumentLoadNotify2(ByVal docTitle As String, ByVal docPath As String) As Integer
+    'End Function
 
     Function SldWorks_FileNewNotify2(ByVal newDoc As Object, ByVal doctype As Integer, ByVal templateName As String) As Integer
-        AttachEventsToAllDocuments()
+        'AttachEventsToAllDocuments()
     End Function
 
     Function SldWorks_ActiveModelDocChangeNotify() As Integer
-        'TODO: Add your implementation here
+        myTaskPaneHost.switchTreeViewToCurrentModel()
     End Function
 
     Function SldWorks_FileOpenPostNotify(ByVal FileName As String) As Integer
-        AttachEventsToAllDocuments()
+        'AttachEventsToAllDocuments()
+        myTaskPaneHost.switchTreeViewToCurrentModel()
     End Function
 #End Region
 

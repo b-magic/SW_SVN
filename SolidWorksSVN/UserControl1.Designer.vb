@@ -33,9 +33,10 @@ Partial Class UserControl1
         Me.butCheckoutWithDependents = New System.Windows.Forms.Button()
         Me.butCheckoutActiveDoc = New System.Windows.Forms.Button()
         Me.butUnlockAll = New System.Windows.Forms.Button()
-        Me.butUnlockWithDependents = New System.Windows.Forms.Button()
+        Me.butUnlockActive = New System.Windows.Forms.Button()
         Me.butCheckinAll = New System.Windows.Forms.Button()
         Me.butCheckinWithDependents = New System.Windows.Forms.Button()
+        Me.onlineCheckBox = New System.Windows.Forms.CheckBox()
         Me.SuspendLayout()
         '
         'StatusStrip2
@@ -91,7 +92,7 @@ Partial Class UserControl1
         '
         Me.butGetLatestAllRepo.BackgroundImage = Global.SolidWorksSVN.My.Resources.Resources.GetLatestAllRepo1
         Me.butGetLatestAllRepo.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.butGetLatestAllRepo.Location = New System.Drawing.Point(166, 311)
+        Me.butGetLatestAllRepo.Location = New System.Drawing.Point(166, 295)
         Me.butGetLatestAllRepo.Margin = New System.Windows.Forms.Padding(6)
         Me.butGetLatestAllRepo.Name = "butGetLatestAllRepo"
         Me.butGetLatestAllRepo.Size = New System.Drawing.Size(148, 79)
@@ -102,7 +103,7 @@ Partial Class UserControl1
         '
         Me.butGetLatestOpenOnly.BackgroundImage = Global.SolidWorksSVN.My.Resources.Resources.GetLatestAllOpen1
         Me.butGetLatestOpenOnly.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.butGetLatestOpenOnly.Location = New System.Drawing.Point(6, 311)
+        Me.butGetLatestOpenOnly.Location = New System.Drawing.Point(6, 295)
         Me.butGetLatestOpenOnly.Margin = New System.Windows.Forms.Padding(6)
         Me.butGetLatestOpenOnly.Name = "butGetLatestOpenOnly"
         Me.butGetLatestOpenOnly.Size = New System.Drawing.Size(148, 79)
@@ -113,7 +114,7 @@ Partial Class UserControl1
         '
         Me.butCheckoutWithDependents.BackgroundImage = Global.SolidWorksSVN.My.Resources.Resources.CheckOutWithDependents
         Me.butCheckoutWithDependents.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.butCheckoutWithDependents.Location = New System.Drawing.Point(166, 220)
+        Me.butCheckoutWithDependents.Location = New System.Drawing.Point(166, 204)
         Me.butCheckoutWithDependents.Margin = New System.Windows.Forms.Padding(6)
         Me.butCheckoutWithDependents.Name = "butCheckoutWithDependents"
         Me.butCheckoutWithDependents.Size = New System.Drawing.Size(148, 79)
@@ -124,7 +125,7 @@ Partial Class UserControl1
         '
         Me.butCheckoutActiveDoc.BackgroundImage = Global.SolidWorksSVN.My.Resources.Resources.CheckOutActive
         Me.butCheckoutActiveDoc.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.butCheckoutActiveDoc.Location = New System.Drawing.Point(6, 220)
+        Me.butCheckoutActiveDoc.Location = New System.Drawing.Point(6, 204)
         Me.butCheckoutActiveDoc.Margin = New System.Windows.Forms.Padding(6)
         Me.butCheckoutActiveDoc.Name = "butCheckoutActiveDoc"
         Me.butCheckoutActiveDoc.Size = New System.Drawing.Size(148, 79)
@@ -135,29 +136,29 @@ Partial Class UserControl1
         '
         Me.butUnlockAll.BackgroundImage = Global.SolidWorksSVN.My.Resources.Resources.ReleaseAll
         Me.butUnlockAll.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.butUnlockAll.Location = New System.Drawing.Point(166, 129)
+        Me.butUnlockAll.Location = New System.Drawing.Point(166, 113)
         Me.butUnlockAll.Margin = New System.Windows.Forms.Padding(6)
         Me.butUnlockAll.Name = "butUnlockAll"
         Me.butUnlockAll.Size = New System.Drawing.Size(148, 79)
         Me.butUnlockAll.TabIndex = 3
         Me.butUnlockAll.UseVisualStyleBackColor = True
         '
-        'butUnlockWithDependents
+        'butUnlockActive
         '
-        Me.butUnlockWithDependents.BackgroundImage = Global.SolidWorksSVN.My.Resources.Resources.ReleaseActive
-        Me.butUnlockWithDependents.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.butUnlockWithDependents.Location = New System.Drawing.Point(6, 129)
-        Me.butUnlockWithDependents.Margin = New System.Windows.Forms.Padding(6)
-        Me.butUnlockWithDependents.Name = "butUnlockWithDependents"
-        Me.butUnlockWithDependents.Size = New System.Drawing.Size(148, 79)
-        Me.butUnlockWithDependents.TabIndex = 2
-        Me.butUnlockWithDependents.UseVisualStyleBackColor = True
+        Me.butUnlockActive.BackgroundImage = Global.SolidWorksSVN.My.Resources.Resources.ReleaseActive
+        Me.butUnlockActive.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.butUnlockActive.Location = New System.Drawing.Point(6, 113)
+        Me.butUnlockActive.Margin = New System.Windows.Forms.Padding(6)
+        Me.butUnlockActive.Name = "butUnlockActive"
+        Me.butUnlockActive.Size = New System.Drawing.Size(148, 79)
+        Me.butUnlockActive.TabIndex = 2
+        Me.butUnlockActive.UseVisualStyleBackColor = True
         '
         'butCheckinAll
         '
         Me.butCheckinAll.BackgroundImage = Global.SolidWorksSVN.My.Resources.Resources.CheckInAll
         Me.butCheckinAll.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.butCheckinAll.Location = New System.Drawing.Point(166, 38)
+        Me.butCheckinAll.Location = New System.Drawing.Point(166, 22)
         Me.butCheckinAll.Margin = New System.Windows.Forms.Padding(6)
         Me.butCheckinAll.Name = "butCheckinAll"
         Me.butCheckinAll.Size = New System.Drawing.Size(148, 79)
@@ -169,17 +170,30 @@ Partial Class UserControl1
         '
         Me.butCheckinWithDependents.BackgroundImage = Global.SolidWorksSVN.My.Resources.Resources.CheckInActive
         Me.butCheckinWithDependents.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.butCheckinWithDependents.Location = New System.Drawing.Point(6, 38)
+        Me.butCheckinWithDependents.Location = New System.Drawing.Point(6, 22)
         Me.butCheckinWithDependents.Margin = New System.Windows.Forms.Padding(6)
         Me.butCheckinWithDependents.Name = "butCheckinWithDependents"
         Me.butCheckinWithDependents.Size = New System.Drawing.Size(148, 79)
         Me.butCheckinWithDependents.TabIndex = 0
         Me.butCheckinWithDependents.UseVisualStyleBackColor = True
         '
+        'onlineCheckBox
+        '
+        Me.onlineCheckBox.AutoSize = True
+        Me.onlineCheckBox.Checked = True
+        Me.onlineCheckBox.CheckState = System.Windows.Forms.CheckState.Checked
+        Me.onlineCheckBox.Location = New System.Drawing.Point(6, 469)
+        Me.onlineCheckBox.Name = "onlineCheckBox"
+        Me.onlineCheckBox.Size = New System.Drawing.Size(106, 29)
+        Me.onlineCheckBox.TabIndex = 14
+        Me.onlineCheckBox.Text = "Online"
+        Me.onlineCheckBox.UseVisualStyleBackColor = True
+        '
         'UserControl1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(12.0!, 25.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
+        Me.Controls.Add(Me.onlineCheckBox)
         Me.Controls.Add(Me.butStatus)
         Me.Controls.Add(Me.butCleanup)
         Me.Controls.Add(Me.TreeView1)
@@ -189,7 +203,7 @@ Partial Class UserControl1
         Me.Controls.Add(Me.butCheckoutWithDependents)
         Me.Controls.Add(Me.butCheckoutActiveDoc)
         Me.Controls.Add(Me.butUnlockAll)
-        Me.Controls.Add(Me.butUnlockWithDependents)
+        Me.Controls.Add(Me.butUnlockActive)
         Me.Controls.Add(Me.butCheckinAll)
         Me.Controls.Add(Me.butCheckinWithDependents)
         Me.Margin = New System.Windows.Forms.Padding(6)
@@ -202,7 +216,7 @@ Partial Class UserControl1
 
     Friend WithEvents butCheckinWithDependents As Windows.Forms.Button
     Friend WithEvents butCheckinAll As Windows.Forms.Button
-    Friend WithEvents butUnlockWithDependents As Windows.Forms.Button
+    Friend WithEvents butUnlockActive As Windows.Forms.Button
     Friend WithEvents butUnlockAll As Windows.Forms.Button
     Friend WithEvents butCheckoutActiveDoc As Windows.Forms.Button
     Friend WithEvents butCheckoutWithDependents As Windows.Forms.Button
@@ -213,4 +227,5 @@ Partial Class UserControl1
     Friend WithEvents ContextMenuStrip1 As Windows.Forms.ContextMenuStrip
     Friend WithEvents butCleanup As Windows.Forms.Button
     Friend WithEvents butStatus As Windows.Forms.Button
+    Friend WithEvents onlineCheckBox As Windows.Forms.CheckBox
 End Class

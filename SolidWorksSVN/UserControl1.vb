@@ -11,9 +11,10 @@ Imports System.Drawing
 <ProgId("SVN_AddIn")>
 Public Class UserControl1
 
-    Dim WithEvents iSwApp As SldWorks
+    Public WithEvents iSwApp As SldWorks
     'Dim userAddin As SwAddin = New SwAddin() 'couldn't get access to swapp in here!
     Public Const sTortPath As String = "C:\Users\benne\Documents\SVN\TortoiseProc.exe"
+    'Public Const sRepoLocalPath As String = "E:\SolidworksBackup\svn"
     Public Const sRepoLocalPath As String = "C:\Users\benne\Documents\SVN\cad1"
     Public Const sSVNPath As String = "C:\Program Files\TortoiseSVN\bin\svn.exe"
 
@@ -26,7 +27,7 @@ Public Class UserControl1
         iSwApp = swAppin
     End Sub
     Private Sub butCheckinWithDependents_Click(sender As Object, e As EventArgs) Handles butCheckinWithDependents.Click
-        myCheckinWithDependents()
+        myCheckinWithDependents(iSwApp.ActiveDoc())
         updateStatusStrip()
     End Sub
 
@@ -34,12 +35,12 @@ Public Class UserControl1
         myCheckinAll()
         updateStatusStrip()
     End Sub
-    Private Sub butUnlockWithDependents_Click(sender As Object, e As EventArgs) Handles butUnlockWithDependents.Click
-        myUnlockWithDependents()
+    Private Sub butUnlockActive_Click(sender As Object, e As EventArgs) Handles butUnlockActive.Click
+        myUnlockActive()
         updateStatusStrip()
     End Sub
     Private Sub butUnlockAll_Click(sender As Object, e As EventArgs) Handles butUnlockAll.Click
-        myUnlockAll()
+        unlockDocs()
         updateStatusStrip()
     End Sub
     Private Sub butCheckoutActiveDoc_Click(sender As Object, e As EventArgs) Handles butCheckoutActiveDoc.Click
@@ -53,13 +54,13 @@ Public Class UserControl1
     End Sub
 
     Private Sub butGetLatestOpenOnly_Click(sender As Object, e As EventArgs) Handles butGetLatestOpenOnly.Click
-        myGetLatestOrRevert(getAllOpenDocs(bMustBeVisible:=False))
+        myGetLatestOrRevert(getAllOpenDocs(bMustBeVisible:=False),, bVerbose:=True)
         'myGetLatestOpenOnly()
         updateStatusStrip()
     End Sub
 
     Private Sub butGetLatestAllRepo_Click(sender As Object, e As EventArgs) Handles butGetLatestAllRepo.Click
-        myGetLatestOrRevert()
+        myGetLatestOrRevert(,, bVerbose:=True)
         updateStatusStrip()
         'myGetLatestAllRepo()
     End Sub
@@ -74,17 +75,16 @@ Public Class UserControl1
     End Sub
     Public Function updateStatusOfAllModelsVariable(Optional bRefreshAllTreeViews As Boolean = False) As Boolean
 
-        Dim bReturnSuccess As Boolean = False
         Dim output As SVNStatus = getFileSVNStatus(bCheckServer:=True, getAllOpenDocs(bMustBeVisible:=False))
 
-        If IsNothing(output) Or output.fp.Length = 0 Then
-            bReturnSuccess = False : Return bReturnSuccess
-        Else
-            bReturnSuccess = True
+        If IsNothing(output) Then
+            Return False
+        ElseIf output.fp.Length = 0 Then
+            Return False
         End If
 
         If bRefreshAllTreeViews Then refreshAllTreeViewsVariable()
-        Return bReturnSuccess
+        Return True
     End Function
 
     Public Sub updateStatusStrip()
@@ -116,10 +116,9 @@ Public Class UserControl1
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
         unlockDocs(modDoc)
     End Sub
-    Public Sub myUnlockWithDependents()
-        'TODO Needs work. It currently tries to unlock all dependents whether they are locked or not
-        ' creating a small error
-        Dim modDoc() As ModelDoc2 = {iSwApp.ActiveDoc()}
+    Sub myUnlockWithDependents(modDoc As ModelDoc2())
+
+        'Dim modDoc() As ModelDoc2 = {iSwApp.ActiveDoc()}
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
 
         If modDoc(0).GetType <> swDocumentTypes_e.swDocASSEMBLY Then
@@ -128,42 +127,28 @@ Public Class UserControl1
             unlockDocs(getComponentsOfAssemblyOptionalUpdateTree(modDoc(0)))
         End If
     End Sub
-    Sub myUnlockAll()
-        Dim bSuccess As Boolean = runTortoiseProcexeWithMonitor("/command:unlock /path:" & sRepoLocalPath & " /closeonend:3")
-        If Not bSuccess Then iSwApp.SendMsgToUser("Releasing Locks Failed.")
-        bSuccess = runTortoiseProcexeWithMonitor("/command:revert /path:" & sRepoLocalPath & " /closeonend:3")
-        If Not bSuccess Then iSwApp.SendMsgToUser("Reverting to Vault copies failed.")
-    End Sub
-    Sub unlockDocs(ByRef modDocArr() As ModelDoc2)
+    Sub unlockDocs(Optional ByRef modDocArr() As ModelDoc2 = Nothing)
+        Dim bSuccess As Boolean
+        Dim Status As SVNStatus
 
-        Dim Status As SVNStatus = getFileSVNStatus(bCheckServer:=True, modDocArr)
-        If IsNothing(Status) Then Exit Sub
+        If IsNothing(modDocArr) Then
+            bSuccess = runTortoiseProcexeWithMonitor("/command:unlock /path:" & sRepoLocalPath & " /closeonend:3")
 
-        Dim activeDoc As ModelDoc2 = iSwApp.ActiveDoc
-        If activeDoc Is Nothing Then Exit Sub
+        Else
+            Status = getFileSVNStatus(bCheckServer:=True, modDocArr)
+            If IsNothing(Status) Then Exit Sub
 
-        Dim bSuccess As Boolean = runTortoiseProcexeWithMonitor("/command:unlock /path:" &
-                                         formatFilePathArrForTortoiseProc(
-                                            getFilePathsFromModDocArr(modDocArr)) & " /closeonend:3")
+            bSuccess = runTortoiseProcexeWithMonitor("/command:unlock /path:" &
+                                             formatFilePathArrForTortoiseProc(
+                                                getFilePathsFromModDocArr(modDocArr)) & " /closeonend:3")
+        End If
 
         If Not bSuccess Then iSwApp.SendMsgToUserv("Releasing Locks Failed.")
 
-        Status = getFileSVNStatus(bCheckServer:=False, modDocArr)
-        If IsNothing(Status) Then Exit Sub
-        Status.setReadWriteFromLockStatus()
-        Status.releaseFileSystemAccessToReadOnlyModels()
-
-        refreshAllTreeViewsVariable()
-        switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
-
-        bSuccess = runTortoiseProcexeWithMonitor("/command:revert /path:" &
-                                         formatFilePathArrForTortoiseProc(
-                                            getFilePathsFromModDocArr(modDocArr)) & " /closeonend:3")
-
-        If Not bSuccess Then iSwApp.SendMsgToUser("Reverting to Vault copies failed.")
+        myGetLatestOrRevert(modDocArr, getLatestType.revert)
 
     End Sub
-    Public Function createBoolArray(ByRef iUbound As Integer, ByRef value As Boolean) As Boolean()
+    Public Shared Function createBoolArray(ByRef iUbound As Integer, ByRef value As Boolean) As Boolean()
         Dim i As Integer
         Dim output(iUbound) As Boolean
         For i = 0 To iUbound
@@ -171,8 +156,8 @@ Public Class UserControl1
         Next
         Return output
     End Function
-    Public Sub myCheckinWithDependents()
-        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()
+    Public Sub myCheckinWithDependents(modDoc As ModelDoc2)
+
         Dim modDocArr1() As ModelDoc2
         Dim bRequired() As Boolean
 
@@ -293,18 +278,38 @@ Public Class UserControl1
         If Not bSuccess Then iSwApp.SendMsgToUser("Status Check Failed.")
     End Sub
     Sub myCleanupAndRelease()
-        Dim bSuccess As Boolean
+        Dim bSuccessStatus As Boolean
+        Dim bSuccessCleanup As Boolean
+        Dim allOpenDocs As ModelDoc2() = getAllOpenDocs(bMustBeVisible:=False)
 
-        bSuccess = updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True)
-        If Not bSuccess Then Exit Sub
+        bSuccessStatus = updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True)
 
-        switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
-        statusOfAllOpenModels.setReadWriteFromLockStatus()
+        If bSuccessStatus Then
+            bSuccessCleanup = runTortoiseProcexeWithMonitor("/command:cleanup /cleanup /path:" & sRepoLocalPath)
+        Else
+            'Manually release file system locks
+            For Each modDoc In allOpenDocs
+                modDoc.ForceReleaseLocks()
+            Next
 
-        bSuccess = runTortoiseProcexeWithMonitor("/command:cleanup /cleanup /path:" & sRepoLocalPath)
-        If Not bSuccess Then iSwApp.SendMsgToUser("Cleanup Failed. This is often because the SVN server is attempting " &
-                       "to open a file that SolidWorks is currently accessing. This occurs even when the file is read only. " &
-                       "Try closing all open files and trying again. Or close SolidWorks and use ToroiseSVN to clean up. ")
+            bSuccessCleanup = runTortoiseProcexeWithMonitor("/command:cleanup /cleanup /path:" & sRepoLocalPath)
+            For Each modDoc In allOpenDocs
+                'Manually reattach to file system
+                modDoc.ReloadOrReplace(ReadOnly:=True, ReplaceFileName:=False, DiscardChanges:=False)
+            Next
+        End If
+
+        If bSuccessCleanup Then
+            bSuccessStatus = updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True)
+            If bSuccessStatus Then
+                statusOfAllOpenModels.setReadWriteFromLockStatus()
+                switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
+            End If
+        Else
+            iSwApp.SendMsgToUser("Cleanup Failed. This is often because the SVN server is attempting " &
+                    "to open a file that SolidWorks is currently accessing. This occurs even when the file is read only. " &
+                    "Try closing all open files and trying again. Or close SolidWorks and use ToroiseSVN to clean up. ")
+        End If
     End Sub
     Sub checkoutDocs(ByRef modDocArr() As ModelDoc2)
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()
@@ -315,7 +320,6 @@ Public Class UserControl1
         Dim sDocPathsToCheckout(modDocArr.Length - 1) As String
         Dim status As SVNStatus
         Dim bSuccess As Boolean = False
-        Dim i As Integer
         Dim sCatMessage As String = ""
         Dim sCatMessageLocked As String = ""
 
@@ -331,7 +335,7 @@ Public Class UserControl1
 
         'End If
 
-        sDocPathsToCheckout = statusOfAllOpenModels.sFilterUpToDate9("*", bFilterNot:=True)
+        sDocPathsToCheckout = status.sFilterUpToDate9("*", bFilterNot:=True)
 
         sCatMessage = catWithNewLine(status.sFilterUpToDate9("*"))
 
@@ -366,67 +370,82 @@ Public Class UserControl1
         Next
         Return output
     End Function
-
-
-    'Public Sub myGetLatestAllRepo()
-    '    myGetLatest(1)
-    'End Sub
-    'Public Sub myGetLatestOpenOnly()
-    '    myGetLatest(0)
-    'End Sub
-    Sub myGetLatestOrRevert(Optional ByRef openDocModels As ModelDoc2() = Nothing,
-                        Optional ByRef myGetType As getLatestType = getLatestType.update)
+    Sub myGetLatestOrRevert(Optional ByRef modDocArr As ModelDoc2() = Nothing,
+                        Optional ByRef myGetType As getLatestType = getLatestType.update,
+                            Optional ByRef bVerbose As Boolean = False)
         'Dim modDocTemp As ModelDoc2
         Dim i As Integer
         Dim j As Integer = 0
         Dim k As Integer = 0
         Dim m As Integer = 0
         Dim n As Integer = 0
+        Dim status As SVNStatus
         Dim bSuccess As Boolean
 
-        bSuccess = updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True)
-        If Not bSuccess Then Exit Sub
+        'Update to use getFileSVNStatus so its only the
+        If IsNothing(modDocArr) Then
+            updateStatusOfAllModelsVariable()
+            status = statusOfAllOpenModels
+        Else
+            status = getFileSVNStatus(bCheckServer:=True, modDocArr)
+        End If
+        If IsNothing(status) Then Exit Sub
 
-        Dim sFileList(UBound(statusOfAllOpenModels.fp)) As String
+        Dim sFileList(UBound(status.fp)) As String
 
-        For i = 0 To UBound(statusOfAllOpenModels.fp)
+        For i = 0 To UBound(status.fp)
             'modDocTemp = iSwApp.GetOpenDocumentByName(mySVNStatus.fp(i).filename)
-            If statusOfAllOpenModels.fp(i).modDoc Is Nothing Then Continue For 'modDocTemp
+            If status.fp(i).modDoc Is Nothing Then Continue For 'modDocTemp
             'modDocArr(m) = modDocTemp : m += 1
-            If (statusOfAllOpenModels.fp(i).upToDate9 = "*") And ((myGetType = getLatestType.update) Or (myGetType = getLatestType.both)) Then
+            If (status.fp(i).upToDate9 = "*") And ((myGetType = getLatestType.update) Or (myGetType = getLatestType.both)) Then
                 ' File is out of date
                 'sFileListToUpdate(j) = mySVNStatus.fp(i).filename : 
-                statusOfAllOpenModels.fp(i).revertUpdate = getLatestType.update
+                status.fp(i).revertUpdate = getLatestType.update
+                sFileList(j) = status.fp(i).filename
                 j += 1
-            ElseIf (statusOfAllOpenModels.fp(i).addDelChg1 = "M") And (myGetType = getLatestType.revert) And (statusOfAllOpenModels.fp(i).lock6 <> "K") Then
+            ElseIf (status.fp(i).addDelChg1 = "M") And (myGetType = getLatestType.revert) And (statusOfAllOpenModels.fp(i).lock6 <> "K") Then
                 ' Local copy has been modified
                 ' Note out of date files will go into FileListToUpdate and will be skipped over by revert.
                 'sFileListToRevert(n) = mySVNStatus.fp(i).filename : n += 1
-                statusOfAllOpenModels.fp(i).revertUpdate = getLatestType.revert
+                status.fp(i).revertUpdate = getLatestType.revert
+                sFileList(j) = status.fp(i).filename
                 j += 1
             End If
         Next
 
-        statusOfAllOpenModels.setReadWriteFromLockStatus()
-        switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
+        status.setReadWriteFromLockStatus()
 
-        If j = 0 Then iSwApp.SendMsgToUser("All Files Checked Are Up to Date!") : Exit Sub
+        If j = 0 Then
+            If bVerbose Then iSwApp.SendMsgToUser("All Files Checked Are Up to Date!")
+            If updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True) Then
+                switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
+            End If
+            Exit Sub
+        End If
 
-        statusOfAllOpenModels.releaseFileSystemAccessToReadOnlyModels()
+        status.releaseFileSystemAccessToReadOnlyModels()
 
-        sFileList = statusOfAllOpenModels.sFilterGetLatestType(getLatestType.revert, bIgnoreUpdate:=True)
+        'HELP
+        sFileList = status.sFilterGetLatestType(getLatestType.revert, bIgnoreUpdate:=False)
         If (Not sFileList Is Nothing) And ((myGetType = getLatestType.revert) Or (myGetType = getLatestType.both)) Then
-            runTortoiseProcexeWithMonitor("/command:revert /path:" &
+            bSuccess = runTortoiseProcexeWithMonitor("/command:revert /path:" &
                                           formatFilePathArrForTortoiseProc(sFileList) & " /closeonend:3")
+            If Not bSuccess Then iSwApp.SendMsgToUserv("Revert Files Failed.")
         End If
-        sFileList = statusOfAllOpenModels.sFilterGetLatestType(getLatestType.update, bIgnoreUpdate:=False)
+        sFileList = status.sFilterGetLatestType(getLatestType.update, bIgnoreUpdate:=False)
         If (Not sFileList Is Nothing) And ((myGetType = getLatestType.update) Or (myGetType = getLatestType.both)) Then
-            runTortoiseProcexeWithMonitor("/command:update /path:" & formatFilePathArrForTortoiseProc(sFileList) & " /closeonend:3")
+            bSuccess = runTortoiseProcexeWithMonitor("/command:update /path:" & formatFilePathArrForTortoiseProc(sFileList) & " /closeonend:3")
+            If Not bSuccess Then iSwApp.SendMsgToUserv("Updating Files Failed.")
         End If
 
-        statusOfAllOpenModels.reattachDocsToFileSystem()
-    End Sub
+        status.reattachDocsToFileSystem()
+
+        If updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True) Then
+            switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
+        End If
+        End Sub
     Enum getLatestType
+        none
         revert
         update
         both
@@ -567,6 +586,9 @@ Public Class UserControl1
         stealAndDoNotOverwrite
         unknown
     End Enum
+
+    'Private Shared sbOutputLines As System.Text.StringBuilder = Nothing
+
     Public Function getFileSVNStatus(ByVal bCheckServer As Boolean,
                               Optional ByRef modDocArr() As ModelDoc2 = Nothing,
                               Optional ByVal iRecursiveLevel As Integer = 0) As SVNStatus
@@ -599,40 +621,76 @@ Public Class UserControl1
         Dim bExpectStatusAgainstRevision As Boolean = False
         Dim Index As Integer
 
-        SVNstartInfo.Arguments = "status " & If(bCheckServer, "-u ", "") & "-v --non-interactive " & sRepoLocalPath 'sFilePathCat
+        'SVNstartInfo.Arguments = "status " & If(bCheckServer, "-u ", "") & "-v --non-interactive E:\SolidworksBackup\svn " 'sFilePathCat 
+
+        SVNstartInfo.Arguments = "status " & If(bCheckServer, "-u ", "") & "-v --non-interactive " & sRepoLocalPath  'sFilePathCat 
         SVNstartInfo.FileName = sSVNPath
         SVNstartInfo.UseShellExecute = False
         SVNstartInfo.RedirectStandardOutput = True
         SVNstartInfo.RedirectStandardError = True
         SVNstartInfo.CreateNoWindow = True
         oSVNProcess.StartInfo = SVNstartInfo
+
+        '============
+        'sbOutputLines = New System.Text.StringBuilder()
+
+        ' Set our event handler to asynchronously read the sort output.
+        'AddHandler oSVNProcess.OutputDataReceived, AddressOf SortOutputHandler
+
         oSVNProcess.Start()
 
-        'Monitor the process. Kill it if it stops responding
-        Dim nResponding As Integer = 0
-        Do While (Not oSVNProcess.HasExited)
-            nResponding += (Not oSVNProcess.Responding)
-            If nResponding > 3000 Then 'Sort of milliseconds because of the sleep command. But not exactly.
-                oSVNProcess.Kill()
-                iSwApp.SendMsgToUser("SVN timed out while attempting to connect to the vault")
-                Return Nothing
-            End If
-            System.Threading.Thread.Sleep(1)
-        Loop
+        ''Monitor the process. Kill it if it stops responding
+        'Dim nResponding As Integer = 0
+        'Dim totalTime As Integer = 0
+        'Do While (Not oSVNProcess.HasExited)
+        '    nResponding += (Not oSVNProcess.Responding)
+        '    totalTime += 1
+        '    If (nResponding > 1000) Or (totalTime > 10000) Then 'Sort of milliseconds because of the sleep command. But not exactly.
+        '        oSVNProcess.Kill()
 
-        Using oStreamReader As System.IO.StreamReader = oSVNProcess.StandardOutput
-            SVNOutput = oStreamReader.ReadToEnd()
+        '        If iSwApp.SendMsgToUser2("SVN timed out While attempting To connect To the vault. " &
+        '                              "Would you Like To switch To offline?",
+        '                              swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbYesNo) = swMessageBoxResult_e.swMbHitYes Then
+        '            onlineCheckBox.Checked = False
+        '        End If
+        '        Return Nothing
+        '    End If
+        '    System.Threading.Thread.Sleep(1)
+        'Loop
+
+        'Using  async
+        'SVNOutput = sbOutputLines.ToString
+
+        'Using Sync
+        Using ostreamreader As System.IO.StreamReader = oSVNProcess.StandardOutput
+            SVNOutput = ostreamreader.ReadToEnd()
         End Using
-        Using oStreamReader As System.IO.StreamReader = oSVNProcess.StandardError
-            SVNErrorOutput = oStreamReader.ReadToEnd()
+        Using ostreamreader As System.IO.StreamReader = oSVNProcess.StandardError
+            SVNErrorOutput = ostreamreader.ReadToEnd()
         End Using
+
+        If Not oSVNProcess.WaitForExit(10000) Then
+            'If the process doesn't finish after 10s then kill it and send error message to user
+            oSVNProcess.Kill()
+            If iSwApp.SendMsgToUser2("SVN timed out While attempting To connect To the vault. " &
+                                  "Would you Like To switch To offline?",
+                                  swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbYesNo) = swMessageBoxResult_e.swMbHitYes Then
+                onlineCheckBox.Checked = False
+            End If
+            Return Nothing
+        End If
+
+
+
         sOutputLines = SVNOutput.Split(ControlChars.CrLf.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
         sOutputErrorLines = SVNErrorOutput.Split(ControlChars.CrLf.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
         k = sOutputErrorLines.Length - 1
+        'sOutputErrorLines = {""}
 
         Dim output As SVNStatus = New SVNStatus()
         statusOfAllOpenModels = output ' Be careful! This does not copy. This makes both point to the same memory! We will split/copy them later if theres no errors.
-        ReDim output.fp(UBound(sOutputLines))
+        'ReDim output.fp(UBound(sOutputLines))
+        ReDim output.fp(sOutputLines.Length - 1)
 
         'Error Checking
         If (sOutputErrorLines Is Nothing) Or (sOutputLines Is Nothing) Then
@@ -652,9 +710,14 @@ Public Class UserControl1
                     iSwApp.SendMsgToUser(catWithNewLine(sOutputErrorLines))
                     runTortoiseProcexeWithMonitor("/command:repostatus /remote /path:" & sRepoLocalPath) 'log in
                     Return getFileSVNStatus(bCheckServer, modDocArr, iRecursiveLevel:=1)
-                ElseIf sOutputErrorLines(1).Contains("E170013") Then
+                ElseIf sOutputErrorLines(i).Contains("E170013") Then
                     'Couldn't connect. Server is off or no internet connection
-                    iSwApp.SendMsgToUser(catWithNewLine(sOutputErrorLines))
+                    If iSwApp.SendMsgToUser2("SVN timed out while attempting to connect to the vault. " &
+                      "Would you like to switch to offline? " & vbCrLf & vbCrLf & vbCrLf & "Error Message Below" &
+                      catWithNewLine(sOutputErrorLines),
+                      swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbYesNo) = swMessageBoxResult_e.swMbHitYes Then
+                        onlineCheckBox.Checked = False
+                    End If
                     Return Nothing
                 ElseIf sOutputErrorLines(i).Contains("W155007:") Then
                     'Common error. File not saved into repository
@@ -671,6 +734,17 @@ Public Class UserControl1
             Next i
         End If
 
+        If sOutputLines.Length = 0 Then
+            If sCatMessage <> "" Then
+                iSwApp.SendMsgToUser(sCatMessage)
+                'Unknown other error. Continue running svnstatus function.
+            Else
+                iSwApp.SendMsgToUser(sCatMessage & vbCrLf & "Error: No Usable output lines returned from SVN. " &
+                    "Possible Reasons: No connection to server.")
+            End If
+            Return Nothing
+        End If
+
         If (bCheckServer) Then
             If sOutputLines(0).Substring(0, 23) = "Status against revision" Then
                 iSwApp.SendMsgToUser("Status Returned from SVN Server with No Items") 'If you change the string, change it other places in the code too!
@@ -680,17 +754,6 @@ Public Class UserControl1
                 iSwApp.SendMsgToUser("Error: Incomplete SVN Status. Could not Read Line 2. Line 1:" & sOutputLines(0))
                 Return output
             End If
-        End If
-
-        If sOutputLines.Length = 0 Then
-            'If output(0).errorMessage Is Nothing Then ReDim Preserve output(0).errorMessage(0)
-            'ReDim output.statError(0)
-            iSwApp.SendMsgToUser(sCatMessage & vbCrLf & "Error: No Usable output lines returned from SVN. " &
-                    "Possible Reasons: No connection to server.")
-            Return output
-        ElseIf sCatMessage <> "" Then
-            iSwApp.SendMsgToUser(sCatMessage)
-            'Unknown other error. Continue running svnstatus function.
         End If
 
         ReDim output.fp(UBound(sOutputLines))
@@ -725,7 +788,21 @@ Public Class UserControl1
         Else
             Return output
         End If
+
+
+
     End Function
+
+    'Private Shared Sub SortOutputHandler(sendingProcess As Object,
+    '       outLine As DataReceivedEventArgs)
+
+    '    ' Collect the sort command output.
+    '    If Not String.IsNullOrEmpty(outLine.Data) Then
+    '        ' Add the text to the collected output.
+    '        sbOutputLines.Append(vbCrLf & outLine.Data)
+    '    End If
+    'End Sub
+
     Public Shared Function findIndexContains(ByVal sLookInArr() As String, ByVal find As String) As Integer
         Dim i As Integer
         'Dim output As Integer
@@ -758,11 +835,13 @@ Public Class UserControl1
     End Function
     Public Sub switchTreeViewToCurrentModel(Optional bRetryWithRefresh As Boolean = True)
 
+        If Not onlineCheckBox.Checked Then Exit Sub
+
         TreeView1.BeginUpdate()
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()
 
         Dim treeNodeTemp As TreeNode = findStoredTreeView(modDoc.GetPathName, bRetryWithRefresh)
-        If Not IsNothing(treeNodeTemp) Then Exit Sub
+        If IsNothing(treeNodeTemp) Then Exit Sub
 
         Dim clonedNode As TreeNode = CType(treeNodeTemp.Clone(), TreeNode)
 
@@ -831,6 +910,7 @@ Public Class UserControl1
         If bUC Then
             allTreeViews(allTreeViewsIndexToUpdate).Nodes.Clear()
             parentNode = New TreeNode(sFileNameTemp)
+            parentNode.Tag = modDoc
         End If
 
         If modDoc.GetType <> swDocumentTypes_e.swDocASSEMBLY Then
@@ -886,6 +966,7 @@ Public Class UserControl1
             'ParentNode = rootNode
             'Else
             parentNode = New TreeNode(sParentFileName)
+            parentNode.Tag = modDocParent
             setNodeColorFromStatus(parentNode)
             'End If
         End If
@@ -894,12 +975,16 @@ Public Class UserControl1
         For i = 0 To UBound(vChildComp)
             swChildComp = vChildComp(i)
             modDocChild = swChildComp.GetModelDoc2
+            If IsNothing(modDocChild) Then
+                Continue For
+            End If
             If modDocChild.GetType <> swDocumentTypes_e.swDocASSEMBLY Then
                 'Is part file
                 If mdComponentList.Contains(modDocChild) Then Continue For 'avoid duplicates
                 If bUC Then
                     sChildFileName = System.IO.Path.GetFileName(modDocChild.GetPathName)
                     childNode = New TreeNode(sChildFileName)
+                    childNode.Tag = modDocChild
                     setNodeColorFromStatus(childNode)
                     parentNode.Nodes.Add(childNode)
                 End If
@@ -920,24 +1005,119 @@ Public Class UserControl1
         End If
 
     End Sub
+    Class myContextMenuClass
+
+        Dim iSwApp2 As SldWorks
+        Dim modDoc As ModelDoc2
+        Public openLabel As New ToolStripMenuItem("Open", My.Resources.VaultLogo128, AddressOf openEventHandler)
+        Public unlockLabel As New ToolStripMenuItem("Release Lock", My.Resources.VaultLogo128, AddressOf unlockEventHandler)
+        Public unlockWithDependentsLabel As New ToolStripMenuItem("Release Lock With Dependents", My.Resources.VaultLogo128, AddressOf unlockWithDependentsEventHandler)
+        Public checkInLabel As New ToolStripMenuItem("Check In", My.Resources.VaultLogo128, AddressOf checkInEventHandler)
+        Public checkInWithDependentsLabel As New ToolStripMenuItem("Check In With Dependents", My.Resources.VaultLogo128, AddressOf checkInWithDependentsEventHandler)
+        Public checkOutStealLabel As New ToolStripMenuItem("Check Out (Steal Locks)", My.Resources.VaultLogo128, AddressOf checkOutStealLockEventHandler)
+        Public checkOutActiveDoc As New ToolStripMenuItem("Check Out Active Doc", My.Resources.VaultLogo128, AddressOf checkOutActiveDocEventHandler)
+        Public checkOutWithDependents As New ToolStripMenuItem("Check Out With Dependents", My.Resources.VaultLogo128, AddressOf checkOutActiveWithDependentsEventHandler)
+        Public Sub New(modDocInput As ModelDoc2, iSwAppInput As SldWorks)
+            modDoc = modDocInput
+            iSwApp2 = iSwAppInput
+        End Sub
+        Sub openEventHandler(sender As Object, e As EventArgs)
+            iSwApp2.ActivateDoc3(modDoc.GetPathName, True, swRebuildOnActivation_e.swUserDecision, 0)
+        End Sub
+        Sub unlockEventHandler(sender As Object, e As EventArgs)
+            iSwApp2.unlockDocs({modDoc})
+        End Sub
+        Sub unlockWithDependentsEventHandler(sender As Object, e As EventArgs)
+            iSwApp2.myUnlockWithDependents({modDoc})
+        End Sub
+        Sub checkInEventHandler(sender As Object, e As EventArgs)
+            iSwApp2.checkInDocs({modDoc}, createBoolArray(1, True))
+        End Sub
+        Sub checkInWithDependentsEventHandler(sender As Object, e As EventArgs)
+            iSwApp2.myCheckinWithDependents({modDoc})
+        End Sub
+        Sub checkOutStealLockEventHandler(sender As Object, e As EventArgs)
+            If swMessageBoxResult_e.swMbHitOk =
+            iSwApp2.SendMsgToUser2("File is Currently checked out by another user. You can steal their " &
+                                   "Locks by clicking the checkbox in the next window. If both you and that user " &
+                                   "attempt to check in their copies, a conflict can occur. Always communicate " &
+                                   "your intention to break someone's lock with that user.",
+                                    swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbOkCancel) Then
+                iSwApp2.unlockDocs({modDoc})
+            End If
+        End Sub
+        Sub checkOutActiveDocEventHandler(sender As Object, e As EventArgs)
+            iSwApp2.unlockDocs({modDoc})
+        End Sub
+        Sub checkOutActiveWithDependentsEventHandler(sender As Object, e As EventArgs)
+            iSwApp2.myunlockwithDependents(modDoc)
+        End Sub
+
+    End Class
     Sub setNodeColorFromStatus(
         ByRef rootNode As TreeNode)
         Dim myCol As myColours = New myColours()
         myCol.initialize()
         Dim status1 As SVNStatus = findStatusForFile(rootNode.Text)
+
+        Dim bCM As Boolean = If(IsNothing(rootNode.Tag), True, False)
+        Dim myContextMenu As New myContextMenuClass(rootNode.Tag, iSwApp)
+
+        Dim docMenu As ContextMenuStrip
+        docMenu = New ContextMenuStrip()
+
+        'If bCM Then
+        '    rootNode.ContextMenuStrip.Items.Add(myContextMenu.openLabel)
+        'End If
+
+
         If status1 Is Nothing Then
             rootNode.BackColor = myCol.unknown
+            rootNode.ToolTipText = "Unknown"
+            If bCM Then docMenu.Items.AddRange(New ToolStripMenuItem() _
+                {myContextMenu.openLabel})
+
         ElseIf status1.fp(0).lock6 = "K" Then
             rootNode.BackColor = myCol.lockedByYou
+            rootNode.ToolTipText = "Checked Out By You"
+
+            If bCM Then docMenu.Items.AddRange(New ToolStripMenuItem() _
+                {myContextMenu.checkInLabel, myContextMenu.checkInWithDependentsLabel, myContextMenu.unlockLabel, myContextMenu.unlockWithDependentsLabel})
+
+            'If bCM Then rootNode.ContextMenuStrip.Items.Add(myContextMenu.checkInLabel)
+            'If bCM Then rootNode.ContextMenuStrip.Items.Add(myContextMenu.checkInWithDependentsLabel)
+            'If bCM Then rootNode.ContextMenuStrip.Items.Add(myContextMenu.unlockLabel)
+            'If bCM Then rootNode.ContextMenuStrip.Items.Add(myContextMenu.unlockWithDependentsLabel)
         ElseIf status1.fp(0).upToDate9 = "*" Then
             rootNode.BackColor = myCol.outOfDate
+            rootNode.ToolTipText = "Your Copy is Out Of Date"
+            If bCM Then docMenu.Items.AddRange(New ToolStripMenuItem() _
+                {myContextMenu.checkOutStealLabel})
+
         ElseIf status1.fp(0).lock6 = "O" Then
             rootNode.BackColor = myCol.lockedBySomeoneElse
+            rootNode.ToolTipText = "Locked By Someone Else"
+            If bCM Then docMenu.Items.AddRange(New ToolStripMenuItem() _
+                {myContextMenu.checkOutStealLabel})
+            'If bCM Then rootNode.ContextMenuStrip.Items.Add(myContextMenu.checkOutStealLabel)
+
         ElseIf status1.fp(0).lock6 = " " Then
             rootNode.BackColor = myCol.available
+            rootNode.ToolTipText = "Available"
+            If bCM Then docMenu.Items.AddRange(New ToolStripMenuItem() _
+                {myContextMenu.checkOutActiveDoc, myContextMenu.checkOutWithDependents})
+            'If bCM Then rootNode.ContextMenuStrip.Items.Add(myContextMenu.checkOutActiveDoc)
+            'If bCM Then rootNode.ContextMenuStrip.Items.Add(myContextMenu.checkOutWithDependents)
+
         Else
             rootNode.BackColor = myCol.unknown
+            rootNode.ToolTipText = "Unknown"
+            If bCM Then docMenu.Items.AddRange(New ToolStripMenuItem() _
+                {myContextMenu.openLabel})
+
         End If
+
+        rootNode.ContextMenuStrip = docMenu
     End Sub
     Class myColours
         Public lockedByYou As Drawing.Color
@@ -1007,6 +1187,7 @@ Public Class UserControl1
             Else
                 fp(j).upToDate9 = "NoUpdate"
             End If
+            fp(j).revertUpdate = getLatestType.none
         End Sub
         Sub setReadWriteFromLockStatus()
             Dim i As Integer
@@ -1049,6 +1230,18 @@ Public Class UserControl1
             For i As Integer = 0 To UBound(fp)
                 'If findIndexContains(pathFilterArray, fp(i).filename) = -1 Then Continue For
                 If ((fp(i).upToDate9 = filter) And (Not bFilterNot)) Or ((Not fp(i).upToDate9 = filter) And (bFilterNot)) Then
+                    sPath(j) = fp(i).filename
+                    j += 1
+                End If
+            Next
+            If j = 0 Then Return Nothing
+            Return sPath
+        End Function
+        Public Function sFilterChanges(ByRef filter As String) As String()
+            Dim sPath(UBound(fp)) As String
+            Dim j As Integer = 0
+            For i As Integer = 0 To UBound(fp)
+                If (fp(i).addDelChg1 = filter) Then
                     sPath(j) = fp(i).filename
                     j += 1
                 End If

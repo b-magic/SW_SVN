@@ -154,7 +154,19 @@
   <data name="Cleanup" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\icons\Cleanup.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="SWImage" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\SWImage.bmp;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="VaultLogo128" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\VaultLogo128.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="VaultLogo20" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\VaultLogo20.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="VaultLogo40" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\VaultLogo40.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="VaultLogo64" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\VaultLogo64.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="VaultLogo96" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\VaultLogo96.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

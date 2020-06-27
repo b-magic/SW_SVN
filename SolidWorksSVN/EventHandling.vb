@@ -17,6 +17,7 @@ Public Class DocumentEventHandler
     Overridable Function DetachEventHandlers() As Boolean
     End Function
 
+
     Function ConnectModelViews() As Boolean
         Dim iModelView As ModelView
         iModelView = iDocument.GetFirstModelView()
@@ -80,21 +81,28 @@ Public Class PartEventHandler
 
     Overrides Function AttachEventHandlers() As Boolean
         AddHandler iPart.DestroyNotify, AddressOf Me.PartDoc_DestroyNotify
-        AddHandler iPart.NewSelectionNotify, AddressOf Me.PartDoc_NewSelectionNotify
-        AddHandler iSwApp.ActiveModelDocChangeNotify, AddressOf Me.PartDoc_ActiveModelDocChangeNotify
+        'AddHandler iPart.NewSelectionNotify, AddressOf Me.PartDoc_NewSelectionNotify
+        'AddHandler iSwApp.ActiveModelDocChangeNotify, AddressOf Me.PartDoc_ActiveModelDocChangeNotify
+        'AddHandler iSwApp.FileOpenPostNotify, AddressOf Me.PartDoc_FileOpenPostNotify
         ConnectModelViews()
     End Function
 
     Overrides Function DetachEventHandlers() As Boolean
         RemoveHandler iPart.DestroyNotify, AddressOf Me.PartDoc_DestroyNotify
-        RemoveHandler iPart.NewSelectionNotify, AddressOf Me.PartDoc_NewSelectionNotify
-        RemoveHandler iSwApp.ActiveModelDocChangeNotify, AddressOf Me.PartDoc_ActiveModelDocChangeNotify
+        'RemoveHandler iPart.NewSelectionNotify, AddressOf Me.PartDoc_NewSelectionNotify
+        'RemoveHandler iSwApp.ActiveModelDocChangeNotify, AddressOf Me.PartDoc_ActiveModelDocChangeNotify
+        'RemoveHandler iSwApp.FileOpenPostNotify, AddressOf Me.PartDoc_FileOpenPostNotify
         DisconnectModelViews()
 
         userAddin.DetachModelEventHandler(iDocument)
     End Function
+    Function PartDoc_FileOpenPostNotify() As Integer
 
+    End Function
     Function PartDoc_ActiveModelDocChangeNotify() As Integer
+
+        'THIS CODE WILL BE RUN 1X THE NUMBER OF OPEN PARTS IN YOUR ASSEMBLY EACH TIME THE WINDOW CHANGES
+
         'Dim UC1 As UserControl1 = swAddin.myTaskPaneHost
         'Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
         'Dim status As UserControl1.SVNStatus
@@ -102,9 +110,7 @@ Public Class PartEventHandler
         'status = UC1.getFileSVNStatus(bCheckServer:=False, UC1.getComponentsOfAssemblyOptionalUpdateTree(modDoc))
         'UC1.getComponentsOfAssemblyOptionalUpdateTree(modDoc, status)
 
-        'HELP ME
-        swAddin.myTaskPaneHost.switchTreeViewToCurrentModel()
-
+        'swAddin.myTaskPaneHost.switchTreeViewToCurrentModel()
     End Function
 
     Function PartDoc_DestroyNotify() As Integer
@@ -139,8 +145,7 @@ Public Class AssemblyEventHandler
         AddHandler iAssembly.ComponentStateChangeNotify2, AddressOf Me.AssemblyDoc_ComponentStateChangeNotify2
         AddHandler iAssembly.ComponentVisualPropertiesChangeNotify, AddressOf Me.AssemblyDoc_ComponentVisiblePropertiesChangeNotify
         AddHandler iAssembly.ComponentDisplayStateChangeNotify, AddressOf Me.AssemblyDoc_ComponentDisplayStateChangeNotify
-        AddHandler iSwApp.ActiveModelDocChangeNotify, AddressOf Me.AssemblyDoc_ActiveModelDocChangeNotify
-        AddHandler iSwApp.FileOpenPostNotify, AddressOf Me.DSldWorksEvents_FileOpenPostNotifyEventHandler
+        'AddHandler iSwApp.ActiveModelDocChangeNotify, AddressOf Me.AssemblyDoc_ActiveModelDocChangeNotify
 
         ConnectModelViews()
     End Function
@@ -152,24 +157,16 @@ Public Class AssemblyEventHandler
         RemoveHandler iAssembly.ComponentStateChangeNotify2, AddressOf Me.AssemblyDoc_ComponentStateChangeNotify2
         RemoveHandler iAssembly.ComponentVisualPropertiesChangeNotify, AddressOf Me.AssemblyDoc_ComponentVisiblePropertiesChangeNotify
         RemoveHandler iAssembly.ComponentDisplayStateChangeNotify, AddressOf Me.AssemblyDoc_ComponentDisplayStateChangeNotify
-        RemoveHandler iSwApp.ActiveModelDocChangeNotify, AddressOf Me.AssemblyDoc_ActiveModelDocChangeNotify
-        RemoveHandler iSwApp.FileOpenPostNotify, AddressOf Me.DSldWorksEvents_FileOpenPostNotifyEventHandler
+        'RemoveHandler iSwApp.ActiveModelDocChangeNotify, AddressOf Me.AssemblyDoc_ActiveModelDocChangeNotify
 
         DisconnectModelViews()
 
         userAddin.DetachModelEventHandler(iDocument)
     End Function
     Function AssemblyDoc_ActiveModelDocChangeNotify() As Integer
-        Dim UC1 As UserControl1 = swAddin.myTaskPaneHost
-        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
-
-        UC1.switchTreeViewToCurrentModel()
+        'This code will be run 1X the number of assemblies open = RUN SO MANY TIMES
     End Function
     Function DSldWorksEvents_FileOpenPostNotifyEventHandler() As Integer
-        Dim UC1 As UserControl1 = swAddin.myTaskPaneHost
-        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
-
-        UC1.switchTreeViewToCurrentModel()
 
     End Function
 

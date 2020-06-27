@@ -162,6 +162,7 @@
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.vb</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="ToolbarLarge.bmp" />
     <EmbeddedResource Include="ToolbarSmall.bmp" />
@@ -214,7 +215,22 @@
     <None Include="icons\Cleanup.png" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\SWImage.bmp" />
+    <Folder Include="Resources\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icons\VaultLogo20.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icons\VaultLogo40.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icons\VaultLogo64.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icons\VaultLogo96.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icons\VaultLogo128.png" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
