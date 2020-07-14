@@ -37,6 +37,7 @@ Partial Class UserControl1
         Me.butCheckinAll = New System.Windows.Forms.Button()
         Me.butCheckinWithDependents = New System.Windows.Forms.Button()
         Me.onlineCheckBox = New System.Windows.Forms.CheckBox()
+        Me.localRepoPath = New System.Windows.Forms.TextBox()
         Me.SuspendLayout()
         '
         'StatusStrip2
@@ -189,10 +190,19 @@ Partial Class UserControl1
         Me.onlineCheckBox.Text = "Online"
         Me.onlineCheckBox.UseVisualStyleBackColor = True
         '
+        'localRepoPath
+        '
+        Me.localRepoPath.Location = New System.Drawing.Point(6, 432)
+        Me.localRepoPath.Name = "localRepoPath"
+        Me.localRepoPath.Size = New System.Drawing.Size(636, 31)
+        Me.localRepoPath.TabIndex = 15
+        Me.localRepoPath.Text = "C:\Users\benne\Documents\SVN\fsae9"
+        '
         'UserControl1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(12.0!, 25.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
+        Me.Controls.Add(Me.localRepoPath)
         Me.Controls.Add(Me.onlineCheckBox)
         Me.Controls.Add(Me.butStatus)
         Me.Controls.Add(Me.butCleanup)
@@ -228,4 +238,5 @@ Partial Class UserControl1
     Friend WithEvents butCleanup As Windows.Forms.Button
     Friend WithEvents butStatus As Windows.Forms.Button
     Friend WithEvents onlineCheckBox As Windows.Forms.CheckBox
+    Friend WithEvents localRepoPath As Windows.Forms.TextBox
 End Class

@@ -14,8 +14,8 @@ Public Class UserControl1
     Public WithEvents iSwApp As SldWorks
     'Dim userAddin As SwAddin = New SwAddin() 'couldn't get access to swapp in here!
     Public Const sTortPath As String = "C:\Users\benne\Documents\SVN\TortoiseProc.exe"
-    'Public Const sRepoLocalPath As String = "E:\SolidworksBackup\svn"
-    Public Const sRepoLocalPath As String = "C:\Users\benne\Documents\SVN\cad1"
+    'Public Const localRepoPath.text As String = "E:\SolidworksBackup\svn"
+    'Public Const localRepoPath.text As String = "C:\Users\benne\Documents\SVN\cad1"
     Public Const sSVNPath As String = "C:\Program Files\TortoiseSVN\bin\svn.exe"
 
     Public statusOfAllOpenModels As SVNStatus
@@ -132,7 +132,7 @@ Public Class UserControl1
         Dim Status As SVNStatus
 
         If IsNothing(modDocArr) Then
-            bSuccess = runTortoiseProcexeWithMonitor("/command:unlock /path:" & sRepoLocalPath & " /closeonend:3")
+            bSuccess = runTortoiseProcexeWithMonitor("/command:unlock /path:" & localRepoPath.text & " /closeonend:3")
 
         Else
             Status = getFileSVNStatus(bCheckServer:=True, modDocArr)
@@ -232,7 +232,7 @@ Public Class UserControl1
 
         iSwApp.RunCommand(19, vbEmpty) 'Save All
 
-        bSuccess = runTortoiseProcexeWithMonitor("/command:commit /path:""" & sRepoLocalPath & """ /closeonend:3")
+        bSuccess = runTortoiseProcexeWithMonitor("/command:commit /path:""" & localRepoPath.text & """ /closeonend:3")
         If Not bSuccess Then iSwApp.SendMsgToUser("TortoiseSVN Process Failed.") : Exit Sub
 
         'Switch over files to read-only
@@ -285,14 +285,14 @@ Public Class UserControl1
         bSuccessStatus = updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True)
 
         If bSuccessStatus Then
-            bSuccessCleanup = runTortoiseProcexeWithMonitor("/command:cleanup /cleanup /path:" & sRepoLocalPath)
+            bSuccessCleanup = runTortoiseProcexeWithMonitor("/command:cleanup /cleanup /path:" & localRepoPath.text)
         Else
             'Manually release file system locks
             For Each modDoc In allOpenDocs
                 modDoc.ForceReleaseLocks()
             Next
 
-            bSuccessCleanup = runTortoiseProcexeWithMonitor("/command:cleanup /cleanup /path:" & sRepoLocalPath)
+            bSuccessCleanup = runTortoiseProcexeWithMonitor("/command:cleanup /cleanup /path:" & localRepoPath.text)
             For Each modDoc In allOpenDocs
                 'Manually reattach to file system
                 modDoc.ReloadOrReplace(ReadOnly:=True, ReplaceFileName:=False, DiscardChanges:=False)
@@ -443,7 +443,7 @@ Public Class UserControl1
         If updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True) Then
             switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
         End If
-        End Sub
+    End Sub
     Enum getLatestType
         none
         revert
@@ -535,7 +535,7 @@ Public Class UserControl1
 
         tortStartInfo.FileName = sTortPath
         tortStartInfo.Arguments = sArguments
-        tortStartInfo.WorkingDirectory = sRepoLocalPath
+        tortStartInfo.WorkingDirectory = localRepoPath.text
         oTortProcess.StartInfo = tortStartInfo
         oTortProcess.Start()
 
@@ -623,7 +623,7 @@ Public Class UserControl1
 
         'SVNstartInfo.Arguments = "status " & If(bCheckServer, "-u ", "") & "-v --non-interactive E:\SolidworksBackup\svn " 'sFilePathCat 
 
-        SVNstartInfo.Arguments = "status " & If(bCheckServer, "-u ", "") & "-v --non-interactive " & sRepoLocalPath  'sFilePathCat 
+        SVNstartInfo.Arguments = "status " & If(bCheckServer, "-u ", "") & "-v --non-interactive " & localRepoPath.text  'sFilePathCat 
         SVNstartInfo.FileName = sSVNPath
         SVNstartInfo.UseShellExecute = False
         SVNstartInfo.RedirectStandardOutput = True
@@ -708,7 +708,7 @@ Public Class UserControl1
                     End If
                     'Open a log in, and then try again. 
                     iSwApp.SendMsgToUser(catWithNewLine(sOutputErrorLines))
-                    runTortoiseProcexeWithMonitor("/command:repostatus /remote /path:" & sRepoLocalPath) 'log in
+                    runTortoiseProcexeWithMonitor("/command:repostatus /remote /path:" & localRepoPath.text) 'log in
                     Return getFileSVNStatus(bCheckServer, modDocArr, iRecursiveLevel:=1)
                 ElseIf sOutputErrorLines(i).Contains("E170013") Then
                     'Couldn't connect. Server is off or no internet connection
@@ -762,7 +762,7 @@ Public Class UserControl1
         For i = 0 To UBound(sOutputLines)
             If sOutputLines(i).Substring(0, 23) = "Status against revision" Then Continue For
             If sOutputLines(i).Contains("~$") Then Continue For 'Temporary file!
-            sFileStartIndex = Strings.InStr(sOutputLines(i), sRepoLocalPath, CompareMethod.Text) - 1
+            sFileStartIndex = Strings.InStr(sOutputLines(i), localRepoPath.text, CompareMethod.Text) - 1
             If sFileStartIndex = -2 Then Continue For
             sFilePathTemp = sOutputLines(i).Substring(sFileStartIndex, sOutputLines(i).Length - sFileStartIndex)
 
@@ -1069,7 +1069,6 @@ Public Class UserControl1
         'If bCM Then
         '    rootNode.ContextMenuStrip.Items.Add(myContextMenu.openLabel)
         'End If
-
 
         If status1 Is Nothing Then
             rootNode.BackColor = myCol.unknown

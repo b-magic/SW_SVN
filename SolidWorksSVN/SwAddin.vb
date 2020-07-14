@@ -146,7 +146,7 @@ Public Class SwAddin
         If myTaskPaneView Is Nothing Then
             AddTaskPane()
         End If
-        'iAppInitTimes += 1
+
         ConnectToSW = True
     End Function
 
@@ -183,6 +183,7 @@ Public Class SwAddin
 
         myTaskPaneView = iSwApp.CreateTaskpaneView3(imageList1, "SVN Task Pane")
         myTaskPaneHost = myTaskPaneView.AddControl("SVN_AddIn", "")
+        myTaskPaneHost.ContextMenu = New ContextMenu
         myTaskPaneHost.getSwApp(iSwApp)
     End Sub
 
