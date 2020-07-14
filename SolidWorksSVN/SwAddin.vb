@@ -32,7 +32,7 @@ Public Class SwAddin
     Dim addinID As Integer
     Dim openDocs As Hashtable
     Dim SwEventPtr As SldWorks
-    Dim ppage As UserPMPage
+    'Dim ppage As UserPMPage
     Dim iBmp As BitmapHandler
     Dim iAppInitTimes As Integer = 0
 

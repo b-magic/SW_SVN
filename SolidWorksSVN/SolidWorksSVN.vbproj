@@ -143,9 +143,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="PMPHandler.vb">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="SVNStatus.vb" />
     <Compile Include="SwAddin.vb">
       <SubType>Code</SubType>
     </Compile>
@@ -155,17 +153,12 @@
     <Compile Include="UserControl1.vb">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UserPMPage.vb">
-      <SubType>Code</SubType>
-    </Compile>
     <EmbeddedResource Include="My Project\Resources.resx">
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.vb</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="ToolbarLarge.bmp" />
-    <EmbeddedResource Include="ToolbarSmall.bmp" />
     <EmbeddedResource Include="UserControl1.resx">
       <DependentUpon>UserControl1.vb</DependentUpon>
     </EmbeddedResource>
