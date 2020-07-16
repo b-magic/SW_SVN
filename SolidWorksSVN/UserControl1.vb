@@ -21,6 +21,40 @@ Public Class UserControl1
     Public allOpenDocs As ModelDoc2()
     Public allTreeViews As TreeView() = {New TreeView}
 
+    Private Sub UserControl1_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) _
+           Handles MyBase.Load
+
+
+        Dim docMenu As ContextMenuStrip
+        Dim myToolItem As ToolStripMenuItem
+
+        docMenu = New ContextMenuStrip()
+        myToolItem = New ToolStripMenuItem("refresh2", My.Resources.VaultLogo128, AddressOf RefreshToolStripMenuItem_click)
+        docMenu.Items.AddRange({myToolItem})
+
+        'Public openLabel As New ToolStripMenuItem("Open", My.Resources.VaultLogo128, AddressOf openEventHandler)
+        'Public unlockLabel As New ToolStripMenuItem("Release Lock", My.Resources.VaultLogo128, AddressOf unlockEventHandler)
+        'Public unlockWithDependentsLabel As New ToolStripMenuItem("Release Lock With Dependents", My.Resources.VaultLogo128, AddressOf unlockWithDependentsEventHandler)
+
+        '=======================================================
+
+        'If Not iSwApp Is Nothing Then
+        '    If Not iSwApp.ActiveDoc Is Nothing Then
+        '        Dim mycontextmenu As New myContextMenuClass(iSwApp.ActiveDoc, iSwApp)
+
+        '        'docMenu.Items.AddRange(New ToolStripMenuItem() _
+        '        '{mycontextmenu.openLabel})
+        '        docMenu.Items.AddRange( {mycontextmenu.openLabel})
+        '    End If
+        'End If
+
+        Me.ContextMenuStrip = docMenu
+
+        'Me.ContextMenuStrip = ContextMenuStrip1
+        'AddHandler RefreshToolStripMenuItem.Click, AddressOf RefreshToolStripMenuItem_click
+
+    End Sub
+
     Friend Sub myInitialize(ByRef swAppin As SldWorks)
         'Allows for swApp to be passed into this class.
         iSwApp = swAppin
@@ -36,6 +70,11 @@ Public Class UserControl1
         myCheckinAll()
         updateStatusStrip()
     End Sub
+    Private Sub RefreshToolStripMenuItem_click(sender As Object, e As EventArgs)
+
+        iSwApp.SendMsgToUser("It worked")
+
+    End Sub
     Private Sub butUnlockActive_Click(sender As Object, e As EventArgs) Handles butUnlockActive.Click
         myUnlockActive()
         updateStatusStrip()
@@ -45,12 +84,16 @@ Public Class UserControl1
         updateStatusStrip()
     End Sub
     Private Sub butCheckoutActiveDoc_Click(sender As Object, e As EventArgs) Handles butCheckoutActiveDoc.Click
-        myCheckoutActiveDoc()
+        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
+        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Error: Active Document not found") : Exit Sub
+        myCheckoutDoc(modDoc)
         updateStatusStrip()
     End Sub
 
     Private Sub butCheckoutWithDependents_Click(sender As Object, e As EventArgs) Handles butCheckoutWithDependents.Click
-        myCheckoutWithDependents()
+        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
+        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Error: Active Document not found") : Exit Sub
+        myCheckoutWithDependents(modDoc)
         updateStatusStrip()
     End Sub
 
@@ -74,6 +117,31 @@ Public Class UserControl1
     Private Sub butStatus_Click(sender As Object, e As EventArgs) Handles butStatus.Click
         myRepoStatus()
     End Sub
+    Sub treeView1_NodeMouseClick(ByVal sender As Object,
+    ByVal e As TreeNodeMouseClickEventArgs) _
+    Handles TreeView1.NodeMouseClick
+
+        'Dim sText As String = e.Node.Text
+        'Dim modDoc As ModelDoc2
+        Dim comp As Component2
+        Dim activeModel As ModelDoc2 = iSwApp.ActiveDoc
+        'Dim sText As String = localRepoPath.Text & "\" & e.Node.Text
+        If activeModel Is Nothing Then Exit Sub
+
+        If activeModel.GetType <> swDocumentTypes_e.swDocASSEMBLY Then Exit Sub
+
+        'Debug.Assert(False, sText)
+        'modDoc = activeModel.GetComponentByName(e.Node.Text)
+
+
+        'Debug.Print(TypeOf e.Node.Tag)
+        If TypeOf e.Node.Tag Is Component2 Then
+            'If e.Node.Tag.GetType.ToString = "Component2" Then
+            comp = e.Node.Tag
+            comp.Select(False)
+        End If
+
+    End Sub
 
 
     Public Sub updateStatusStrip()
@@ -88,6 +156,9 @@ Public Class UserControl1
         If IsNothing(status) Then
             StatusStrip2.Text = ""
             StatusStrip2.BackColor = myCol.unknown
+        ElseIf status.fp(0).addDelChg1 = "?" Then
+            StatusStrip2.Text = "File is not saved on the Vault"
+            StatusStrip2.BackColor = myCol.notOnVault
         ElseIf status.fp(0).lock6 = "K" Then
             StatusStrip2.Text = "Locked by you"
             StatusStrip2.BackColor = myCol.lockedByYou
@@ -99,8 +170,6 @@ Public Class UserControl1
             StatusStrip2.BackColor = myCol.available
         End If
     End Sub
-
-
 
     Sub NoCallbackSub()
     End Sub
@@ -246,13 +315,9 @@ Public Class UserControl1
 
         mdComponentList.Add(modDocParent)
         If bUC Then
-            'If nLevel = 1 Then
-            'ParentNode = rootNode
-            'Else
             parentNode = New TreeNode(sParentFileName)
-            parentNode.Tag = modDocParent
+            parentNode.Tag = swComp 'modDocParent
             setNodeColorFromStatus(parentNode)
-            'End If
         End If
 
         vChildComp = swComp.GetChildren
@@ -268,7 +333,7 @@ Public Class UserControl1
                 If bUC Then
                     sChildFileName = System.IO.Path.GetFileName(modDocChild.GetPathName)
                     childNode = New TreeNode(sChildFileName)
-                    childNode.Tag = modDocChild
+                    childNode.Tag = swChildComp 'modDocChild
                     setNodeColorFromStatus(childNode)
                     parentNode.Nodes.Add(childNode)
                 End If
@@ -293,32 +358,35 @@ Public Class UserControl1
 
         Dim iSwApp2 As SldWorks
         Dim modDoc As ModelDoc2
+        'Dim comp As Component2
         Public openLabel As New ToolStripMenuItem("Open", My.Resources.VaultLogo128, AddressOf openEventHandler)
-        Public unlockLabel As New ToolStripMenuItem("Release Lock", My.Resources.VaultLogo128, AddressOf unlockEventHandler)
-        Public unlockWithDependentsLabel As New ToolStripMenuItem("Release Lock With Dependents", My.Resources.VaultLogo128, AddressOf unlockWithDependentsEventHandler)
-        Public checkInLabel As New ToolStripMenuItem("Check In", My.Resources.VaultLogo128, AddressOf checkInEventHandler)
-        Public checkInWithDependentsLabel As New ToolStripMenuItem("Check In With Dependents", My.Resources.VaultLogo128, AddressOf checkInWithDependentsEventHandler)
-        Public checkOutStealLabel As New ToolStripMenuItem("Check Out (Steal Locks)", My.Resources.VaultLogo128, AddressOf checkOutStealLockEventHandler)
-        Public checkOutActiveDoc As New ToolStripMenuItem("Check Out Active Doc", My.Resources.VaultLogo128, AddressOf checkOutActiveDocEventHandler)
-        Public checkOutWithDependents As New ToolStripMenuItem("Check Out With Dependents", My.Resources.VaultLogo128, AddressOf checkOutActiveWithDependentsEventHandler)
+        Public unlockLabel As New ToolStripMenuItem("Release Lock", My.Resources.ReleaseActive, AddressOf unlockEventHandler)
+        Public unlockWithDependentsLabel As New ToolStripMenuItem("Release Lock With Dependents", My.Resources.ReleaseAll, AddressOf unlockWithDependentsEventHandler)
+        Public checkInLabel As New ToolStripMenuItem("Check In", My.Resources.CheckInActive, AddressOf checkInEventHandler)
+        Public checkInWithDependentsLabel As New ToolStripMenuItem("Check In With Dependents", My.Resources.CheckInAll, AddressOf checkInWithDependentsEventHandler)
+        Public checkOutStealLabel As New ToolStripMenuItem("Check Out (Steal Locks)", My.Resources.CheckOutActive, AddressOf checkOutStealLockEventHandler)
+        Public checkOutActiveDoc As New ToolStripMenuItem("Check Out Doc", My.Resources.CheckOutActive, AddressOf checkOutActiveDocEventHandler)
+        Public checkOutWithDependents As New ToolStripMenuItem("Check Out With Dependents", My.Resources.CheckOutWithDependents, AddressOf checkOutActiveWithDependentsEventHandler)
         Public Sub New(modDocInput As ModelDoc2, iSwAppInput As SldWorks)
-            modDoc = modDocInput
+            modDoc = modDocInput 'compInput.GetModelDoc2
+            'comp = compInput
             iSwApp2 = iSwAppInput
         End Sub
+
         Sub openEventHandler(sender As Object, e As EventArgs)
             iSwApp2.ActivateDoc3(modDoc.GetPathName, True, swRebuildOnActivation_e.swUserDecision, 0)
         End Sub
         Sub unlockEventHandler(sender As Object, e As EventArgs)
-            iSwApp2.unlockDocs({modDoc})
+            unlockDocs({modDoc})
         End Sub
         Sub unlockWithDependentsEventHandler(sender As Object, e As EventArgs)
-            iSwApp2.myUnlockWithDependents({modDoc})
+            myUnlockWithDependents({modDoc})
         End Sub
         Sub checkInEventHandler(sender As Object, e As EventArgs)
-            iSwApp2.checkInDocs({modDoc}, SVNAddInUtils.createBoolArray(1, True))
+            checkInDocs({modDoc}, svnAddInUtils.createBoolArray(1, True))
         End Sub
         Sub checkInWithDependentsEventHandler(sender As Object, e As EventArgs)
-            iSwApp2.myCheckinWithDependents({modDoc})
+            myCheckinWithDependents(modDoc)
         End Sub
         Sub checkOutStealLockEventHandler(sender As Object, e As EventArgs)
             If swMessageBoxResult_e.swMbHitOk =
@@ -327,14 +395,14 @@ Public Class UserControl1
                                    "attempt to check in their copies, a conflict can occur. Always communicate " &
                                    "your intention to break someone's lock with that user.",
                                     swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbOkCancel) Then
-                iSwApp2.unlockDocs({modDoc})
+                unlockDocs({modDoc})
             End If
         End Sub
         Sub checkOutActiveDocEventHandler(sender As Object, e As EventArgs)
-            iSwApp2.unlockDocs({modDoc})
+            myCheckoutDoc(modDoc)
         End Sub
         Sub checkOutActiveWithDependentsEventHandler(sender As Object, e As EventArgs)
-            iSwApp2.myunlockwithDependents(modDoc)
+            myCheckoutWithDependents(modDoc)
         End Sub
 
     End Class
@@ -343,9 +411,11 @@ Public Class UserControl1
         Dim myCol As myColours = New myColours()
         myCol.initialize()
         Dim status1 As SVNStatus = findStatusForFile(rootNode.Text)
+        Dim modDoc As ModelDoc2
+        Dim comp As Component2
 
-        Dim bCM As Boolean = If(IsNothing(rootNode.Tag), True, False)
-        Dim myContextMenu As New myContextMenuClass(rootNode.Tag, iSwApp)
+        Dim bModelDocAttached As Boolean '= If(IsNothing(rootNode.Tag), False, True) ' True is modelDoc is attached to node
+        Dim myContextMenu As myContextMenuClass
 
         Dim docMenu As ContextMenuStrip
         docMenu = New ContextMenuStrip()
@@ -354,49 +424,82 @@ Public Class UserControl1
         '    rootNode.ContextMenuStrip.Items.Add(myContextMenu.openLabel)
         'End If
 
+        If Not IsNothing(rootNode.Tag) Then
+            If TypeOf rootNode.Tag Is Component2 Then
+                bModelDocAttached = True
+                comp = rootNode.Tag
+                modDoc = comp.GetModelDoc2
+            ElseIf TypeOf rootNode.Tag Is ModelDoc2 Then
+                bModelDocAttached = True
+                modDoc = rootNode.Tag
+            Else
+                bModelDocAttached = False
+            End If
+        Else
+            bModelDocAttached = False
+        End If
+
+        If bModelDocAttached Then
+            myContextMenu = New myContextMenuClass(modDoc, iSwApp)
+            docMenu.Items.AddRange({myContextMenu.openLabel})
+            'modDoc = rootNode.Tag
+        End If
+
         If status1 Is Nothing Then
             rootNode.BackColor = myCol.unknown
             rootNode.ToolTipText = "Unknown"
-            If bCM Then docMenu.Items.AddRange(New ToolStripMenuItem() _
-                {myContextMenu.openLabel})
 
         ElseIf status1.fp(0).lock6 = "K" Then
             rootNode.BackColor = myCol.lockedByYou
             rootNode.ToolTipText = "Checked Out By You"
 
-            If bCM Then docMenu.Items.AddRange(New ToolStripMenuItem() _
-                {myContextMenu.checkInLabel, myContextMenu.checkInWithDependentsLabel, myContextMenu.unlockLabel, myContextMenu.unlockWithDependentsLabel})
+            If bModelDocAttached Then
+                If modDoc.GetType = swDocumentTypes_e.swDocASSEMBLY Then
+                    docMenu.Items.AddRange(
+                        {myContextMenu.checkInLabel,
+                        myContextMenu.checkInWithDependentsLabel,
+                        myContextMenu.unlockLabel,
+                        myContextMenu.unlockWithDependentsLabel})
+                Else
+                    docMenu.Items.AddRange(
+                        {myContextMenu.checkInLabel,
+                        myContextMenu.unlockLabel})
+                End If
+            End If
 
-            'If bCM Then rootNode.ContextMenuStrip.Items.Add(myContextMenu.checkInLabel)
-            'If bCM Then rootNode.ContextMenuStrip.Items.Add(myContextMenu.checkInWithDependentsLabel)
-            'If bCM Then rootNode.ContextMenuStrip.Items.Add(myContextMenu.unlockLabel)
-            'If bCM Then rootNode.ContextMenuStrip.Items.Add(myContextMenu.unlockWithDependentsLabel)
         ElseIf status1.fp(0).upToDate9 = "*" Then
             rootNode.BackColor = myCol.outOfDate
             rootNode.ToolTipText = "Your Copy is Out Of Date"
-            If bCM Then docMenu.Items.AddRange(New ToolStripMenuItem() _
-                {myContextMenu.checkOutStealLabel})
+            If bModelDocAttached Then docMenu.Items.AddRange({myContextMenu.checkOutStealLabel})
 
         ElseIf status1.fp(0).lock6 = "O" Then
             rootNode.BackColor = myCol.lockedBySomeoneElse
             rootNode.ToolTipText = "Locked By Someone Else"
-            If bCM Then docMenu.Items.AddRange(New ToolStripMenuItem() _
-                {myContextMenu.checkOutStealLabel})
+            If bModelDocAttached Then
+                docMenu.Items.AddRange({myContextMenu.checkOutStealLabel})
+                'If modDoc.GetType = swDocumentTypes_e.swDocASSEMBLY Then
+                If modDoc.GetType = swDocumentTypes_e.swDocASSEMBLY Then
+                    docMenu.Items.Add(myContextMenu.checkInWithDependentsLabel)
+                End If
+            End If
             'If bCM Then rootNode.ContextMenuStrip.Items.Add(myContextMenu.checkOutStealLabel)
-
+        ElseIf status1.fp(0).addDelChg1 = "?" Then
+            rootNode.BackColor = myCol.notOnVault
+            rootNode.ToolTipText = "File is not saved the to the Vault"
         ElseIf status1.fp(0).lock6 = " " Then
             rootNode.BackColor = myCol.available
             rootNode.ToolTipText = "Available"
-            If bCM Then docMenu.Items.AddRange(New ToolStripMenuItem() _
-                {myContextMenu.checkOutActiveDoc, myContextMenu.checkOutWithDependents})
-            'If bCM Then rootNode.ContextMenuStrip.Items.Add(myContextMenu.checkOutActiveDoc)
-            'If bCM Then rootNode.ContextMenuStrip.Items.Add(myContextMenu.checkOutWithDependents)
-
+            If bModelDocAttached Then
+                docMenu.Items.Add(myContextMenu.checkOutActiveDoc)
+                If modDoc.GetType = swDocumentTypes_e.swDocASSEMBLY Then
+                    docMenu.Items.AddRange({myContextMenu.checkInWithDependentsLabel,
+                                           myContextMenu.checkOutWithDependents})
+                End If
+            End If
         Else
             rootNode.BackColor = myCol.unknown
             rootNode.ToolTipText = "Unknown"
-            If bCM Then docMenu.Items.AddRange(New ToolStripMenuItem() _
-                {myContextMenu.openLabel})
+            If bModelDocAttached Then docMenu.Items.AddRange({myContextMenu.openLabel})
 
         End If
 
@@ -408,12 +511,14 @@ Public Class UserControl1
         Public available As Drawing.Color
         Public unknown As Drawing.Color
         Public outOfDate As Drawing.Color
+        Public notOnVault As Drawing.Color
         Public Sub initialize()
             lockedByYou = Drawing.Color.FromArgb(159, 223, 159) 'Drawing.Color.Aquamarine
             lockedBySomeoneElse = Drawing.Color.FromArgb(174, 183, 207) 'Drawing.Color.Khaki
             available = Drawing.Color.White
             unknown = Drawing.Color.LightGray
             outOfDate = Drawing.Color.FromArgb(255, 129, 123)
+            notOnVault = unknown
             'Drawing.Color.Bisque 'Drawing.Color.FromArgb(255, 77, 77) 'light red
         End Sub
     End Class

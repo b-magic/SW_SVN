@@ -366,14 +366,14 @@ Public Module svnModule
         statusOfAllOpenModels.setReadWriteFromLockStatus()
 
     End Sub
-    Public Sub myCheckoutActiveDoc()
-        Dim modDoc() As ModelDoc2 = {iSwApp.ActiveDoc()}
+    Public Sub myCheckoutDoc(modDoc As ModelDoc2)
+        'Dim modDoc() As ModelDoc2 = {iSwApp.ActiveDoc()}
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
 
-        checkoutDocs(modDoc)
+        checkoutDocs({modDoc})
     End Sub
-    Public Sub myCheckoutWithDependents()
-        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()
+    Public Sub myCheckoutWithDependents(modDoc As ModelDoc2)
+        'Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
 
         checkoutDocs(myUserControl.getComponentsOfAssemblyOptionalUpdateTree(modDoc))

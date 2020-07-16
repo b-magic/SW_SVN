@@ -502,11 +502,19 @@ Public Class SwAddin
 
     Function SldWorks_ActiveModelDocChangeNotify() As Integer
         myTaskPaneHost.switchTreeViewToCurrentModel()
+
+        'Dim mycontextmenu As New UserControl1.myContextMenuClass(iSwApp.ActiveDoc, iSwApp)
+        'myTaskPaneHost.ContextMenuStrip.Items.AddRange({mycontextmenu.openLabel})
+
     End Function
 
     Function SldWorks_FileOpenPostNotify(ByVal FileName As String) As Integer
         'AttachEventsToAllDocuments()
         myTaskPaneHost.switchTreeViewToCurrentModel()
+
+        'Dim mycontextmenu As New UserControl1.myContextMenuClass(iSwApp.ActiveDoc, iSwApp)
+        'myTaskPaneHost.ContextMenuStrip.Items.AddRange({mycontextmenu.openLabel})
+
     End Function
 #End Region
 

@@ -65,7 +65,10 @@ Public Class SVNStatus
                 ' The user got a lock! Let's change to write access
                 fp(i).modDoc.SetReadOnlyState(False)
                 fp(i).bReconnect = False
-                'save3AndShowErrorMessages(modDoc)
+            ElseIf fp(i).addDelChg1 = "?" Then
+                ' The file is not on the vault. Set to read/write
+                fp(i).modDoc.SetReadOnlyState(False)
+                fp(i).bReconnect = False
             Else
                 'User didn't get a lock.
                 fp(i).modDoc.SetReadOnlyState(True)
