@@ -138,15 +138,18 @@
     <Compile Include="EventHandling.vb">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="svnModule.vb" />
     <Compile Include="My Project\Resources.Designer.vb">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="svnAddInUtils.vb" />
     <Compile Include="SVNStatus.vb" />
     <Compile Include="SwAddin.vb">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="swModelFunctions.vb" />
     <Compile Include="UserControl1.Designer.vb">
       <DependentUpon>UserControl1.vb</DependentUpon>
     </Compile>
@@ -162,10 +165,6 @@
     <EmbeddedResource Include="UserControl1.resx">
       <DependentUpon>UserControl1.vb</DependentUpon>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="MainIconLarge.bmp" />
-    <EmbeddedResource Include="MainIconSmall.bmp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="icons\CheckInActive.png" />

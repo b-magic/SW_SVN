@@ -15,7 +15,7 @@ Public Class SVNStatus
         Public filename As String
         Public modDoc As ModelDoc2
         Public bReconnect As Boolean
-        Public revertUpdate As UserControl1.getLatestType
+        Public revertUpdate As getLatestType
         ' Each 1-9 is a one character string
         ' See http://svnbook.red-bean.com/en/1.8/svn.ref.svn.c.status.html
         Public addDelChg1 As String
@@ -54,7 +54,7 @@ Public Class SVNStatus
         Else
             fp(j).upToDate9 = "NoUpdate"
         End If
-        fp(j).revertUpdate = UserControl1.getLatestType.none
+        fp(j).revertUpdate = getLatestType.none
     End Sub
     Sub setReadWriteFromLockStatus()
         Dim i As Integer
@@ -73,7 +73,7 @@ Public Class SVNStatus
             End If
         Next
     End Sub
-    Public Function sFilterGetLatestType(ByRef filter As UserControl1.getLatestType, Optional ByVal bIgnoreUpdate As Boolean = False) As String()
+    Public Function sFilterGetLatestType(ByRef filter As getLatestType, Optional ByVal bIgnoreUpdate As Boolean = False) As String()
         'bIgnoreUpdate will ignore the filter out elements where an update is required.
         Dim sPath(UBound(fp)) As String
         Dim j As Integer = 0

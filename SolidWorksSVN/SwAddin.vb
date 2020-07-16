@@ -32,7 +32,6 @@ Public Class SwAddin
     Dim addinID As Integer
     Dim openDocs As Hashtable
     Dim SwEventPtr As SldWorks
-    'Dim ppage As UserPMPage
     Dim iBmp As BitmapHandler
     Dim iAppInitTimes As Integer = 0
 
@@ -183,8 +182,9 @@ Public Class SwAddin
 
         myTaskPaneView = iSwApp.CreateTaskpaneView3(imageList1, "SVN Task Pane")
         myTaskPaneHost = myTaskPaneView.AddControl("SVN_AddIn", "")
-        myTaskPaneHost.ContextMenu = New ContextMenu
-        myTaskPaneHost.getSwApp(iSwApp)
+        'myTaskPaneHost.ContextMenu = New ContextMenu
+        myTaskPaneHost.myInitialize(iSwApp)
+
     End Sub
 
     Public Sub RemoveTaskPane()
