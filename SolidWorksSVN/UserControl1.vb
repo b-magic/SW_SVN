@@ -7,6 +7,7 @@ Imports SolidWorks.Interop.swconst
 Imports System.Collections.Generic
 Imports System.Windows.Forms
 Imports System.Drawing
+'Imports System.Configuration
 
 <ProgId("SVN_AddIn")>
 Public Class UserControl1
@@ -24,56 +25,48 @@ Public Class UserControl1
     Private Sub UserControl1_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) _
            Handles MyBase.Load
 
-
         Dim docMenu As ContextMenuStrip
         Dim myToolItem As ToolStripMenuItem
 
         docMenu = New ContextMenuStrip()
-        myToolItem = New ToolStripMenuItem("refresh2", My.Resources.VaultLogo128, AddressOf RefreshToolStripMenuItem_click)
+        myToolItem = New ToolStripMenuItem("Refresh", My.Resources.VaultLogo128, AddressOf RefreshToolStripMenuItem_click)
         docMenu.Items.AddRange({myToolItem})
-
-        'Public openLabel As New ToolStripMenuItem("Open", My.Resources.VaultLogo128, AddressOf openEventHandler)
-        'Public unlockLabel As New ToolStripMenuItem("Release Lock", My.Resources.VaultLogo128, AddressOf unlockEventHandler)
-        'Public unlockWithDependentsLabel As New ToolStripMenuItem("Release Lock With Dependents", My.Resources.VaultLogo128, AddressOf unlockWithDependentsEventHandler)
-
-        '=======================================================
-
-        'If Not iSwApp Is Nothing Then
-        '    If Not iSwApp.ActiveDoc Is Nothing Then
-        '        Dim mycontextmenu As New myContextMenuClass(iSwApp.ActiveDoc, iSwApp)
-
-        '        'docMenu.Items.AddRange(New ToolStripMenuItem() _
-        '        '{mycontextmenu.openLabel})
-        '        docMenu.Items.AddRange( {mycontextmenu.openLabel})
-        '    End If
-        'End If
 
         Me.ContextMenuStrip = docMenu
 
-        'Me.ContextMenuStrip = ContextMenuStrip1
-        'AddHandler RefreshToolStripMenuItem.Click, AddressOf RefreshToolStripMenuItem_click
+        localRepoPath.Text = My.Settings.localRepoPath
 
     End Sub
 
     Friend Sub myInitialize(ByRef swAppin As SldWorks)
         'Allows for swApp to be passed into this class.
         iSwApp = swAppin
+
+
         initializeSwModelFunctions(iSwApp)
-        svnModuleInitialize(iSwApp, Me, statusOfAllOpenModels)
+            svnModuleInitialize(iSwApp, Me, statusOfAllOpenModels)
+
+
+        If verifyLocalRepoPath() Then
+            iSwApp.SetUserPreferenceStringValue(
+                swUserPreferenceStringValue_e.swFileLocationsDocuments,
+                localRepoPath.Text)
+        End If
+    End Sub
+    Friend Sub beforeClose()
+        saveLocalRepoPathSettings()
     End Sub
     Private Sub butCheckinWithDependents_Click(sender As Object, e As EventArgs) Handles butCheckinWithDependents.Click
         myCheckinWithDependents(iSwApp.ActiveDoc())
         updateStatusStrip()
     End Sub
-
     Private Sub butCheckinAll_Click(sender As Object, e As EventArgs) Handles butCheckinAll.Click
         myCheckinAll()
         updateStatusStrip()
     End Sub
     Private Sub RefreshToolStripMenuItem_click(sender As Object, e As EventArgs)
 
-        iSwApp.SendMsgToUser("It worked")
-
+        refreshAddIn()
     End Sub
     Private Sub butUnlockActive_Click(sender As Object, e As EventArgs) Handles butUnlockActive.Click
         myUnlockActive()
@@ -117,6 +110,52 @@ Public Class UserControl1
     Private Sub butStatus_Click(sender As Object, e As EventArgs) Handles butStatus.Click
         myRepoStatus()
     End Sub
+    Private Sub boxCheck_Check(sender As Object, e As EventArgs) Handles onlineCheckBox.CheckedChanged
+        If onlineCheckBox.Checked = False Then Exit Sub
+        refreshAddIn()
+    End Sub
+    Private Sub butPickFolder_Click(sender As Object, e As EventArgs) Handles butPickFolder.Click
+        pickFolder()
+    End Sub
+    Public Sub refreshAddIn()
+
+        If Not verifyLocalRepoPath() Then Exit Sub
+
+        'Set the referenced folder file to the local repository.
+        'This will allow solidworks to find the files.
+        'https://blogs.solidworks.com/tech/2014/06/search-path-order-for-opening-files-in-solidworks.html
+        'http://help.solidworks.com/2012/English/api/swconst/SO_FileLocations.htm
+
+        'iSwApp.SetUserPreferenceStringValue(
+        '    swUserPreferenceStringValue_e.swFileLocationsDocuments,
+        '    localRepoPath.Text)
+
+        ''iSwApp.SetUserPreferenceStringValue(swUserPreferenceStringValue_e.swFileLocationsDocuments, "C:\Users\benne\Documents\SVN\fsae9\CAD\Subfolder")
+
+        updateStatusOfAllModelsVariable(True)
+        switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
+
+        saveLocalRepoPathSettings()
+    End Sub
+
+    Public Sub saveLocalRepoPathSettings()
+        My.Settings.localRepoPath = localRepoPath.Text
+        My.Settings.Save()
+    End Sub
+
+    Public Function pickFolder() As DialogResult
+        Dim folderDlg As FolderBrowserDialog = New FolderBrowserDialog()
+        Dim result As DialogResult = folderDlg.ShowDialog()
+
+        If (result = DialogResult.OK) Then
+            localRepoPath.Text = folderDlg.SelectedPath
+            'Environment.SpecialFolder root = folderDlg.RootFolder
+        End If
+        Return result
+
+        verifyLocalRepoPath()
+    End Function
+
     Sub treeView1_NodeMouseClick(ByVal sender As Object,
     ByVal e As TreeNodeMouseClickEventArgs) _
     Handles TreeView1.NodeMouseClick
@@ -142,7 +181,6 @@ Public Class UserControl1
         End If
 
     End Sub
-
 
     Public Sub updateStatusStrip()
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc

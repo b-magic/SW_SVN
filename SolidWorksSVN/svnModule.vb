@@ -1,5 +1,6 @@
 ﻿Imports SolidWorks.Interop.sldworks
 Imports SolidWorks.Interop.swconst
+Imports System.Configuration
 
 Public Module svnModule
 
@@ -7,17 +8,21 @@ Public Module svnModule
     Dim iSwApp As SldWorks
     Dim statusOfAllOpenModels As SVNStatus
 
-    Public Const sSVNPath As String = "C:\Program Files\TortoiseSVN\bin\svn.exe"
-    Public Const sTortPath As String = "C:\Users\benne\Documents\SVN\TortoiseProc.exe"
+    Public sSVNPath As String '= "C:\Program Files\TortoiseSVN\bin\svn.exe"
+    Public sTortPath As String '= "C:\Users\benne\Documents\SVN\TortoiseProc.exe"
+    Public sInstallDirectory As String
 
     Friend Sub svnModuleInitialize(
                                   mySwAppPass As SldWorks,
                                   myUserControlPass As UserControl1,
                                   statusOfAllOpenModelsPass As SVNStatus)
-
+        sInstallDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)
+        sSVNPath = sInstallDirectory & "\svn.exe"
+        sTortPath = sInstallDirectory & "\TortoiseProc.exe"  'System.Environment.CurrentDirectory & "\TortoiseProc.exe"
         myUserControl = myUserControlPass
         iSwApp = mySwAppPass
         statusOfAllOpenModels = statusOfAllOpenModelsPass
+
     End Sub
 
     Public Function updateStatusOfAllModelsVariable(Optional bRefreshAllTreeViews As Boolean = False) As Boolean
@@ -41,14 +46,10 @@ Public Module svnModule
         'Pass modDocArr = create from the modDocArr
         'Pass Neither = create for entire repo
 
-        Dim oSVNProcess As New Process()
-        Dim SVNstartInfo As New ProcessStartInfo
         Dim modDocTemp As ModelDoc2
         Dim sOutputLines() As String
         Dim sOutputErrorLines() As String
         'Dim sLine2 As String
-        Dim SVNOutput As String
-        Dim SVNErrorOutput As String
         Dim bSuccess As Boolean = False
         Dim sFilePathCat As String = ""
         Dim sFilePathTemp As String
@@ -56,6 +57,9 @@ Public Module svnModule
         Dim sModDocPathArr() As String = getFilePathsFromModDocArr(modDocArr)
         Dim sFileStartIndex As String
         Dim sCatMessage As String = ""
+        Dim arguments As String
+
+        Dim processOutput As rawProcessReturn
 
         'Dim iOutputUbound As Integer
         Dim i As Integer = 0
@@ -68,65 +72,16 @@ Public Module svnModule
 
         'SVNstartInfo.Arguments = "status " & If(bCheckServer, "-u ", "") & "-v --non-interactive E:\SolidworksBackup\svn " 'sFilePathCat 
 
-        SVNstartInfo.Arguments = "status " & If(bCheckServer, "-u ", "") & "-v --non-interactive " & myUserControl.localRepoPath.Text  'sFilePathCat 
-        SVNstartInfo.FileName = sSVNPath
-        SVNstartInfo.UseShellExecute = False
-        SVNstartInfo.RedirectStandardOutput = True
-        SVNstartInfo.RedirectStandardError = True
-        SVNstartInfo.CreateNoWindow = True
-        oSVNProcess.StartInfo = SVNstartInfo
+        If Not verifyLocalRepoPath() Then Return Nothing
 
-        '============
-        'sbOutputLines = New System.Text.StringBuilder()
+        arguments = "status " & If(bCheckServer, "-u ", "") & "-v --non-interactive " & myUserControl.localRepoPath.Text  'sFilePathCat 
 
-        ' Set our event handler to asynchronously read the sort output.
-        'AddHandler oSVNProcess.OutputDataReceived, AddressOf SortOutputHandler
+        'iSwApp.SendMsgToUser(sSVNPath)
+        processOutput = runSvnProcess(sSVNPath, arguments)
 
-        oSVNProcess.Start()
+        sOutputLines = processOutput.output.Split(ControlChars.CrLf.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
+        sOutputErrorLines = processOutput.outputError.Split(ControlChars.CrLf.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
 
-        ''Monitor the process. Kill it if it stops responding
-        'Dim nResponding As Integer = 0
-        'Dim totalTime As Integer = 0
-        'Do While (Not oSVNProcess.HasExited)
-        '    nResponding += (Not oSVNProcess.Responding)
-        '    totalTime += 1
-        '    If (nResponding > 1000) Or (totalTime > 10000) Then 'Sort of milliseconds because of the sleep command. But not exactly.
-        '        oSVNProcess.Kill()
-
-        '        If iSwApp.SendMsgToUser2("SVN timed out While attempting To connect To the vault. " &
-        '                              "Would you Like To switch To offline?",
-        '                              swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbYesNo) = swMessageBoxResult_e.swMbHitYes Then
-        '            onlineCheckBox.Checked = False
-        '        End If
-        '        Return Nothing
-        '    End If
-        '    System.Threading.Thread.Sleep(1)
-        'Loop
-
-        'Using  async
-        'SVNOutput = sbOutputLines.ToString
-
-        'Using Sync
-        Using ostreamreader As System.IO.StreamReader = oSVNProcess.StandardOutput
-            SVNOutput = ostreamreader.ReadToEnd()
-        End Using
-        Using ostreamreader As System.IO.StreamReader = oSVNProcess.StandardError
-            SVNErrorOutput = ostreamreader.ReadToEnd()
-        End Using
-
-        If Not oSVNProcess.WaitForExit(10000) Then
-            'If the process doesn't finish after 10s then kill it and send error message to user
-            oSVNProcess.Kill()
-            If iSwApp.SendMsgToUser2("SVN timed out While attempting To connect To the vault. " &
-                                  "Would you Like To switch To offline?",
-                                  swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbYesNo) = swMessageBoxResult_e.swMbHitYes Then
-                myUserControl.onlineCheckBox.Checked = False
-            End If
-            Return Nothing
-        End If
-
-        sOutputLines = SVNOutput.Split(ControlChars.CrLf.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
-        sOutputErrorLines = SVNErrorOutput.Split(ControlChars.CrLf.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
         k = sOutputErrorLines.Length - 1
         'sOutputErrorLines = {""}
 
@@ -151,23 +106,25 @@ Public Module svnModule
                     End If
                     'Open a log in, and then try again. 
                     iSwApp.SendMsgToUser(svnAddInUtils.catWithNewLine(sOutputErrorLines))
+
                     runTortoiseProcexeWithMonitor("/command:repostatus /remote /path:" & myUserControl.localRepoPath.Text) 'log in
                     Return getFileSVNStatus(bCheckServer, modDocArr, iRecursiveLevel:=1)
                 ElseIf sOutputErrorLines(i).Contains("E170013") Then
                     'Couldn't connect. Server is off or no internet connection
                     If iSwApp.SendMsgToUser2("SVN timed out while attempting to connect to the vault. " &
-                      "Would you like to switch to offline? " & vbCrLf & vbCrLf & vbCrLf & "Error Message Below" &
+                      "Would you like to switch to offline? " & vbCrLf & vbCrLf & "Error Message Below" &
                       catWithNewLine(sOutputErrorLines),
                       swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbYesNo) = swMessageBoxResult_e.swMbHitYes Then
                         myUserControl.onlineCheckBox.Checked = False
                     End If
                     Return Nothing
                 ElseIf sOutputErrorLines(i).Contains("W155007:") Then
-                    'Common error. File not saved into repository
+                    'Common error. File not saved into repository. Or folder is not connected to a repository.
                     sCatMessage &= vbCrLf &
                         sOutputErrorLines(i) & vbCrLf &
-                        "Error W155007 File is not saved inside repository. " &
-                        "Save the file inside the repository and try again. "
+                        "Error W155007 the path is not associated with a repository. " &
+                        "You may need to either checkout the repository to the folder with tortoiseSVN, " &
+                        "or save the file inside an existing local repository And try again. "
                 Else
                     'Other Errors
                     sCatMessage &= vbCrLf &
@@ -232,8 +189,56 @@ Public Module svnModule
             Return output
         End If
 
+    End Function
+    Function runSvnProcess(filename As String, arguments As String) As rawProcessReturn
+
+        Dim iWaitTime As Integer = 10000 'milliseconds to wait for the SVN process to finish
+
+        Dim output As rawProcessReturn
+        Dim oSVNProcess As New Process()
+        Dim SVNstartInfo As New ProcessStartInfo
+        SVNstartInfo.Arguments = arguments
+        SVNstartInfo.FileName = filename
+        SVNstartInfo.UseShellExecute = False
+        SVNstartInfo.RedirectStandardOutput = True
+        SVNstartInfo.RedirectStandardError = True
+        SVNstartInfo.CreateNoWindow = True
+        oSVNProcess.StartInfo = SVNstartInfo
+
+        '============
+        'sbOutputLines = New System.Text.StringBuilder()
+
+        ' Set our event handler to asynchronously read the sort output.
+        'AddHandler oSVNProcess.OutputDataReceived, AddressOf SortOutputHandler
+
+        iSwApp.SendMsgToUser(filename & vbCrLf & arguments)
+
+        oSVNProcess.Start()
+
+        'Using Sync
+        Using ostreamreader As System.IO.StreamReader = oSVNProcess.StandardOutput
+            output.output = ostreamreader.ReadToEnd()
+        End Using
+        Using ostreamreader As System.IO.StreamReader = oSVNProcess.StandardError
+            output.outputError = ostreamreader.ReadToEnd()
+        End Using
+
+        Do While Not oSVNProcess.WaitForExit(iWaitTime)
+            'If the process doesn't finish after 10s then kill it and send error message to user
+            oSVNProcess.Kill()
+            If iSwApp.SendMsgToUser2("SVN timed out While attempting To connect To the vault. " &
+                                  "Would you like to give it more time?",
+                                  swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbYesNo) = swMessageBoxResult_e.swMbHitYes Then
+                iSwApp.SendMsgToUser("Switching to offline mode")
+                myUserControl.onlineCheckBox.Checked = False
+                Return Nothing
+            Else
+                iWaitTime += 5000
+            End If
+        Loop
 
 
+        Return output
     End Function
 
     Public Sub myUnlockActive()
@@ -257,6 +262,7 @@ Public Module svnModule
         Dim Status As SVNStatus
 
         If IsNothing(modDocArr) Then
+            If Not verifyLocalRepoPath() Then Exit Sub
             bSuccess = runTortoiseProcexeWithMonitor("/command:unlock /path:" & myUserControl.localRepoPath.Text & " /closeonend:3")
 
         Else
@@ -350,6 +356,8 @@ Public Module svnModule
 
         iSwApp.RunCommand(19, vbEmpty) 'Save All
 
+
+        If Not verifyLocalRepoPath() Then Exit Sub
         bSuccess = runTortoiseProcexeWithMonitor("/command:commit /path:""" & myUserControl.localRepoPath.Text & """ /closeonend:3")
         If Not bSuccess Then iSwApp.SendMsgToUser("TortoiseSVN Process Failed.") : Exit Sub
 
@@ -402,6 +410,7 @@ Public Module svnModule
 
         bSuccessStatus = updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True)
 
+        If Not verifyLocalRepoPath() Then Exit Sub
         If bSuccessStatus Then
             bSuccessCleanup = runTortoiseProcexeWithMonitor("/command:cleanup /cleanup /path:" & myUserControl.localRepoPath.Text)
         Else
@@ -478,6 +487,71 @@ Public Module svnModule
         statusOfAllOpenModels.setReadWriteFromLockStatus()
 
     End Sub
+    Function verifyLocalRepoPath(Optional bInteractive As Boolean = True) As Boolean
+
+        Dim response As swMessageBoxResult_e
+        Dim processOutput As rawProcessReturn
+        Dim arguments As String
+        Dim sLocalPath As String
+
+        If IsNothing(myUserControl) Then Return False
+
+        sLocalPath = myUserControl.localRepoPath.Text
+
+        If Not myUserControl.onlineCheckBox.Checked Then Return False
+
+        'Check the file exists on the computer
+        If Not My.Computer.FileSystem.DirectoryExists(sLocalPath) Then
+            If Not bInteractive Then Return False
+            response = iSwApp.SendMsgToUser2(
+                "Local Folder Location " & vbCrLf & sLocalPath & vbCrLf &
+                "was not found. Would you like to select a new folder? ",
+                swMessageBoxIcon_e.swMbWarning,
+                swMessageBoxBtn_e.swMbYesNo)
+            If response = swMessageBoxResult_e.swMbHitYes Then
+
+                If (myUserControl.pickFolder() = System.Windows.Forms.DialogResult.OK) Then
+                    Return verifyLocalRepoPath(bInteractive)
+                Else
+                    Return False
+                End If
+            ElseIf response = swMessageBoxResult_e.swMbHitNo Then
+                iSwApp.SendMsgToUser2("Switching to offline.", swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbOk)
+                myUserControl.onlineCheckBox.Checked = False
+                Return False
+            End If
+
+        End If
+
+        'Check the path is actually connected to a repo
+        arguments = "info " & "--non-interactive " & sLocalPath  'sFilePathCat 
+
+        processOutput = runSvnProcess(sSVNPath, arguments)
+        If processOutput.outputError.Contains("W155007:") Then
+            If Not bInteractive Then Return False
+            response = iSwApp.SendMsgToUser2("The following directory is not connected to an SVN Repository. " &
+                                  "Would you like to select a new folder? " & vbCrLf & sLocalPath,
+                                    swMessageBoxIcon_e.swMbWarning,
+                                    swMessageBoxBtn_e.swMbYesNo)
+            If response = swMessageBoxResult_e.swMbHitYes Then
+
+                If (myUserControl.pickFolder() = System.Windows.Forms.DialogResult.OK) Then
+                    Return verifyLocalRepoPath(bInteractive)
+                Else
+                    Return False
+                End If
+            ElseIf response = swMessageBoxResult_e.swMbHitNo Then
+                iSwApp.SendMsgToUser2("Switching to offline.", swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbOk)
+                Return False
+            End If
+        Else
+            Return True
+        End If
+
+        Return False ' code shouldn't get here...
+
+    End Function
+
 
     Sub myGetLatestOrRevert(Optional ByRef modDocArr As ModelDoc2() = Nothing,
                         Optional ByRef myGetType As getLatestType = getLatestType.update,
@@ -485,9 +559,6 @@ Public Module svnModule
         'Dim modDocTemp As ModelDoc2
         Dim i As Integer
         Dim j As Integer = 0
-        Dim k As Integer = 0
-        Dim m As Integer = 0
-        Dim n As Integer = 0
         Dim status As SVNStatus
         Dim bSuccess As Boolean
 
@@ -583,8 +654,11 @@ Public Module svnModule
         Dim oTortProcess As New Process()
         Dim tortStartInfo As New ProcessStartInfo
 
-        tortStartInfo.FileName = sTortPath
+        tortStartInfo.FileName = sTortPath  'System.Environment.CurrentDirectory & "\\TortoiseProc.exe" 'AppDomain.CurrentDomain.BaseDirectory & 'sTortPath
+        'iSwApp.SendMsgToUser(sTortPath)
+
         tortStartInfo.Arguments = sArguments
+        If Not verifyLocalRepoPath() Then Return Nothing
         tortStartInfo.WorkingDirectory = myUserControl.localRepoPath.Text
         oTortProcess.StartInfo = tortStartInfo
         oTortProcess.Start()
@@ -624,7 +698,10 @@ Public Module svnModule
         output.fp(0) = statusOfAllOpenModels.fp(i)
         Return output
     End Function
-
+    Public Structure rawProcessReturn
+        Public output As String
+        Public outputError As String
+    End Structure
     Public Structure lockStatus
         Public eDisposition As lockDisposition
         Public sFilePaths() As String

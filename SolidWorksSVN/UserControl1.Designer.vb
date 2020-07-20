@@ -36,6 +36,8 @@ Partial Class UserControl1
         Me.butCheckinWithDependents = New System.Windows.Forms.Button()
         Me.onlineCheckBox = New System.Windows.Forms.CheckBox()
         Me.localRepoPath = New System.Windows.Forms.TextBox()
+        Me.FolderBrowserDialog1 = New System.Windows.Forms.FolderBrowserDialog()
+        Me.butPickFolder = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'StatusStrip2
@@ -55,10 +57,10 @@ Partial Class UserControl1
         Me.TreeView1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.TreeView1.Location = New System.Drawing.Point(6, 589)
+        Me.TreeView1.Location = New System.Drawing.Point(6, 609)
         Me.TreeView1.Name = "TreeView1"
         Me.TreeView1.ShowNodeToolTips = True
-        Me.TreeView1.Size = New System.Drawing.Size(639, 388)
+        Me.TreeView1.Size = New System.Drawing.Size(639, 368)
         Me.TreeView1.TabIndex = 10
         '
         'butStatus
@@ -66,7 +68,7 @@ Partial Class UserControl1
         Me.butStatus.BackColor = System.Drawing.SystemColors.ControlLightLight
         Me.butStatus.BackgroundImage = Global.SolidWorksSVN.My.Resources.Resources.Status
         Me.butStatus.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.butStatus.Location = New System.Drawing.Point(166, 504)
+        Me.butStatus.Location = New System.Drawing.Point(166, 515)
         Me.butStatus.Name = "butStatus"
         Me.butStatus.Size = New System.Drawing.Size(148, 79)
         Me.butStatus.TabIndex = 13
@@ -76,7 +78,7 @@ Partial Class UserControl1
         '
         Me.butCleanup.BackColor = System.Drawing.SystemColors.ControlLightLight
         Me.butCleanup.BackgroundImage = Global.SolidWorksSVN.My.Resources.Resources.Cleanup
-        Me.butCleanup.Location = New System.Drawing.Point(6, 504)
+        Me.butCleanup.Location = New System.Drawing.Point(6, 515)
         Me.butCleanup.Name = "butCleanup"
         Me.butCleanup.Size = New System.Drawing.Size(148, 79)
         Me.butCleanup.TabIndex = 12
@@ -189,12 +191,22 @@ Partial Class UserControl1
         Me.localRepoPath.Name = "localRepoPath"
         Me.localRepoPath.Size = New System.Drawing.Size(636, 31)
         Me.localRepoPath.TabIndex = 15
-        Me.localRepoPath.Text = "C:\Users\benne\Documents\SVN\fsae9"
+        Me.localRepoPath.Text = "Enter Path to Local Repository"
+        '
+        'butPickFolder
+        '
+        Me.butPickFolder.Location = New System.Drawing.Point(118, 469)
+        Me.butPickFolder.Name = "butPickFolder"
+        Me.butPickFolder.Size = New System.Drawing.Size(173, 34)
+        Me.butPickFolder.TabIndex = 16
+        Me.butPickFolder.Text = "Pick Folder"
+        Me.butPickFolder.UseVisualStyleBackColor = True
         '
         'UserControl1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(12.0!, 25.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
+        Me.Controls.Add(Me.butPickFolder)
         Me.Controls.Add(Me.localRepoPath)
         Me.Controls.Add(Me.onlineCheckBox)
         Me.Controls.Add(Me.butStatus)
@@ -231,4 +243,6 @@ Partial Class UserControl1
     Friend WithEvents butStatus As Windows.Forms.Button
     Friend WithEvents onlineCheckBox As Windows.Forms.CheckBox
     Friend WithEvents localRepoPath As Windows.Forms.TextBox
+    Friend WithEvents FolderBrowserDialog1 As Windows.Forms.FolderBrowserDialog
+    Friend WithEvents butPickFolder As Windows.Forms.Button
 End Class

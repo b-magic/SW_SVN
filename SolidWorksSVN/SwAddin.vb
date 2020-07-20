@@ -15,12 +15,13 @@ Imports System.Diagnostics
 Imports System.Drawing
 Imports System.ComponentModel
 Imports System.Windows.Forms
+'Imports System.Configuration
 
-<Guid("ca5108e0-c3c5-47f0-8453-cd9b6a5e12af")>
+<Guid("8E7E418A-13BA-45BB-B784-D6202C1F1C47")>'"ca5108e0-c3c5-47f0-8453-cd9b6a5e12af")>
 <ComVisible(True)>
 <SwAddin(
-        Description:="Version Control from a Central SVN Server",
-        Title:="SolidWorksSVN",
+        Description:="Version Control from a Central SVN Server AddIn",
+        Title:="SVN_Vault",
         LoadAtStartup:=True
         )>
 Public Class SwAddin
@@ -35,6 +36,8 @@ Public Class SwAddin
     Dim iBmp As BitmapHandler
     Dim iAppInitTimes As Integer = 0
 
+    Dim cAppConfig As System.Configuration.Configuration
+    Dim asSettings As System.Configuration.AppSettingsSection
     Public Const mainCmdGroupID As Integer = 0
 
     Dim myTaskPaneView As TaskpaneView
@@ -155,6 +158,7 @@ Public Class SwAddin
         RemoveTaskPane()
         DetachEventHandlers()
 
+
         'todo disconnect task pane/manager slash release com object for side bar task manager?
         'System.Runtime.InteropServices.Marshal.ReleaseComObject(iCmdMgr)
         'iCmdMgr = Nothing
@@ -185,10 +189,21 @@ Public Class SwAddin
         'myTaskPaneHost.ContextMenu = New ContextMenu
         myTaskPaneHost.myInitialize(iSwApp)
 
+
+        'Try
+        '    cAppConfig = System.Configuration.ConfigurationManager.OpenExeConfiguration(Application.StartupPath & "\Config_File_Ex.exe")
+        '    asSettings = cAppConfig.AppSettings
+        '    Dim appSettings = System.Configuration.ConfigurationManager.AppSettings
+
+        '    myTaskPaneHost.localRepoPath.Text = appSettings("localRepoPath") 'gets the local repo path from config file
+        'Finally
+        'End Try
     End Sub
 
     Public Sub RemoveTaskPane()
         Try
+            myTaskPaneHost.beforeClose()
+            'asSettings.Settings.Item("localRepoPath").Value = myTaskPaneHost.localRepoPath.Text 'saves the local repoPath
             myTaskPaneHost = Nothing
             myTaskPaneView.DeleteView()
             Marshal.ReleaseComObject(myTaskPaneView)
