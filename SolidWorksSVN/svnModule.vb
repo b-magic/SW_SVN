@@ -107,6 +107,7 @@ Public Module svnModule
                     'Open a log in, and then try again. 
                     iSwApp.SendMsgToUser(svnAddInUtils.catWithNewLine(sOutputErrorLines))
 
+                    'https://tortoisesvn.net/docs/nightly/TortoiseSVN_en/tsvn-automation.html
                     runTortoiseProcexeWithMonitor("/command:repostatus /remote /path:" & myUserControl.localRepoPath.Text) 'log in
                     Return getFileSVNStatus(bCheckServer, modDocArr, iRecursiveLevel:=1)
                 ElseIf sOutputErrorLines(i).Contains("E170013") Then
@@ -530,6 +531,17 @@ Public Module svnModule
         If processOutput.outputError.Contains("W155007:") Then
             If Not bInteractive Then Return False
             response = iSwApp.SendMsgToUser2("The following directory is not connected to an SVN Repository. " &
+                                  "Would you like to download the entire vault to this folder? " & vbCrLf & sLocalPath,
+                                    swMessageBoxIcon_e.swMbWarning,
+                                    swMessageBoxBtn_e.swMbYesNo)
+            If response = swMessageBoxResult_e.swMbHitYes Then
+                '1. Checkout entire folder
+                runTortoiseProcexeWithMonitor(" /command:checkout /path " & sLocalPath)
+
+                Return verifyLocalRepoPath(bInteractive)
+            End If
+
+            response = iSwApp.SendMsgToUser2("The following directory is not connected to an SVN Repository. " &
                                   "Would you like to select a new folder? " & vbCrLf & sLocalPath,
                                     swMessageBoxIcon_e.swMbWarning,
                                     swMessageBoxBtn_e.swMbYesNo)
@@ -542,6 +554,8 @@ Public Module svnModule
                 End If
             ElseIf response = swMessageBoxResult_e.swMbHitNo Then
                 iSwApp.SendMsgToUser2("Switching to offline.", swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbOk)
+                Return False
+            Else
                 Return False
             End If
         Else

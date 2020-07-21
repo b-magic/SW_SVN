@@ -232,7 +232,6 @@ Public Class UserControl1
 
         If Not onlineCheckBox.Checked Then Exit Sub
 
-        'TreeView1.BeginUpdate()
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()
         If modDoc Is Nothing Then Exit Sub
 
@@ -245,7 +244,6 @@ Public Class UserControl1
         TreeView1.Nodes.Insert(0, clonedNode)
         TreeView1.Nodes(0).Expand()
         TreeView1.Show()
-        'TreeView1.EndUpdate()
 
     End Sub
     Function findStoredTreeView(pathName As String, Optional bRetryWithRefresh As Boolean = True) As TreeNode
