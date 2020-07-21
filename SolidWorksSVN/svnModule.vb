@@ -17,8 +17,8 @@ Public Module svnModule
                                   myUserControlPass As UserControl1,
                                   statusOfAllOpenModelsPass As SVNStatus)
         sInstallDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)
-        sSVNPath = sInstallDirectory & "\svn.exe"
-        sTortPath = sInstallDirectory & "\TortoiseProc.exe"  'System.Environment.CurrentDirectory & "\TortoiseProc.exe"
+        sSVNPath = sInstallDirectory & "\bin\svn.exe"
+        sTortPath = sInstallDirectory & "\bin\TortoiseProc.exe"  'System.Environment.CurrentDirectory & "\TortoiseProc.exe"
         myUserControl = myUserControlPass
         iSwApp = mySwAppPass
         statusOfAllOpenModels = statusOfAllOpenModelsPass

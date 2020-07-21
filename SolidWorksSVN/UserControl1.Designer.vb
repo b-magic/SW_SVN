@@ -78,6 +78,7 @@ Partial Class UserControl1
         '
         Me.butCleanup.BackColor = System.Drawing.SystemColors.ControlLightLight
         Me.butCleanup.BackgroundImage = Global.SolidWorksSVN.My.Resources.Resources.Cleanup
+        Me.butCleanup.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
         Me.butCleanup.Location = New System.Drawing.Point(6, 515)
         Me.butCleanup.Name = "butCleanup"
         Me.butCleanup.Size = New System.Drawing.Size(148, 79)

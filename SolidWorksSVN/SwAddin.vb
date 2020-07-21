@@ -201,15 +201,6 @@ Public Class SwAddin
         'myTaskPaneHost.ContextMenu = New ContextMenu
         myTaskPaneHost.myInitialize(iSwApp)
 
-
-        'Try
-        '    cAppConfig = System.Configuration.ConfigurationManager.OpenExeConfiguration(Application.StartupPath & "\Config_File_Ex.exe")
-        '    asSettings = cAppConfig.AppSettings
-        '    Dim appSettings = System.Configuration.ConfigurationManager.AppSettings
-
-        '    myTaskPaneHost.localRepoPath.Text = appSettings("localRepoPath") 'gets the local repo path from config file
-        'Finally
-        'End Try
     End Sub
 
     Public Sub RemoveTaskPane()
