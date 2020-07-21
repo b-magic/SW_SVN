@@ -34,24 +34,17 @@ Public Class UserControl1
 
         Me.ContextMenuStrip = docMenu
 
-        localRepoPath.Text = My.Settings.localRepoPath
-
     End Sub
 
     Friend Sub myInitialize(ByRef swAppin As SldWorks)
         'Allows for swApp to be passed into this class.
         iSwApp = swAppin
 
-
         initializeSwModelFunctions(iSwApp)
             svnModuleInitialize(iSwApp, Me, statusOfAllOpenModels)
 
-
-        If verifyLocalRepoPath() Then
-            iSwApp.SetUserPreferenceStringValue(
-                swUserPreferenceStringValue_e.swFileLocationsDocuments,
-                localRepoPath.Text)
-        End If
+        localRepoPath.Text = My.Settings.localRepoPath
+        refreshAddIn(bsaveLocalRepoPathSettings:=False)
     End Sub
     Friend Sub beforeClose()
         saveLocalRepoPathSettings()
@@ -117,18 +110,29 @@ Public Class UserControl1
     Private Sub butPickFolder_Click(sender As Object, e As EventArgs) Handles butPickFolder.Click
         pickFolder()
     End Sub
-    Public Sub refreshAddIn()
+    Public Function refreshAddIn(Optional bsaveLocalRepoPathSettings As Boolean = True) As Boolean
 
-        If Not verifyLocalRepoPath() Then Exit Sub
+        If Not verifyLocalRepoPath() Then Return False
+
+        Dim pathArr() As String = IO.Directory.GetDirectories(localRepoPath.Text, "*.*", IO.SearchOption.AllDirectories)
 
         'Set the referenced folder file to the local repository.
         'This will allow solidworks to find the files.
         'https://blogs.solidworks.com/tech/2014/06/search-path-order-for-opening-files-in-solidworks.html
         'http://help.solidworks.com/2012/English/api/swconst/SO_FileLocations.htm
 
-        'iSwApp.SetUserPreferenceStringValue(
-        '    swUserPreferenceStringValue_e.swFileLocationsDocuments,
-        '    localRepoPath.Text)
+        'Add all the subdirectories of the repo to the "reference files location" 
+        ' This will let solidworks find the files!
+        For Each myPath In pathArr
+            If myPath.Contains("\.svn") Then Continue For
+            iSwApp.SetUserPreferenceStringValue(
+            swUserPreferenceStringValue_e.swFileLocationsDocuments,
+            myPath)
+        Next
+
+        'TODO: try to change setuserPreference to only be once in this file
+
+        'Also: Prevent multiple files with the same name to be added to the vault!
 
         ''iSwApp.SetUserPreferenceStringValue(swUserPreferenceStringValue_e.swFileLocationsDocuments, "C:\Users\benne\Documents\SVN\fsae9\CAD\Subfolder")
 
@@ -136,7 +140,7 @@ Public Class UserControl1
         switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
 
         saveLocalRepoPathSettings()
-    End Sub
+    End Function
 
     Public Sub saveLocalRepoPathSettings()
         My.Settings.localRepoPath = localRepoPath.Text
@@ -228,8 +232,9 @@ Public Class UserControl1
 
         If Not onlineCheckBox.Checked Then Exit Sub
 
-        TreeView1.BeginUpdate()
+        'TreeView1.BeginUpdate()
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()
+        If modDoc Is Nothing Then Exit Sub
 
         Dim treeNodeTemp As TreeNode = findStoredTreeView(modDoc.GetPathName, bRetryWithRefresh)
         If IsNothing(treeNodeTemp) Then Exit Sub
@@ -240,19 +245,26 @@ Public Class UserControl1
         TreeView1.Nodes.Insert(0, clonedNode)
         TreeView1.Nodes(0).Expand()
         TreeView1.Show()
-        TreeView1.EndUpdate()
+        'TreeView1.EndUpdate()
+
     End Sub
     Function findStoredTreeView(pathName As String, Optional bRetryWithRefresh As Boolean = True) As TreeNode
         Dim i As Integer
         Dim bSuccess As Boolean
         'Dim bFound As Boolean = False
 
-        If IsNothing(allTreeViews(0)) Then
+        If IsNothing(allTreeViews) Then
             bSuccess = updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True)
             If Not bSuccess Then iSwApp.SendMsgToUser("Status Update Failed.") : Return Nothing
-
             bRetryWithRefresh = False
         End If
+
+        If allTreeViews.Length = 0 Then
+            bSuccess = updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True)
+            If Not bSuccess Then iSwApp.SendMsgToUser("Status Update Failed.") : Return Nothing
+            bRetryWithRefresh = False
+        End If
+
 
         'Try to find it using the existing allTreeViews object. This is the fastest
         For i = 0 To UBound(allTreeViews)

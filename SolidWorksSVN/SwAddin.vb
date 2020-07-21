@@ -17,11 +17,22 @@ Imports System.ComponentModel
 Imports System.Windows.Forms
 'Imports System.Configuration
 
-<Guid("8E7E418A-13BA-45BB-B784-D6202C1F1C47")>'"ca5108e0-c3c5-47f0-8453-cd9b6a5e12af")>
+
+
+
+
+'<Guid("8E7E418A-13BA-45BB-B784-D6202C1F1C47")>'"ca5108e0-c3c5-47f0-8453-cd9b6a5e12af")>
+'<ComVisible(True)>
+'<SwAddin(
+'        Description:="Version Control from a Central SVN Server AddIn",
+'        Title:="SVN_Vault",
+'        LoadAtStartup:=True
+'        )>
+<Guid("0E1DEB16-5C3F-45F0-8213-C1B211F0426B")>'<Guid("8E7E418A-13BA-45BB-B784-D6202C1F1C47")>'"ca5108e0-c3c5-47f0-8453-cd9b6a5e12af")>
 <ComVisible(True)>
 <SwAddin(
         Description:="Version Control from a Central SVN Server AddIn",
-        Title:="SVN_Vault",
+        Title:="SVN_Vault-Debug",
         LoadAtStartup:=True
         )>
 Public Class SwAddin
