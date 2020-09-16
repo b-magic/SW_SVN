@@ -50,4 +50,5 @@ The default port for administratoring the vault is 3343 so for example: http://3
 the add-in inside solidworks. 
 
 # Creating an installer
-Follow https://www.codestack.net/solidworks-api/deployment/installer/vsi/
+1. Follow https://www.codestack.net/solidworks-api/deployment/installer/vsi/
+2. After you right click on the SVN_Vault_installer project and click rebuild, the .msi installer file should show up in C:\Users\<username>\source\repos\SolidWorksVB\SW_SVN\Debug
