@@ -115,6 +115,7 @@ Public Class UserControl1
         If Not verifyLocalRepoPath() Then Return False
 
         Dim pathArr() As String = IO.Directory.GetDirectories(localRepoPath.Text, "*.*", IO.SearchOption.AllDirectories)
+        Dim sUserPreference As String
 
         'Set the referenced folder file to the local repository.
         'This will allow solidworks to find the files.
@@ -124,10 +125,14 @@ Public Class UserControl1
         'Add all the subdirectories of the repo to the "reference files location" 
         ' This will let solidworks find the files!
         For Each myPath In pathArr
-            If myPath.Contains("\.svn") Then Continue For
+            If myPath.Contains("\.svn") Then Continue For 'Skips the hidden folder that contains all the backup files
+
+            sUserPreference = iSwApp.GetUserPreferenceStringValue(
+                swUserPreferenceStringValue_e.swFileLocationsDocuments) 'Get existing preferences
+
             iSwApp.SetUserPreferenceStringValue(
-            swUserPreferenceStringValue_e.swFileLocationsDocuments,
-            myPath)
+                swUserPreferenceStringValue_e.swFileLocationsDocuments,
+                sUserPreference & ";" & myPath)
         Next
 
         'TODO: try to change setuserPreference to only be once in this file
