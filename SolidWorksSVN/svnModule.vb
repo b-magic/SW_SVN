@@ -18,7 +18,25 @@ Public Module svnModule
                                   statusOfAllOpenModelsPass As SVNStatus)
         sInstallDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)
         sSVNPath = sInstallDirectory & "\bin\svn.exe"
+        If Not My.Computer.FileSystem.FileExists(sSVNPath) Then
+            sSVNPath = sInstallDirectory & "\svn.exe" 'Try a slightly different path
+            If Not My.Computer.FileSystem.FileExists(sSVNPath) Then
+                iSwApp.SendMsgToUser2("Error: " & sInstallDirectory & "\bin\svn.exe" & "does not exist.",
+                                    swMessageBoxIcon_e.swMbStop, swMessageBoxBtn_e.swMbOk)
+                myUserControlPass.onlineCheckBox.Checked = False
+            End If
+        End If
+
         sTortPath = sInstallDirectory & "\bin\TortoiseProc.exe"  'System.Environment.CurrentDirectory & "\TortoiseProc.exe"
+        If Not My.Computer.FileSystem.FileExists(sTortPath) Then
+            sTortPath = sInstallDirectory & "\TortoiseProc.exe" 'Try a slightly different path
+            If Not My.Computer.FileSystem.FileExists(sTortPath) Then
+                iSwApp.SendMsgToUser2("Error: " & sInstallDirectory & "\bin\TortoiseProc.exe" & "does not exist.",
+                                       swMessageBoxIcon_e.swMbStop, swMessageBoxBtn_e.swMbOk)
+                myUserControlPass.onlineCheckBox.Checked = False
+            End If
+        End If
+
         myUserControl = myUserControlPass
         iSwApp = mySwAppPass
         statusOfAllOpenModels = statusOfAllOpenModelsPass
@@ -212,7 +230,7 @@ Public Module svnModule
         ' Set our event handler to asynchronously read the sort output.
         'AddHandler oSVNProcess.OutputDataReceived, AddressOf SortOutputHandler
 
-        iSwApp.SendMsgToUser(filename & vbCrLf & arguments)
+        'iSwApp.SendMsgToUser(filename & vbCrLf & arguments)
 
         oSVNProcess.Start()
 
