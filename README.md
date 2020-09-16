@@ -43,3 +43,11 @@ svn propset svn:needs-lock 'yes' -R .
 5. Using a web browser, go to the server instance's public ip address (shown on the EC2 dashboard) put a ":" and then the port number. 
 The default port for administratoring the vault is 3343 so for example: http://3.15.7.77:3343 if my public ip address was 3.15.7.77
 6. To access the vault as a user you'll have to go to that port (default is 18080) then slash "svn". example http://3.15.7.77:18080/svn/
+
+# Running
+## Visual Studio
+1. Always start visual studio as administrator (start > visual studio > right click > run as administrator) otherwise you can't change the registry to actually open up 
+the add-in inside solidworks. 
+
+# Creating an installer
+Follow https://www.codestack.net/solidworks-api/deployment/installer/vsi/
