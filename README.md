@@ -2,9 +2,15 @@
 ## Disclaimer
 This project is not endorsed by, affiliated with, maintained, authorized, or sponsored by SolidWorks or Dassault Systems. All product and company names are the registered trademarks of their original owners. The use of any trade name or trademark is for identification and reference purposes only and does not imply any association with the trademark holder of their product brand.
 
-## Getting Set up
-### IDE
-1. Get visual studio. Students from certain universities can get it for free through microsoft azure. https://signup.azure.com/studentverification?offerType=3
+## Getting Set Up - End User
+
+
+## Getting Set up - Developing The Project
+
+### Integrated Development Enviornment (IDE)
+1. Get visual studio. 
+  1a. Students from certain universities can get it for free through microsoft azure. https://signup.azure.com/studentverification?offerType=3
+  1b. Otherwise, you can get the visual studio community package. 
 2. Get the Visual Studio Installer (VSI) add-on package. Instructions: https://www.codestack.net/solidworks-api/deployment/installer/vsi/
 
 ### Solidworks
