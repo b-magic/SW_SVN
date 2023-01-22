@@ -8,12 +8,14 @@ This project is not endorsed by, affiliated with, maintained, authorized, or spo
 ## Getting Set up - Developing The Project
 
 ### Integrated Development Enviornment (IDE)
-1. Get visual studio. https://visualstudio.microsoft.com/downloads/
+1. Pre-requisite: Windows computer. Not Mac. sorry. 
+2. Get visual studio. https://visualstudio.microsoft.com/downloads/
   A. Students from certain universities can get it for free through microsoft azure. https://signup.azure.com/studentverification?offerType=3
   B. Otherwise, you can get the visual studio community package.  https://visualstudio.microsoft.com/downloads/
 2. In the Windows app visual studio installer (not the extension), get the ".NET Desktop Developer" workload. 
 3. Get the Visual Studio Installer (VSI) add-on package/extension so you can output install files. Note: This is separate/different than the windows app that has the same name. Instructions: https://www.codestack.net/solidworks-api/deployment/installer/vsi/. The instruction videos shows Within Visual studio to go Tools>Extensions>Manage, or just Extensions>Manage on newer versions. Within the popup window, search for "Windows Studio Installer" And select the first one, with an icon of an open cardboard box.  
 4. Optional: You may wih to get the github extension at the same time. 
+5. Note: In order to build the install file, you will also need tortoiseSVN installed on your local machine. https://tortoisesvn.net/downloads.html That should save the TortoiseSVN executable at "C:\Program Files\TortoiseSVN\bin\TortoiseProc.exe". If not, copy it to that folder. 
 
 
 ### Solidworks
