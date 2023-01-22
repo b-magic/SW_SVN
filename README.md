@@ -12,6 +12,7 @@ This project is not endorsed by, affiliated with, maintained, authorized, or spo
   1a. Students from certain universities can get it for free through microsoft azure. https://signup.azure.com/studentverification?offerType=3
   1b. Otherwise, you can get the visual studio community package. 
 2. Get the Visual Studio Installer (VSI) add-on package. Instructions: https://www.codestack.net/solidworks-api/deployment/installer/vsi/
+3. In the visual studio installer, get the ".NET Desktop Developer" workload. 
 
 ### Solidworks
 ##### 1. Get the API SDK add-in.
