@@ -192,6 +192,9 @@ Public Class SwAddin
 #Region "UI Methods"
     Public Sub AddTaskPane()
 
+        'sInstallDirectory
+        'sInstallDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)
+        'svnModule
         Dim imageList1() As String = {"C:\Users\benne\source\repos\SolidWorksVB\SolidWorksSVN\icons\VaultLogo20.png",
             "C:\Users\benne\source\repos\SolidWorksVB\SolidWorksSVN\icons\VaultLogo40.png",
             "C:\Users\benne\source\repos\SolidWorksVB\SolidWorksSVN\icons\VaultLogo64.png",
