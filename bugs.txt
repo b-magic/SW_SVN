@@ -1,4 +1,7 @@
 doesn't work with lightweight components
+need to adjust getComponentsOfAssemblyOptionalUpdateTree to just return paths; don't need all the modelDocs. 
+* except for the check in and check out. Those need modeldocs. The other functions just use paths anyways. 
 
 release all does not work with >3 parts. Fails for both tortoiseSVN and app. 
 -> try making repo private?
+

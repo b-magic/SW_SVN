@@ -377,9 +377,12 @@ Public Class UserControl1
             setNodeColorFromStatus(parentNode)
         End If
 
+        Debug.Print(swComp.GetPathName())
+
         vChildComp = swComp.GetChildren
         For i = 0 To UBound(vChildComp)
             swChildComp = vChildComp(i)
+            Debug.Print(swChildComp.GetPathName())
             modDocChild = swChildComp.GetModelDoc2
             If IsNothing(modDocChild) Then
                 Continue For
