@@ -283,7 +283,7 @@ Public Module svnModule
 
         If IsNothing(modDocArr) Then
             If Not verifyLocalRepoPath() Then Exit Sub
-            bSuccess = runTortoiseProcexeWithMonitor("/command:unlock /path:'" & myUserControl.localRepoPath.Text & "' /closeonend:3")
+            bSuccess = runTortoiseProcexeWithMonitor("/command:unlock /path:""" & myUserControl.localRepoPath.Text.TrimEnd("\\") & """ /closeonend:3")
 
         Else
             Status = getFileSVNStatus(bCheckServer:=True, modDocArr)
