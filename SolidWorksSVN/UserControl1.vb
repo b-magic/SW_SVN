@@ -155,11 +155,15 @@ Public Class UserControl1
     Public Function pickFolder() As DialogResult
         Dim folderDlg As FolderBrowserDialog = New FolderBrowserDialog()
         Dim result As DialogResult = folderDlg.ShowDialog()
+        Dim sTempPath As String
 
         If (result = DialogResult.OK) Then
-            localRepoPath.Text = folderDlg.SelectedPath
+            sTempPath = folderDlg.SelectedPath
             'Environment.SpecialFolder root = folderDlg.RootFolder
+            sTempPath = sTempPath.TrimEnd("\\")
+            localRepoPath.Text = sTempPath
         End If
+
         Return result
 
         verifyLocalRepoPath()

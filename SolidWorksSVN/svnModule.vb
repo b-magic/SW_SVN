@@ -92,7 +92,7 @@ Public Module svnModule
 
         If Not verifyLocalRepoPath() Then Return Nothing
 
-        arguments = "status " & If(bCheckServer, "-u ", "") & "-v --non-interactive '" & myUserControl.localRepoPath.Text & "'" 'sFilePathCat 
+        arguments = "status " & If(bCheckServer, "-u ", "") & "-v --non-interactive """ & myUserControl.localRepoPath.Text.TrimEnd("\\") & """" 'sFilePathCat 
 
         'iSwApp.SendMsgToUser(sSVNPath)
         processOutput = runSvnProcess(sSVNPath, arguments)
@@ -126,7 +126,7 @@ Public Module svnModule
                     iSwApp.SendMsgToUser(svnAddInUtils.catWithNewLine(sOutputErrorLines))
 
                     'https://tortoisesvn.net/docs/nightly/TortoiseSVN_en/tsvn-automation.html
-                    runTortoiseProcexeWithMonitor("/command:repostatus /remote /path: '" & myUserControl.localRepoPath.Text & "'") 'log in
+                    runTortoiseProcexeWithMonitor("/command:repostatus /remote /path: """ & myUserControl.localRepoPath.Text & """") 'log in
                     Return getFileSVNStatus(bCheckServer, modDocArr, iRecursiveLevel:=1)
                 ElseIf sOutputErrorLines(i).Contains("E170013") Then
                     'Couldn't connect. Server is off or no internet connection
@@ -183,6 +183,7 @@ Public Module svnModule
             If sOutputLines(i).Contains("~$") Then Continue For 'Temporary file!
             sFileStartIndex = Strings.InStr(sOutputLines(i), myUserControl.localRepoPath.Text, CompareMethod.Text) - 1
             If sFileStartIndex = -2 Then Continue For
+            'If sFileStartIndex = -1 Then Continue For
             sFilePathTemp = sOutputLines(i).Substring(sFileStartIndex, sOutputLines(i).Length - sFileStartIndex)
 
             modDocTemp = iSwApp.GetOpenDocumentByName(sFilePathTemp)
@@ -432,14 +433,14 @@ Public Module svnModule
 
         If Not verifyLocalRepoPath() Then Exit Sub
         If bSuccessStatus Then
-            bSuccessCleanup = runTortoiseProcexeWithMonitor("/command:cleanup /cleanup /path:'" & myUserControl.localRepoPath.Text & "'")
+            bSuccessCleanup = runTortoiseProcexeWithMonitor("/command:cleanup /cleanup /path:""" & myUserControl.localRepoPath.Text & """")
         Else
             'Manually release file system locks
             For Each modDoc In allOpenDocs
                 modDoc.ForceReleaseLocks()
             Next
 
-            bSuccessCleanup = runTortoiseProcexeWithMonitor("/command:cleanup /cleanup /path:'" & myUserControl.localRepoPath.Text & "'")
+            bSuccessCleanup = runTortoiseProcexeWithMonitor("/command:cleanup /cleanup /path:""" & myUserControl.localRepoPath.Text & """")
             For Each modDoc In allOpenDocs
                 'Manually reattach to file system
                 modDoc.ReloadOrReplace(ReadOnly:=True, ReplaceFileName:=False, DiscardChanges:=False)
@@ -544,7 +545,7 @@ Public Module svnModule
         End If
 
         'Check the path is actually connected to a repo
-        arguments = "info " & "--non-interactive '" & sLocalPath & "'" 'sFilePathCat 
+        arguments = "info " & "--non-interactive """ & sLocalPath.TrimEnd("\\") & """" 'sFilePathCat 
 
         processOutput = runSvnProcess(sSVNPath, arguments)
         If processOutput.outputError.Contains("W155007:") Then
