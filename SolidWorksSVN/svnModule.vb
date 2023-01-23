@@ -92,7 +92,7 @@ Public Module svnModule
 
         If Not verifyLocalRepoPath() Then Return Nothing
 
-        arguments = "status " & If(bCheckServer, "-u ", "") & "-v --non-interactive " & myUserControl.localRepoPath.Text  'sFilePathCat 
+        arguments = "status " & If(bCheckServer, "-u ", "") & "-v --non-interactive '" & myUserControl.localRepoPath.Text & "'" 'sFilePathCat 
 
         'iSwApp.SendMsgToUser(sSVNPath)
         processOutput = runSvnProcess(sSVNPath, arguments)
@@ -126,7 +126,7 @@ Public Module svnModule
                     iSwApp.SendMsgToUser(svnAddInUtils.catWithNewLine(sOutputErrorLines))
 
                     'https://tortoisesvn.net/docs/nightly/TortoiseSVN_en/tsvn-automation.html
-                    runTortoiseProcexeWithMonitor("/command:repostatus /remote /path:" & myUserControl.localRepoPath.Text) 'log in
+                    runTortoiseProcexeWithMonitor("/command:repostatus /remote /path: '" & myUserControl.localRepoPath.Text & "'") 'log in
                     Return getFileSVNStatus(bCheckServer, modDocArr, iRecursiveLevel:=1)
                 ElseIf sOutputErrorLines(i).Contains("E170013") Then
                     'Couldn't connect. Server is off or no internet connection
@@ -282,7 +282,7 @@ Public Module svnModule
 
         If IsNothing(modDocArr) Then
             If Not verifyLocalRepoPath() Then Exit Sub
-            bSuccess = runTortoiseProcexeWithMonitor("/command:unlock /path:" & myUserControl.localRepoPath.Text & " /closeonend:3")
+            bSuccess = runTortoiseProcexeWithMonitor("/command:unlock /path:'" & myUserControl.localRepoPath.Text & "' /closeonend:3")
 
         Else
             Status = getFileSVNStatus(bCheckServer:=True, modDocArr)
@@ -407,14 +407,15 @@ Public Module svnModule
     End Sub
     Sub myRepoStatus()
         Dim bSuccess As Boolean
-        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
+        Dim modDoc As ModelDoc2
         Dim modDocArr() As ModelDoc2
 
-        If modDoc Is Nothing Then
+        If iSwApp.ActiveDoc Is Nothing Then
             iSwApp.SendMsgToUser("A File must be open")
             Exit Sub
             'bSuccess = runTortoiseProcexeWithMonitor("/command:repostatus /remote")
         Else
+            modDoc = iSwApp.ActiveDoc
             modDocArr = myUserControl.getComponentsOfAssemblyOptionalUpdateTree(iSwApp.ActiveDoc)
             bSuccess = runTortoiseProcexeWithMonitor("/command:repostatus /path:" &
                                                  formatModDocArrForTortoiseProc(modDocArr) &
@@ -431,14 +432,14 @@ Public Module svnModule
 
         If Not verifyLocalRepoPath() Then Exit Sub
         If bSuccessStatus Then
-            bSuccessCleanup = runTortoiseProcexeWithMonitor("/command:cleanup /cleanup /path:" & myUserControl.localRepoPath.Text)
+            bSuccessCleanup = runTortoiseProcexeWithMonitor("/command:cleanup /cleanup /path:'" & myUserControl.localRepoPath.Text & "'")
         Else
             'Manually release file system locks
             For Each modDoc In allOpenDocs
                 modDoc.ForceReleaseLocks()
             Next
 
-            bSuccessCleanup = runTortoiseProcexeWithMonitor("/command:cleanup /cleanup /path:" & myUserControl.localRepoPath.Text)
+            bSuccessCleanup = runTortoiseProcexeWithMonitor("/command:cleanup /cleanup /path:'" & myUserControl.localRepoPath.Text & "'")
             For Each modDoc In allOpenDocs
                 'Manually reattach to file system
                 modDoc.ReloadOrReplace(ReadOnly:=True, ReplaceFileName:=False, DiscardChanges:=False)
@@ -543,7 +544,7 @@ Public Module svnModule
         End If
 
         'Check the path is actually connected to a repo
-        arguments = "info " & "--non-interactive " & sLocalPath  'sFilePathCat 
+        arguments = "info " & "--non-interactive '" & sLocalPath & "'" 'sFilePathCat 
 
         processOutput = runSvnProcess(sSVNPath, arguments)
         If processOutput.outputError.Contains("W155007:") Then
@@ -673,9 +674,12 @@ Public Module svnModule
     End Function
     Function formatModDocArrForTortoiseProc(ByRef modDocArr() As ModelDoc2) As String
         Dim sFilePathCat As String = """" & modDocArr(0).GetPathName
+        Dim sTempPathName As String
         For i = 1 To UBound(modDocArr)
             If modDocArr(i) Is Nothing Then Continue For
-            sFilePathCat &= "*" & modDocArr(i).GetPathName
+            sTempPathName = modDocArr(i).GetPathName
+            If sTempPathName.Contains("~~") Then Continue For    'skip in-context parts/assemblies.
+            sFilePathCat &= "*" & sTempPathName
         Next
         sFilePathCat &= """"
         Return sFilePathCat
