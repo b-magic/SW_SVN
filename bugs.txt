@@ -1,0 +1,4 @@
+doesn't work with lightweight components
+
+release all does not work with >3 parts. Fails for both tortoiseSVN and app. 
+-> try making repo private?
