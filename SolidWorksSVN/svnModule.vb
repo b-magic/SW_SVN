@@ -183,7 +183,7 @@ Public Module svnModule
             If sOutputLines(i).Contains("~$") Then Continue For 'Temporary file!
             sFileStartIndex = Strings.InStr(sOutputLines(i), myUserControl.localRepoPath.Text, CompareMethod.Text) - 1
             If sFileStartIndex = -2 Then Continue For
-            'If sFileStartIndex = -1 Then Continue For
+            If sFileStartIndex = -1 Then Continue For
             sFilePathTemp = sOutputLines(i).Substring(sFileStartIndex, sOutputLines(i).Length - sFileStartIndex)
 
             modDocTemp = iSwApp.GetOpenDocumentByName(sFilePathTemp)
