@@ -289,9 +289,20 @@ Public Module svnModule
             Status = getFileSVNStatus(bCheckServer:=True, modDocArr)
             If IsNothing(Status) Then Exit Sub
 
+            ''force filesystem to release
+            'For Each modDoc In modDocArr
+            '    modDoc.ForceReleaseLocks()
+            'Next
+
             bSuccess = runTortoiseProcexeWithMonitor("/command:unlock /path:" &
                                              formatFilePathArrForTortoiseProc(
                                                 getFilePathsFromModDocArr(modDocArr)) & " /closeonend:3")
+
+            'for each moddoc in moddocarr
+            '    'manually reattach to file system
+            '    moddoc.reloadorreplace(readonly:=true, replacefilename:=false, discardchanges:=false)
+            'next
+
         End If
 
         If Not bSuccess Then iSwApp.SendMsgToUserv("Releasing Locks Failed.")
