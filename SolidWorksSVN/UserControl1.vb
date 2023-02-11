@@ -311,6 +311,8 @@ Public Class UserControl1
                                     ByRef modDoc As ModelDoc2,
                                     Optional ByVal allTreeViewsIndexToUpdate As Integer = Nothing) As ModelDoc2()
 
+        ' Checkin and checkout needs the modDocArray. The others just want filepaths. 
+
         Dim bUC As Boolean = If(IsNothing(allTreeViewsIndexToUpdate), False, True)
         Dim sFileNameTemp As String = System.IO.Path.GetFileName(modDoc.GetPathName)
         Dim parentNode As TreeNode = Nothing

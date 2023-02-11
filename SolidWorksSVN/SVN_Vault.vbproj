@@ -236,6 +236,21 @@
   <ItemGroup>
     <None Include="icons\VaultLogo128.png" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="icons\GetLocksPlusDependents.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icons\GetLocks.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icons\Commit.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icons\CommitPlusDependents.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="icons\CommitAll.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
     <PreBuildEvent>
