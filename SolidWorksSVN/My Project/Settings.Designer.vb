@@ -64,6 +64,18 @@ Partial Friend NotInheritable Class Settings
             Me("localRepoPath") = value
         End Set
     End Property
+    
+    <Global.System.Configuration.UserScopedSettingAttribute(),  _
+     Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+     Global.System.Configuration.DefaultSettingValueAttribute("True")>  _
+    Public Property online() As Boolean
+        Get
+            Return CType(Me("online"),Boolean)
+        End Get
+        Set
+            Me("online") = value
+        End Set
+    End Property
 End Class
 
 Namespace My

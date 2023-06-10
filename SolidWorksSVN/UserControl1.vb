@@ -44,6 +44,8 @@ Public Class UserControl1
             svnModuleInitialize(iSwApp, Me, statusOfAllOpenModels)
 
         localRepoPath.Text = My.Settings.localRepoPath
+        onlineCheckBox.Checked = My.Settings.online
+
         refreshAddIn(bsaveLocalRepoPathSettings:=False)
     End Sub
     Friend Sub beforeClose()
@@ -144,11 +146,13 @@ Public Class UserControl1
         updateStatusOfAllModelsVariable(True)
         switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
 
-        saveLocalRepoPathSettings()
+        If bsaveLocalRepoPathSettings Then saveLocalRepoPathSettings()
     End Function
 
     Public Sub saveLocalRepoPathSettings()
+        ' To add, double click "My Project" in the explorer, and navigate to settings. 
         My.Settings.localRepoPath = localRepoPath.Text
+        My.Settings.online = onlineCheckBox.Checked
         My.Settings.Save()
     End Sub
 
@@ -575,5 +579,4 @@ Public Class UserControl1
             'Drawing.Color.Bisque 'Drawing.Color.FromArgb(255, 77, 77) 'light red
         End Sub
     End Class
-
 End Class
