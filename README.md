@@ -26,8 +26,10 @@ Try running the SolidWorks API SDK.msi file. If it doesn’t ask about templates
 https://www.codestack.net/solidworks-api/troubleshooting/addins/sdk-installation/
 Which says to Save swvbaddin.zip into 
 C:\Users\<username>\Documents\Visual Studio 2019\Templates\ProjectTemplates\Visual Basic
+
 http://help.solidworks.com/2019/english/api/sldworksapiprogguide/Overview/SolidWorks_CSharp_and_VB.NET__Project_Templates.htm
 
+If you open visual studio and get errors with everything related to SolidWorks, in the solution explorer, SVN_Vault > Reference > click on SolidWorks.Interop.sldworks. The exclamation triangle icon on that item should disappear. 
 
 ### SVN Server
 There's lots of options to set up an SVN Server. I decided to use an amazon web services server.
