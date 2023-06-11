@@ -8,6 +8,7 @@ need to adjust getComponentsOfAssemblyOptionalUpdateTree to just return paths; d
 * except for the check in and check out. Those need modeldocs. The other functions just use paths anyways. 
 
 
+Make buttons apply to currently selected component instead of top level assy
 
 Correct in-context components to inherit parents. Bonus- Also allow right clicking on them for checkin/out as their parents.
 
