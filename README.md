@@ -68,4 +68,4 @@ the add-in inside solidworks.
 1. Follow https://www.codestack.net/solidworks-api/deployment/installer/vsi/
 2. After you right click on the SVN_Vault_installer project and click rebuild, the .msi installer file should show up in C:\Users\<username>\source\repos\SolidWorksVB\SW_SVN\Debug
 
-Good Luck :)
+Good Luck :) Have Fun :)
