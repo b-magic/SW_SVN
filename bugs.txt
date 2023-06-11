@@ -1,7 +1,7 @@
 release all does not work with >3 parts. Fails for both tortoiseSVN and app. 
 -> try making repo private?
 
-Change icons so they are aligned with the tortoiseSVN language. 
+Fix right click context menu to match svn language, eg. "Check In" -> "Commit" ; "Check Out" -> "Get Lock"
 
 doesn't work with lightweight components
 need to adjust getComponentsOfAssemblyOptionalUpdateTree to just return paths; don't need all the modelDocs. 
@@ -10,3 +10,6 @@ need to adjust getComponentsOfAssemblyOptionalUpdateTree to just return paths; d
 
 
 Correct in-context components to inherit parents. Bonus- Also allow right clicking on them for checkin/out as their parents.
+
+
+
