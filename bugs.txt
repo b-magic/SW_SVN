@@ -12,5 +12,5 @@ Make buttons apply to currently selected component instead of top level assy
 
 Correct in-context components to inherit parents. Bonus- Also allow right clicking on them for checkin/out as their parents.
 
-
+ignore temporary "~" files
 
