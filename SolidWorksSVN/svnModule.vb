@@ -18,6 +18,7 @@ Public Module svnModule
                                   statusOfAllOpenModelsPass As SVNStatus)
         sInstallDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)
         sSVNPath = sInstallDirectory & "\bin\svn.exe"
+        Debug.Print(sSVNPath)
         If Not My.Computer.FileSystem.FileExists(sSVNPath) Then
             sSVNPath = sInstallDirectory & "\svn.exe" 'Try a slightly different path
             If Not My.Computer.FileSystem.FileExists(sSVNPath) Then
