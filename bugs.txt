@@ -14,3 +14,4 @@ Correct in-context components to inherit parents. Bonus- Also allow right clicki
 
 ignore temporary "~" files
 
+When going offline, send message to user about how to change files from read-only to read/write in windows file explorer. Also include in training doc.  
