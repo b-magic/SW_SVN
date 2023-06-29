@@ -22,6 +22,7 @@ This project is not endorsed by, affiliated with, maintained, authorized, or spo
 ##### 1. Get the API SDK add-in.
 Add/remove programs > Solidworks > Modify. Go through until you can select products, expand the API checkbox.
 Navigate to C:\Users\<username>\Documents\SOLIDWORKS Downloads\SOLIDWORKS 2019 SP02\apisdk
+If you don't see your SOLIDWORKS Downloads folder, check for it in C:\Users\<username>\onedrive <onedriveName>\Documents
 Try running the SolidWorks API SDK.msi file. If it doesn’t ask about templates, then follow this link
 https://www.codestack.net/solidworks-api/troubleshooting/addins/sdk-installation/
 Which says to Save swvbaddin.zip into 
