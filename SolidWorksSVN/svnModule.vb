@@ -413,13 +413,13 @@ Public Module svnModule
         statusOfAllOpenModels.setReadWriteFromLockStatus()
 
     End Sub
-    Public Sub myCheckoutDoc(modDoc As ModelDoc2)
+    Public Sub myGetLocksDoc(modDoc As ModelDoc2)
         'Dim modDoc() As ModelDoc2 = {iSwApp.ActiveDoc()}
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
 
         getLocksOfDocs({modDoc})
     End Sub
-    Public Sub myCheckoutWithDependents(modDoc As ModelDoc2)
+    Public Sub myGetLocksWithDependents(modDoc As ModelDoc2)
         'Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
 

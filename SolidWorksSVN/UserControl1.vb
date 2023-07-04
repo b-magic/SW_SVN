@@ -69,17 +69,17 @@ Public Class UserControl1
         unlockDocs()
         updateStatusStrip()
     End Sub
-    Private Sub butgetLockActiveDoc_Click(sender As Object, e As EventArgs) Handles butGetLockActiveDoc.Click
+    Private Sub butGetLockActiveDoc_Click(sender As Object, e As EventArgs) Handles butGetLockActiveDoc.Click
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Error: Active Document not found") : Exit Sub
-        myCheckoutDoc(modDoc)
+        myGetLocksDoc(modDoc)
         updateStatusStrip()
     End Sub
 
-    Private Sub butgetLockWithDependents_Click(sender As Object, e As EventArgs) Handles butGetLockWithDependents.Click
+    Private Sub butGetLockWithDependents_Click(sender As Object, e As EventArgs) Handles butGetLockWithDependents.Click
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Error: Active Document not found") : Exit Sub
-        myCheckoutWithDependents(modDoc)
+        myGetLocksWithDependents(modDoc)
         updateStatusStrip()
     End Sub
 
@@ -466,10 +466,10 @@ Public Class UserControl1
             End If
         End Sub
         Sub getLockActiveDocEventHandler(sender As Object, e As EventArgs)
-            myCheckoutDoc(modDoc)
+            myGetLocksDoc(modDoc)
         End Sub
         Sub checkOutActiveWithDependentsEventHandler(sender As Object, e As EventArgs)
-            myCheckoutWithDependents(modDoc)
+            myGetLocksWithDependents(modDoc)
         End Sub
 
     End Class
