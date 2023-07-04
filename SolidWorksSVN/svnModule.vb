@@ -17,24 +17,31 @@ Public Module svnModule
                                   myUserControlPass As UserControl1,
                                   statusOfAllOpenModelsPass As SVNStatus)
         sInstallDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)
-        sSVNPath = sInstallDirectory & "\bin\svn.exe"
-        Debug.Print(sSVNPath)
+
+        sSVNPath = "C:\Program Files\TortoiseSVN\bin\svn.exe"
+        'Debug.Print(sSVNPath)
         If Not My.Computer.FileSystem.FileExists(sSVNPath) Then
-            sSVNPath = sInstallDirectory & "\svn.exe" 'Try a slightly different path
+            sSVNPath = sInstallDirectory & "\bin\svn.exe"
             If Not My.Computer.FileSystem.FileExists(sSVNPath) Then
-                iSwApp.SendMsgToUser2("Error: " & sInstallDirectory & "\bin\svn.exe" & "does not exist.",
+                sSVNPath = sInstallDirectory & "\svn.exe" 'Try a slightly different path
+                If Not My.Computer.FileSystem.FileExists(sSVNPath) Then
+                    iSwApp.SendMsgToUser2("Error: " & sInstallDirectory & "\bin\svn.exe" & "does not exist.",
                                     swMessageBoxIcon_e.swMbStop, swMessageBoxBtn_e.swMbOk)
-                myUserControlPass.onlineCheckBox.Checked = False
+                    myUserControlPass.onlineCheckBox.Checked = False
+                End If
             End If
         End If
 
-        sTortPath = sInstallDirectory & "\bin\TortoiseProc.exe"  'System.Environment.CurrentDirectory & "\TortoiseProc.exe"
+        sTortPath = "C:\Program Files\TortoiseSVN\bin\TortoiseProc.exe"
         If Not My.Computer.FileSystem.FileExists(sTortPath) Then
-            sTortPath = sInstallDirectory & "\TortoiseProc.exe" 'Try a slightly different path
+            sTortPath = sInstallDirectory & "\bin\TortoiseProc.exe"  'System.Environment.CurrentDirectory & "\TortoiseProc.exe"
             If Not My.Computer.FileSystem.FileExists(sTortPath) Then
-                iSwApp.SendMsgToUser2("Error: " & sInstallDirectory & "\bin\TortoiseProc.exe" & "does not exist.",
+                sTortPath = sInstallDirectory & "\TortoiseProc.exe" 'Try a slightly different path
+                If Not My.Computer.FileSystem.FileExists(sTortPath) Then
+                    iSwApp.SendMsgToUser2("Error: " & sInstallDirectory & "\bin\TortoiseProc.exe" & "does not exist.",
                                        swMessageBoxIcon_e.swMbStop, swMessageBoxBtn_e.swMbOk)
-                myUserControlPass.onlineCheckBox.Checked = False
+                    myUserControlPass.onlineCheckBox.Checked = False
+                End If
             End If
         End If
 

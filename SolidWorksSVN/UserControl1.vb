@@ -69,14 +69,14 @@ Public Class UserControl1
         unlockDocs()
         updateStatusStrip()
     End Sub
-    Private Sub butCheckoutActiveDoc_Click(sender As Object, e As EventArgs) Handles butCheckoutActiveDoc.Click
+    Private Sub butgetLockActiveDoc_Click(sender As Object, e As EventArgs) Handles butGetLockActiveDoc.Click
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Error: Active Document not found") : Exit Sub
         myCheckoutDoc(modDoc)
         updateStatusStrip()
     End Sub
 
-    Private Sub butCheckoutWithDependents_Click(sender As Object, e As EventArgs) Handles butCheckoutWithDependents.Click
+    Private Sub butgetLockWithDependents_Click(sender As Object, e As EventArgs) Handles butGetLockWithDependents.Click
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Error: Active Document not found") : Exit Sub
         myCheckoutWithDependents(modDoc)
@@ -424,11 +424,11 @@ Public Class UserControl1
         Public openLabel As New ToolStripMenuItem("Open", My.Resources.VaultLogo128, AddressOf openEventHandler)
         Public unlockLabel As New ToolStripMenuItem("Release Lock", My.Resources.ReleaseActive, AddressOf unlockEventHandler)
         Public unlockWithDependentsLabel As New ToolStripMenuItem("Release Lock With Dependents", My.Resources.ReleaseAll, AddressOf unlockWithDependentsEventHandler)
-        Public checkInLabel As New ToolStripMenuItem("Check In", My.Resources.CheckInActive, AddressOf checkInEventHandler)
-        Public checkInWithDependentsLabel As New ToolStripMenuItem("Check In With Dependents", My.Resources.CheckInAll, AddressOf checkInWithDependentsEventHandler)
-        Public checkOutStealLabel As New ToolStripMenuItem("Check Out (Steal Locks)", My.Resources.CheckOutActive, AddressOf checkOutStealLockEventHandler)
-        Public checkOutActiveDoc As New ToolStripMenuItem("Check Out Doc", My.Resources.CheckOutActive, AddressOf checkOutActiveDocEventHandler)
-        Public checkOutWithDependents As New ToolStripMenuItem("Check Out With Dependents", My.Resources.CheckOutWithDependents, AddressOf checkOutActiveWithDependentsEventHandler)
+        Public commitLabel As New ToolStripMenuItem("Commit", My.Resources.CheckInActive, AddressOf commitEventHandler)
+        Public commitWithDependentsLabel As New ToolStripMenuItem("Commit With Dependents", My.Resources.CheckInAll, AddressOf commitWithDependentsEventHandler)
+        Public getLocksStealLabel As New ToolStripMenuItem("Get Lock (Steal Locks)", My.Resources.CheckOutActive, AddressOf getLockStealLockEventHandler)
+        Public getLockActiveDoc As New ToolStripMenuItem("Get Lock Doc", My.Resources.CheckOutActive, AddressOf getLockActiveDocEventHandler)
+        Public getLockWithDependents As New ToolStripMenuItem("Get Lock With Dependents", My.Resources.CheckOutWithDependents, AddressOf checkOutActiveWithDependentsEventHandler)
         Public Sub New(modDocInput As ModelDoc2, iSwAppInput As SldWorks)
             modDoc = modDocInput 'compInput.GetModelDoc2
             'comp = compInput
@@ -444,13 +444,13 @@ Public Class UserControl1
         Sub unlockWithDependentsEventHandler(sender As Object, e As EventArgs)
             myUnlockWithDependents({modDoc})
         End Sub
-        Sub checkInEventHandler(sender As Object, e As EventArgs)
+        Sub commitEventHandler(sender As Object, e As EventArgs)
             checkInDocs({modDoc}, svnAddInUtils.createBoolArray(1, True))
         End Sub
-        Sub checkInWithDependentsEventHandler(sender As Object, e As EventArgs)
+        Sub commitWithDependentsEventHandler(sender As Object, e As EventArgs)
             myCheckinWithDependents(modDoc)
         End Sub
-        Sub checkOutStealLockEventHandler(sender As Object, e As EventArgs)
+        Sub getLockStealLockEventHandler(sender As Object, e As EventArgs)
             If swMessageBoxResult_e.swMbHitOk =
             iSwApp2.SendMsgToUser2("File is Currently checked out by another user. You can steal their " &
                                    "Locks by clicking the checkbox in the next window. If both you and that user " &
@@ -460,7 +460,7 @@ Public Class UserControl1
                 unlockDocs({modDoc})
             End If
         End Sub
-        Sub checkOutActiveDocEventHandler(sender As Object, e As EventArgs)
+        Sub getLockActiveDocEventHandler(sender As Object, e As EventArgs)
             myCheckoutDoc(modDoc)
         End Sub
         Sub checkOutActiveWithDependentsEventHandler(sender As Object, e As EventArgs)
@@ -518,13 +518,13 @@ Public Class UserControl1
             If bModelDocAttached Then
                 If modDoc.GetType = swDocumentTypes_e.swDocASSEMBLY Then
                     docMenu.Items.AddRange(
-                        {myContextMenu.checkInLabel,
-                        myContextMenu.checkInWithDependentsLabel,
+                        {myContextMenu.commitLabel,
+                        myContextMenu.commitWithDependentsLabel,
                         myContextMenu.unlockLabel,
                         myContextMenu.unlockWithDependentsLabel})
                 Else
                     docMenu.Items.AddRange(
-                        {myContextMenu.checkInLabel,
+                        {myContextMenu.commitLabel,
                         myContextMenu.unlockLabel})
                 End If
             End If
@@ -532,19 +532,19 @@ Public Class UserControl1
         ElseIf status1.fp(0).upToDate9 = "*" Then
             rootNode.BackColor = myCol.outOfDate
             rootNode.ToolTipText = "Your Copy is Out Of Date"
-            If bModelDocAttached Then docMenu.Items.AddRange({myContextMenu.checkOutStealLabel})
+            If bModelDocAttached Then docMenu.Items.AddRange({myContextMenu.getLocksStealLabel})
 
         ElseIf status1.fp(0).lock6 = "O" Then
             rootNode.BackColor = myCol.lockedBySomeoneElse
             rootNode.ToolTipText = "Locked By Someone Else"
             If bModelDocAttached Then
-                docMenu.Items.AddRange({myContextMenu.checkOutStealLabel})
+                docMenu.Items.AddRange({myContextMenu.getLocksStealLabel})
                 'If modDoc.GetType = swDocumentTypes_e.swDocASSEMBLY Then
                 If modDoc.GetType = swDocumentTypes_e.swDocASSEMBLY Then
-                    docMenu.Items.Add(myContextMenu.checkInWithDependentsLabel)
+                    docMenu.Items.Add(myContextMenu.commitWithDependentsLabel)
                 End If
             End If
-            'If bCM Then rootNode.ContextMenuStrip.Items.Add(myContextMenu.checkOutStealLabel)
+            'If bCM Then rootNode.ContextMenuStrip.Items.Add(myContextMenu.getLocksStealLabel)
         ElseIf status1.fp(0).addDelChg1 = "?" Then
             rootNode.BackColor = myCol.notOnVault
             rootNode.ToolTipText = "File is not saved the to the Vault"
@@ -552,10 +552,10 @@ Public Class UserControl1
             rootNode.BackColor = myCol.available
             rootNode.ToolTipText = "Available"
             If bModelDocAttached Then
-                docMenu.Items.Add(myContextMenu.checkOutActiveDoc)
+                docMenu.Items.Add(myContextMenu.getLockActiveDoc)
                 If modDoc.GetType = swDocumentTypes_e.swDocASSEMBLY Then
-                    docMenu.Items.AddRange({myContextMenu.checkInWithDependentsLabel,
-                                           myContextMenu.checkOutWithDependents})
+                    docMenu.Items.AddRange({myContextMenu.commitWithDependentsLabel,
+                                           myContextMenu.getLockWithDependents})
                 End If
             End If
         Else

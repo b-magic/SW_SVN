@@ -19,17 +19,25 @@ This project is not endorsed by, affiliated with, maintained, authorized, or spo
 
 
 ### Solidworks
-##### 1. Get the API SDK add-in.
-Add/remove programs > Solidworks > Modify. Go through until you can select products, expand the API checkbox.
-Navigate to C:\Users\<username>\Documents\SOLIDWORKS Downloads\SOLIDWORKS 2019 SP02\apisdk
-Try running the SolidWorks API SDK.msi file. If it doesn’t ask about templates, then follow this link
+#### Get the API SDK add-in.
+1. Add/remove programs > Solidworks > Modify. Go through until you can select products, expand the API checkbox.
+2. Navigate to C:\Users\<username>\Documents\SOLIDWORKS Downloads\SOLIDWORKS 2019 SP02\apisdk
+3. Run the SolidWorks API SDK.msi file. 
+
+#### Issues & Fixes
+##### Visual studio can't find sldworks references
+1. In the VS solution explorer, SVN_Vault >(expand the tree)> Reference > click on SolidWorks.Interop.sldworks. The exclamation triangle icon on that item should disappear. 
+2. If that didn't work, right click SVN_Vault project, and select "Manage NuGet packages", pick the Browse tab, and search for and install "Microsoft.NETFramework.ReferenceAssemblies"
+If it doesn’t ask about templates, then follow this link
+
+##### Missing sdk templates
+I'm not sure if this is actaully needed, but 
 https://www.codestack.net/solidworks-api/troubleshooting/addins/sdk-installation/
 Which says to Save swvbaddin.zip into 
 C:\Users\<username>\Documents\Visual Studio 2019\Templates\ProjectTemplates\Visual Basic
 
 http://help.solidworks.com/2019/english/api/sldworksapiprogguide/Overview/SolidWorks_CSharp_and_VB.NET__Project_Templates.htm
 
-If you open visual studio and get errors with everything related to SolidWorks, in the solution explorer, SVN_Vault > Reference > click on SolidWorks.Interop.sldworks. The exclamation triangle icon on that item should disappear. 
 
 ### SVN Server
 There's lots of options to set up an SVN Server. I decided to use an amazon web services server.
