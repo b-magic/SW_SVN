@@ -303,7 +303,7 @@ Public Class SwAddin
     '          cmdGroup.SmallMainIcon, cmdGroup.LargeMainIcon, cmdGroup.SmallIconList, cmdGroup.LargeIconList, "NoCallbackSub", "FlyoutEnable")
     '    flyGroupCheckin.RemoveAllCommandItems()
     '    flyGroupCheckin.AddCommandItem("Checkin ActiveDoc", "Checkin the current document", 0, "myCheckinActiveDoc", "FlyoutEnable")
-    '    flyGroupCheckin.AddCommandItem("Checkin All", "Checkin Any/All documents", 0, "myCheckinAll", "FlyoutEnable")
+    '    flyGroupCheckin.AddCommandItem("Checkin All", "Checkin Any/All documents", 0, "myCommitAll", "FlyoutEnable")
     '    flyGroupCheckin.FlyoutType = swCommandFlyoutStyle_e.swCommandFlyoutStyle_Favorite
 
     '    Dim flyGroupGetLatest As FlyoutGroup

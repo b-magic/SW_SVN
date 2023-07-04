@@ -183,6 +183,7 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
@@ -254,13 +255,6 @@
   <ItemGroup>
     <None Include="icons\CommitAll.png" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies">
-      <Version>1.0.3</Version>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
     <PreBuildEvent>
@@ -297,4 +291,11 @@ GOTO END
     
 </PostBuildEvent>
   </PropertyGroup>
+  <Import Project="..\packages\Microsoft.NETFramework.ReferenceAssemblies.net40.1.0.3\build\Microsoft.NETFramework.ReferenceAssemblies.net40.targets" Condition="Exists('..\packages\Microsoft.NETFramework.ReferenceAssemblies.net40.1.0.3\build\Microsoft.NETFramework.ReferenceAssemblies.net40.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.NETFramework.ReferenceAssemblies.net40.1.0.3\build\Microsoft.NETFramework.ReferenceAssemblies.net40.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.NETFramework.ReferenceAssemblies.net40.1.0.3\build\Microsoft.NETFramework.ReferenceAssemblies.net40.targets'))" />
+  </Target>
 </Project>

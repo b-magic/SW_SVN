@@ -319,7 +319,7 @@ Public Module svnModule
 
     End Sub
 
-    Public Sub myCheckinWithDependents(modDoc As ModelDoc2)
+    Public Sub myCommitWithDependents(modDoc As ModelDoc2)
 
         Dim modDocArr1() As ModelDoc2
         Dim bRequired() As Boolean
@@ -386,7 +386,7 @@ Public Module svnModule
         myUserControl.switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
         statusOfAllOpenModels.setReadWriteFromLockStatus()
     End Sub
-    Public Sub myCheckinAll()
+    Public Sub myCommitAll()
         Dim bSuccess As Boolean
         'Dim OpenDocPathList() As String
 
@@ -417,13 +417,13 @@ Public Module svnModule
         'Dim modDoc() As ModelDoc2 = {iSwApp.ActiveDoc()}
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
 
-        checkoutDocs({modDoc})
+        getLocksOfDocs({modDoc})
     End Sub
     Public Sub myCheckoutWithDependents(modDoc As ModelDoc2)
         'Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
 
-        checkoutDocs(myUserControl.getComponentsOfAssemblyOptionalUpdateTree(modDoc))
+        getLocksOfDocs(myUserControl.getComponentsOfAssemblyOptionalUpdateTree(modDoc))
     End Sub
     Sub myRepoStatus()
         Dim bSuccess As Boolean
@@ -478,7 +478,7 @@ Public Module svnModule
                     "Try closing all open files and trying again. Or close SolidWorks and use ToroiseSVN to clean up. ")
         End If
     End Sub
-    Sub checkoutDocs(ByRef modDocArr() As ModelDoc2)
+    Sub getLocksOfDocs(ByRef modDocArr() As ModelDoc2)
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
 

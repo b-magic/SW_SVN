@@ -49,12 +49,12 @@ Public Class UserControl1
     Friend Sub beforeClose()
         saveLocalRepoPathSettings()
     End Sub
-    Private Sub butCheckinWithDependents_Click(sender As Object, e As EventArgs) Handles butCheckinWithDependents.Click
-        myCheckinWithDependents(iSwApp.ActiveDoc())
+    Private Sub butCommitWithDependents_Click(sender As Object, e As EventArgs) Handles butCommitWithDependents.Click
+        myCommitWithDependents(iSwApp.ActiveDoc())
         updateStatusStrip()
     End Sub
-    Private Sub butCheckinAll_Click(sender As Object, e As EventArgs) Handles butCheckinAll.Click
-        myCheckinAll()
+    Private Sub butCommitAll_Click(sender As Object, e As EventArgs) Handles butCommitAll.Click
+        myCommitAll()
         updateStatusStrip()
     End Sub
     Private Sub RefreshToolStripMenuItem_click(sender As Object, e As EventArgs)
@@ -100,9 +100,9 @@ Public Class UserControl1
     Private Sub butCleanup_Click(sender As Object, e As EventArgs) Handles butCleanup.Click
         myCleanupAndRelease()
     End Sub
-    Private Sub butStatus_Click(sender As Object, e As EventArgs) Handles butStatus.Click
-        myRepoStatus()
-    End Sub
+    'Private Sub butStatus_Click(sender As Object, e As EventArgs) Handles butStatus.Click
+    '    myRepoStatus()
+    'End Sub
     Private Sub boxCheck_Check(sender As Object, e As EventArgs) Handles onlineCheckBox.CheckedChanged
         If onlineCheckBox.Checked = False Then Exit Sub
         refreshAddIn()
@@ -110,6 +110,11 @@ Public Class UserControl1
     Private Sub butPickFolder_Click(sender As Object, e As EventArgs) Handles butPickFolder.Click
         pickFolder()
     End Sub
+    Private Sub butRefresh_Click(sender As Object, e As EventArgs) Handles butRefresh.Click
+        updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True)
+        switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
+    End Sub
+
     Public Function refreshAddIn(Optional bsaveLocalRepoPathSettings As Boolean = True) As Boolean
 
         If Not verifyLocalRepoPath() Then Return False
@@ -141,7 +146,7 @@ Public Class UserControl1
 
         ''iSwApp.SetUserPreferenceStringValue(swUserPreferenceStringValue_e.swFileLocationsDocuments, "C:\Users\benne\Documents\SVN\fsae9\CAD\Subfolder")
 
-        updateStatusOfAllModelsVariable(True)
+        updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True)
         switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
 
         saveLocalRepoPathSettings()
@@ -448,7 +453,7 @@ Public Class UserControl1
             checkInDocs({modDoc}, svnAddInUtils.createBoolArray(1, True))
         End Sub
         Sub commitWithDependentsEventHandler(sender As Object, e As EventArgs)
-            myCheckinWithDependents(modDoc)
+            myCommitWithDependents(modDoc)
         End Sub
         Sub getLockStealLockEventHandler(sender As Object, e As EventArgs)
             If swMessageBoxResult_e.swMbHitOk =
@@ -584,5 +589,4 @@ Public Class UserControl1
             'Drawing.Color.Bisque 'Drawing.Color.FromArgb(255, 77, 77) 'light red
         End Sub
     End Class
-
 End Class

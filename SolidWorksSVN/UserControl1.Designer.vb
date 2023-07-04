@@ -28,7 +28,6 @@ Partial Class UserControl1
         Me.localRepoPath = New System.Windows.Forms.TextBox()
         Me.FolderBrowserDialog1 = New System.Windows.Forms.FolderBrowserDialog()
         Me.butPickFolder = New System.Windows.Forms.Button()
-        Me.butStatus = New System.Windows.Forms.Button()
         Me.butCleanup = New System.Windows.Forms.Button()
         Me.butGetLatestAllRepo = New System.Windows.Forms.Button()
         Me.butGetLatestOpenOnly = New System.Windows.Forms.Button()
@@ -36,8 +35,9 @@ Partial Class UserControl1
         Me.butGetLockActiveDoc = New System.Windows.Forms.Button()
         Me.butUnlockAll = New System.Windows.Forms.Button()
         Me.butUnlockActive = New System.Windows.Forms.Button()
-        Me.butCheckinAll = New System.Windows.Forms.Button()
-        Me.butCheckinWithDependents = New System.Windows.Forms.Button()
+        Me.butCommitAll = New System.Windows.Forms.Button()
+        Me.butCommitWithDependents = New System.Windows.Forms.Button()
+        Me.butRefresh = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'StatusStrip2
@@ -71,14 +71,14 @@ Partial Class UserControl1
         Me.onlineCheckBox.CheckState = System.Windows.Forms.CheckState.Checked
         Me.onlineCheckBox.Location = New System.Drawing.Point(4, 375)
         Me.onlineCheckBox.Name = "onlineCheckBox"
-        Me.onlineCheckBox.Size = New System.Drawing.Size(80, 24)
+        Me.onlineCheckBox.Size = New System.Drawing.Size(73, 24)
         Me.onlineCheckBox.TabIndex = 14
         Me.onlineCheckBox.Text = "Online"
         Me.onlineCheckBox.UseVisualStyleBackColor = True
         '
         'localRepoPath
         '
-        Me.localRepoPath.Location = New System.Drawing.Point(4, 331)
+        Me.localRepoPath.Location = New System.Drawing.Point(3, 340)
         Me.localRepoPath.Name = "localRepoPath"
         Me.localRepoPath.Size = New System.Drawing.Size(478, 26)
         Me.localRepoPath.TabIndex = 15
@@ -86,24 +86,12 @@ Partial Class UserControl1
         '
         'butPickFolder
         '
-        Me.butPickFolder.Location = New System.Drawing.Point(88, 372)
+        Me.butPickFolder.Location = New System.Drawing.Point(4, 305)
         Me.butPickFolder.Name = "butPickFolder"
         Me.butPickFolder.Size = New System.Drawing.Size(129, 34)
         Me.butPickFolder.TabIndex = 16
         Me.butPickFolder.Text = "Pick Folder"
         Me.butPickFolder.UseVisualStyleBackColor = True
-        '
-        'butStatus
-        '
-        Me.butStatus.BackColor = System.Drawing.SystemColors.ControlLightLight
-        Me.butStatus.BackgroundImage = Global.SolidWorksSVN.My.Resources.Resources.Status
-        Me.butStatus.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.butStatus.Enabled = False
-        Me.butStatus.Location = New System.Drawing.Point(135, 412)
-        Me.butStatus.Name = "butStatus"
-        Me.butStatus.Size = New System.Drawing.Size(120, 62)
-        Me.butStatus.TabIndex = 13
-        Me.butStatus.UseVisualStyleBackColor = False
         '
         'butCleanup
         '
@@ -182,37 +170,46 @@ Partial Class UserControl1
         Me.butUnlockActive.TabIndex = 2
         Me.butUnlockActive.UseVisualStyleBackColor = True
         '
-        'butCheckinAll
+        'butCommitAll
         '
-        Me.butCheckinAll.BackgroundImage = Global.SolidWorksSVN.My.Resources.Resources.CommitAll
-        Me.butCheckinAll.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.butCheckinAll.Location = New System.Drawing.Point(135, 17)
-        Me.butCheckinAll.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
-        Me.butCheckinAll.Name = "butCheckinAll"
-        Me.butCheckinAll.Size = New System.Drawing.Size(120, 62)
-        Me.butCheckinAll.TabIndex = 1
-        Me.butCheckinAll.TextAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.butCheckinAll.UseVisualStyleBackColor = True
+        Me.butCommitAll.BackgroundImage = Global.SolidWorksSVN.My.Resources.Resources.CommitAll
+        Me.butCommitAll.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.butCommitAll.Location = New System.Drawing.Point(135, 17)
+        Me.butCommitAll.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
+        Me.butCommitAll.Name = "butCommitAll"
+        Me.butCommitAll.Size = New System.Drawing.Size(120, 62)
+        Me.butCommitAll.TabIndex = 1
+        Me.butCommitAll.TextAlign = System.Drawing.ContentAlignment.MiddleRight
+        Me.butCommitAll.UseVisualStyleBackColor = True
         '
-        'butCheckinWithDependents
+        'butCommitWithDependents
         '
-        Me.butCheckinWithDependents.BackgroundImage = Global.SolidWorksSVN.My.Resources.Resources.Commit
-        Me.butCheckinWithDependents.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.butCheckinWithDependents.Location = New System.Drawing.Point(4, 17)
-        Me.butCheckinWithDependents.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
-        Me.butCheckinWithDependents.Name = "butCheckinWithDependents"
-        Me.butCheckinWithDependents.Size = New System.Drawing.Size(120, 62)
-        Me.butCheckinWithDependents.TabIndex = 0
-        Me.butCheckinWithDependents.UseVisualStyleBackColor = True
+        Me.butCommitWithDependents.BackgroundImage = Global.SolidWorksSVN.My.Resources.Resources.Commit
+        Me.butCommitWithDependents.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
+        Me.butCommitWithDependents.Location = New System.Drawing.Point(4, 17)
+        Me.butCommitWithDependents.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
+        Me.butCommitWithDependents.Name = "butCommitWithDependents"
+        Me.butCommitWithDependents.Size = New System.Drawing.Size(120, 62)
+        Me.butCommitWithDependents.TabIndex = 0
+        Me.butCommitWithDependents.UseVisualStyleBackColor = True
+        '
+        'butRefresh
+        '
+        Me.butRefresh.Location = New System.Drawing.Point(135, 412)
+        Me.butRefresh.Name = "butRefresh"
+        Me.butRefresh.Size = New System.Drawing.Size(120, 62)
+        Me.butRefresh.TabIndex = 17
+        Me.butRefresh.Text = "REFRESH"
+        Me.butRefresh.UseVisualStyleBackColor = True
         '
         'UserControl1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 20.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
+        Me.Controls.Add(Me.butRefresh)
         Me.Controls.Add(Me.butPickFolder)
         Me.Controls.Add(Me.localRepoPath)
         Me.Controls.Add(Me.onlineCheckBox)
-        Me.Controls.Add(Me.butStatus)
         Me.Controls.Add(Me.butCleanup)
         Me.Controls.Add(Me.TreeView1)
         Me.Controls.Add(Me.StatusStrip2)
@@ -222,8 +219,8 @@ Partial Class UserControl1
         Me.Controls.Add(Me.butGetLockActiveDoc)
         Me.Controls.Add(Me.butUnlockAll)
         Me.Controls.Add(Me.butUnlockActive)
-        Me.Controls.Add(Me.butCheckinAll)
-        Me.Controls.Add(Me.butCheckinWithDependents)
+        Me.Controls.Add(Me.butCommitAll)
+        Me.Controls.Add(Me.butCommitWithDependents)
         Me.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.Name = "UserControl1"
         Me.Size = New System.Drawing.Size(483, 802)
@@ -232,8 +229,8 @@ Partial Class UserControl1
 
     End Sub
 
-    Friend WithEvents butCheckinWithDependents As Windows.Forms.Button
-    Friend WithEvents butCheckinAll As Windows.Forms.Button
+    Friend WithEvents butCommitWithDependents As Windows.Forms.Button
+    Friend WithEvents butCommitAll As Windows.Forms.Button
     Friend WithEvents butUnlockActive As Windows.Forms.Button
     Friend WithEvents butUnlockAll As Windows.Forms.Button
     Friend WithEvents butGetLockActiveDoc As Windows.Forms.Button
@@ -243,9 +240,9 @@ Partial Class UserControl1
     Friend WithEvents StatusStrip2 As Windows.Forms.StatusStrip
     Friend WithEvents TreeView1 As Windows.Forms.TreeView
     Friend WithEvents butCleanup As Windows.Forms.Button
-    Friend WithEvents butStatus As Windows.Forms.Button
     Friend WithEvents onlineCheckBox As Windows.Forms.CheckBox
     Friend WithEvents localRepoPath As Windows.Forms.TextBox
     Friend WithEvents FolderBrowserDialog1 As Windows.Forms.FolderBrowserDialog
     Friend WithEvents butPickFolder As Windows.Forms.Button
+    Friend WithEvents butRefresh As Windows.Forms.Button
 End Class
