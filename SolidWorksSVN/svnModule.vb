@@ -713,6 +713,15 @@ Public Module svnModule
         tortStartInfo.FileName = sTortPath  'System.Environment.CurrentDirectory & "\\TortoiseProc.exe" 'AppDomain.CurrentDomain.BaseDirectory & 'sTortPath
         'iSwApp.SendMsgToUser(sTortPath)
 
+        If sArguments.Length > (32768 - 1) Then
+            iSwApp.SendMsgToUser2("Error: Too many arguments sent from the Add-In to TortoiseSVN, " +
+                                  "likely caused by doing an action to too many components." +
+                                  "You can do the action using TortoiseSVN in Windows Explorer," +
+                                  "then back in the Add-in hit the Refresh command.",
+                                    swMessageBoxIcon_e.swMbStop, swMessageBoxBtn_e.swMbOk)
+            Return False 'Avoids error. https://stackoverflow.com/questions/9115279/commandline-argument-parameter-limitation
+        End If
+
         tortStartInfo.Arguments = sArguments
         If Not verifyLocalRepoPath() Then Return Nothing
         tortStartInfo.WorkingDirectory = myUserControl.localRepoPath.Text
