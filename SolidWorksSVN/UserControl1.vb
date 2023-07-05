@@ -126,6 +126,7 @@ Public Class UserControl1
     Private Sub butRefresh_Click(sender As Object, e As EventArgs) Handles butRefresh.Click
         updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True)
         switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
+        statusOfAllOpenModels.setReadWriteFromLockStatus()
     End Sub
 
     ' ### Clean Up
