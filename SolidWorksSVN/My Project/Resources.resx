@@ -121,14 +121,26 @@
   <data name="ReleaseAll" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\icons\ReleaseAll.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="unlockIconOnly" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\unlockIconOnly.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="VaultLogo20" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\VaultLogo20.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="CommitAll" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\CommitAll.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
   <data name="CheckOutActive" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\icons\CheckOutActive.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="GetLocksPlusDependents" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\icons\GetLocksPlusDependents.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="GetLatestIconOnly" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\GetLatestIconOnly.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="ReleaseActive" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\icons\ReleaseActive.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Commit Icon Only" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\Commit Icon Only.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Commit" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\Commit.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="GetLatestAllOpen1" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\icons\GetLatestAllOpen.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -154,8 +166,8 @@
   <data name="CheckInAll" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\icons\CheckInAll.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Commit" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\icons\Commit.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="GetLocksIconOnly" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\GetLocksIconOnly.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="GetLocks" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\icons\GetLocks.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -169,19 +181,22 @@
   <data name="VaultLogo64" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\icons\VaultLogo64.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Status" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\icons\Status.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="GetLocksPlusDependents" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\GetLocksPlusDependents.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="VaultLogo40" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\icons\VaultLogo40.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="VaultLogo20" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\icons\VaultLogo20.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="ReleaseActive" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\ReleaseActive.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Status" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\Status.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="CheckOutWithDependents" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\icons\CheckOutWithDependents.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="CommitAll" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\icons\CommitAll.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="unlockIconOnly1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\unlockIconOnly.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

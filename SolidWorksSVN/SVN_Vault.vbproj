@@ -261,6 +261,12 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="icons\Commit Icon Only.png" />
+    <Content Include="icons\GetLatestIconOnly.png" />
+    <Content Include="icons\GetLocksIconOnly.png" />
+    <Content Include="icons\unlockIconOnly.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
     <PreBuildEvent>

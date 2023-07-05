@@ -49,71 +49,120 @@ Public Class UserControl1
     Friend Sub beforeClose()
         saveLocalRepoPathSettings()
     End Sub
-    Private Sub butCommitWithDependents_Click(sender As Object, e As EventArgs) Handles butCommitWithDependents.Click
-        myCommitWithDependents(iSwApp.ActiveDoc())
-        updateStatusStrip()
-    End Sub
-    Private Sub butCommitAll_Click(sender As Object, e As EventArgs) Handles butCommitAll.Click
-        myCommitAll()
-        updateStatusStrip()
-    End Sub
-    Private Sub RefreshToolStripMenuItem_click(sender As Object, e As EventArgs)
 
-        refreshAddIn()
-    End Sub
-    Private Sub butUnlockActive_Click(sender As Object, e As EventArgs) Handles butUnlockActive.Click
-        myUnlockActive()
-        updateStatusStrip()
-    End Sub
-    Private Sub butUnlockAll_Click(sender As Object, e As EventArgs) Handles butUnlockAll.Click
-        unlockDocs()
-        updateStatusStrip()
-    End Sub
-    Private Sub butGetLockActiveDoc_Click(sender As Object, e As EventArgs) Handles butGetLockActiveDoc.Click
+    ' ### Get Locks
+    Private Sub ToolStripDropDownGetLocks_ButtonClick(sender As Object, e As EventArgs) Handles ToolStripDropDownButGetLocks.ButtonClick
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Error: Active Document not found") : Exit Sub
         myGetLocksDoc(modDoc)
-        updateStatusStrip()
-    End Sub
 
-    Private Sub butGetLockWithDependents_Click(sender As Object, e As EventArgs) Handles butGetLockWithDependents.Click
+        updateStatusStrip()
+
+    End Sub
+    Private Sub dropDownGetLocksWithDependents_Click(sender As Object, e As EventArgs) Handles dropDownGetLocksWithDependents.Click
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Error: Active Document not found") : Exit Sub
         myGetLocksWithDependents(modDoc)
         updateStatusStrip()
     End Sub
 
-    Private Sub butGetLatestOpenOnly_Click(sender As Object, e As EventArgs) Handles butGetLatestOpenOnly.Click
+    ' ### Commit
+    Private Sub ToolStripDropDownButCommit_ButtonClick(sender As Object, e As EventArgs) Handles ToolStripDropDownButCommit.ButtonClick
+        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
+        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Error: Active Document not found") : Exit Sub
+        commitDocs({modDoc})
+    End Sub
+    Private Sub dropDownCommitWithDependents_Click(sender As Object, e As EventArgs) Handles dropDownCommitWithDependents.Click
+        myCommitWithDependents(iSwApp.ActiveDoc())
+        updateStatusStrip()
+    End Sub
+    Private Sub dropDownCommitAll_Click(sender As Object, e As EventArgs) Handles dropDownCommitAll.Click
+        myCommitAll()
+        updateStatusStrip()
+    End Sub
+
+    ' ### Unlock
+    Private Sub ToolStripDropDownButUnlock_ButtonClick(sender As Object, e As EventArgs) Handles ToolStripDropDownButUnlock.ButtonClick
+        myUnlockActive()
+        updateStatusStrip()
+    End Sub
+    Private Sub dropDownUnlockWithDependents_Click(sender As Object, e As EventArgs) Handles dropDownUnlockWithDependents.Click
+        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
+        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Error: Active Document not found") : Exit Sub
+        unlockDocs(getComponentsOfAssemblyOptionalUpdateTree(modDoc))
+        updateStatusStrip()
+    End Sub
+    Private Sub dropDownUnlockAll_Click(sender As Object, e As EventArgs) Handles dropDownUnlockAll.Click
+        unlockDocs()
+        updateStatusStrip()
+    End Sub
+
+    ' ### Get Latest
+    Private Sub ToolStripDropDownButGetLatest_ButtonClick(sender As Object, e As EventArgs) Handles ToolStripDropDownButGetLatest.ButtonClick
+        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
+        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Error: Active Document not found") : Exit Sub
+
+        myGetLatestOrRevert({modDoc},, bVerbose:=True)
+        'myGetLatestOpenOnly()
+        updateStatusStrip()
+    End Sub
+    Private Sub dropDownGetLatestAllOpenFiles_Click(sender As Object, e As EventArgs) Handles dropDownGetLatestAllOpenFiles.Click
         myGetLatestOrRevert(getAllOpenDocs(bMustBeVisible:=False),, bVerbose:=True)
         'myGetLatestOpenOnly()
         updateStatusStrip()
     End Sub
-
-    Private Sub butGetLatestAllRepo_Click(sender As Object, e As EventArgs) Handles butGetLatestAllRepo.Click
+    Private Sub dropDownGetLatestAll_Click(sender As Object, e As EventArgs) Handles dropDownGetLatestAll.Click
         myGetLatestOrRevert(,, bVerbose:=True)
         updateStatusStrip()
         'myGetLatestAllRepo()
     End Sub
-    Private Sub StatusStrip2_ItemClicked(sender As Object, e As Windows.Forms.ToolStripItemClickedEventArgs) Handles StatusStrip2.ItemClicked
-        updateStatusStrip()
-    End Sub
-    Private Sub butCleanup_Click(sender As Object, e As EventArgs) Handles butCleanup.Click
-        myCleanupAndRelease()
-    End Sub
-    'Private Sub butStatus_Click(sender As Object, e As EventArgs) Handles butStatus.Click
-    '    myRepoStatus()
-    'End Sub
-    Private Sub boxCheck_Check(sender As Object, e As EventArgs) Handles onlineCheckBox.CheckedChanged
-        If onlineCheckBox.Checked = False Then Exit Sub
+
+    ' ### Refresh
+    Private Sub RefreshToolStripMenuItem_click(sender As Object, e As EventArgs)
+
         refreshAddIn()
     End Sub
-    Private Sub butPickFolder_Click(sender As Object, e As EventArgs) Handles butPickFolder.Click
-        pickFolder()
-    End Sub
+
     Private Sub butRefresh_Click(sender As Object, e As EventArgs) Handles butRefresh.Click
         updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True)
         switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
     End Sub
+
+    ' ### Clean Up
+    Private Sub butCleanup_Click(sender As Object, e As EventArgs) Handles butCleanup.Click
+        myCleanupAndRelease()
+    End Sub
+
+    ' ### Folder
+    Private Sub butPickFolder_Click(sender As Object, e As EventArgs) Handles butPickFolder.Click
+        pickFolder()
+    End Sub
+
+    Private Sub boxCheck_Check(sender As Object, e As EventArgs) Handles onlineCheckBox.CheckedChanged
+        If onlineCheckBox.Checked = False Then Exit Sub
+        refreshAddIn()
+    End Sub
+
+    ' ### Parts Tree
+
+
+    ' ### Status
+
+    Private Sub StatusStrip2_ItemClicked(sender As Object, e As Windows.Forms.ToolStripItemClickedEventArgs)
+        updateStatusStrip()
+    End Sub
+
+
+
+
+
+
+    'Private Sub butStatus_Click(sender As Object, e As EventArgs) Handles butStatus.Click
+    '    myRepoStatus()
+    'End Sub
+
+
+
 
     Public Function refreshAddIn(Optional bsaveLocalRepoPathSettings As Boolean = True) As Boolean
 
@@ -201,6 +250,9 @@ Public Class UserControl1
     End Sub
 
     Public Sub updateStatusStrip()
+
+        Exit Sub 'disabling for speed
+
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
         If modDoc Is Nothing Then Exit Sub
 
@@ -433,7 +485,7 @@ Public Class UserControl1
         Public commitWithDependentsLabel As New ToolStripMenuItem("Commit With Dependents", My.Resources.CheckInAll, AddressOf commitWithDependentsEventHandler)
         Public getLocksStealLabel As New ToolStripMenuItem("Get Lock (Steal Locks)", My.Resources.CheckOutActive, AddressOf getLockStealLockEventHandler)
         Public getLockActiveDoc As New ToolStripMenuItem("Get Lock Doc", My.Resources.CheckOutActive, AddressOf getLockActiveDocEventHandler)
-        Public getLockWithDependents As New ToolStripMenuItem("Get Lock With Dependents", My.Resources.CheckOutWithDependents, AddressOf checkOutActiveWithDependentsEventHandler)
+        Public getLockWithDependents As New ToolStripMenuItem("Get Lock With Dependents", My.Resources.CheckOutWithDependents, AddressOf getLocksActiveWithDependentsEventHandler)
         Public Sub New(modDocInput As ModelDoc2, iSwAppInput As SldWorks)
             modDoc = modDocInput 'compInput.GetModelDoc2
             'comp = compInput
@@ -450,7 +502,7 @@ Public Class UserControl1
             myUnlockWithDependents({modDoc})
         End Sub
         Sub commitEventHandler(sender As Object, e As EventArgs)
-            checkInDocs({modDoc}, svnAddInUtils.createBoolArray(1, True))
+            commitDocs({modDoc}, svnAddInUtils.createBoolArray(1, True))
         End Sub
         Sub commitWithDependentsEventHandler(sender As Object, e As EventArgs)
             myCommitWithDependents(modDoc)
@@ -468,13 +520,14 @@ Public Class UserControl1
         Sub getLockActiveDocEventHandler(sender As Object, e As EventArgs)
             myGetLocksDoc(modDoc)
         End Sub
-        Sub checkOutActiveWithDependentsEventHandler(sender As Object, e As EventArgs)
+        Sub getLocksActiveWithDependentsEventHandler(sender As Object, e As EventArgs)
             myGetLocksWithDependents(modDoc)
         End Sub
 
     End Class
     Sub setNodeColorFromStatus(
         ByRef rootNode As TreeNode)
+
         Dim myCol As myColours = New myColours()
         myCol.initialize()
         Dim status1 As SVNStatus = findStatusForFile(rootNode.Text)
@@ -589,4 +642,5 @@ Public Class UserControl1
             'Drawing.Color.Bisque 'Drawing.Color.FromArgb(255, 77, 77) 'light red
         End Sub
     End Class
+
 End Class

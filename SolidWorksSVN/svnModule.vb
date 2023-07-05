@@ -2,6 +2,7 @@
 Imports SolidWorks.Interop.swconst
 Imports System.Configuration
 
+
 Public Module svnModule
 
     Dim myUserControl As UserControl1
@@ -53,15 +54,26 @@ Public Module svnModule
 
     Public Function updateStatusOfAllModelsVariable(Optional bRefreshAllTreeViews As Boolean = False) As Boolean
 
+        iSwApp.EnableBackgroundProcessing = True
+
         Dim output As SVNStatus = getFileSVNStatus(bCheckServer:=True, getAllOpenDocs(bMustBeVisible:=False))
+        'Dim bProcessingTemp As Boolean = iSwApp.EnableBackgroundProcessing
 
         If IsNothing(output) Then
+            iSwApp.EnableBackgroundProcessing = False 'bProcessingTemp
             Return False
         ElseIf output.fp.Length = 0 Then
+            iSwApp.EnableBackgroundProcessing = False 'bProcessingTemp
             Return False
         End If
 
-        If bRefreshAllTreeViews Then myUserControl.refreshAllTreeViewsVariable()
+        If bRefreshAllTreeViews Then
+
+            myUserControl.refreshAllTreeViewsVariable()
+
+        End If
+
+        iSwApp.EnableBackgroundProcessing = False 'bProcessingTemp
         Return True
     End Function
 
@@ -96,6 +108,9 @@ Public Module svnModule
         Dim bExpectStatusAgainstRevision As Boolean = False
         Dim Index As Integer
 
+        Dim sw As New Stopwatch
+        sw.Start()
+
         'SVNstartInfo.Arguments = "status " & If(bCheckServer, "-u ", "") & "-v --non-interactive E:\SolidworksBackup\svn " 'sFilePathCat 
 
         If Not verifyLocalRepoPath() Then Return Nothing
@@ -118,7 +133,7 @@ Public Module svnModule
 
         'Error Checking
         If (sOutputErrorLines Is Nothing) Or (sOutputLines Is Nothing) Then
-            iSwApp.SendMsgToUser("Error: SVN status output standard error is nothing. Must of not connected/read to SVN process")
+            iSwApp.SendMsgToUser("Error: SVN status output standard error is nothing. Must have not connected/read to SVN process")
             Return Nothing
         End If
 
@@ -210,6 +225,9 @@ Public Module svnModule
 
         If j > 0 Then ReDim Preserve output.fp(j - 1)
         If m > 0 Then ReDim Preserve statusOfAllOpenModels.fp(m - 1)
+
+        sw.Stop()
+        Debug.WriteLine("getFileSVNStatus Time Taken: " + sw.Elapsed.TotalMilliseconds.ToString("#,##0.00 'milliseconds'"))
 
         If IsNothing(modDocArr) Then
             Return statusOfAllOpenModels
@@ -330,13 +348,13 @@ Public Module svnModule
             modDocArr1 = myUserControl.getComponentsOfAssemblyOptionalUpdateTree(modDoc)
             bRequired = svnAddInUtils.createBoolArray(UBound(modDocArr1), False)
             bRequired(0) = True
-            checkInDocs(modDocArr1, bRequired)
+            commitDocs(modDocArr1, bRequired)
         Else
             modDocArr1 = {modDoc}
-            checkInDocs(modDocArr1, svnAddInUtils.createBoolArray(1, True))
+            commitDocs(modDocArr1, svnAddInUtils.createBoolArray(1, True))
         End If
     End Sub
-    Sub checkInDocs(ByRef modDocArr() As ModelDoc2,
+    Sub commitDocs(ByRef modDocArr() As ModelDoc2,
                     Optional ByVal bRequiredDoc() As Boolean = Nothing)
         Dim bSuccess As Boolean = False
         Dim sErrorFiles As String = ""
@@ -482,6 +500,9 @@ Public Module svnModule
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
 
+        Dim sw As New Stopwatch
+        sw.Start()
+
         'Dim modDocArr() As ModelDoc2 = {modDoc}
         'Dim sActiveDocPath() As String = getFilePathsFromModDocArr(modDocArr)
         Dim sDocPathsToCheckout(modDocArr.Length - 1) As String
@@ -516,7 +537,7 @@ Public Module svnModule
             Exit Sub
         End If
         bSuccess = runTortoiseProcexeWithMonitor("/command:lock /path:" & formatFilePathArrForTortoiseProc(sDocPathsToCheckout) & " /closeonend:3")
-        If Not bSuccess Then iSwApp.SendMsgToUser("Tortoise Process Failed.") : Exit Sub
+        If Not bSuccess Then iSwApp.SendMsgToUser("Tortoise Process Locking Failed.") : Exit Sub
         'status = getFileSVNStatus(bCheckServer:=False, modDocArr)
 
         bSuccess = updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True)
@@ -525,6 +546,9 @@ Public Module svnModule
         myUserControl.switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
 
         statusOfAllOpenModels.setReadWriteFromLockStatus()
+
+        sw.Stop()
+        Debug.WriteLine("getLocksOfDocs Time Taken: " + sw.Elapsed.TotalMilliseconds.ToString("#,##0.00 'milliseconds'"))
 
     End Sub
     Function verifyLocalRepoPath(Optional bInteractive As Boolean = True) As Boolean
@@ -614,6 +638,8 @@ Public Module svnModule
         Dim j As Integer = 0
         Dim status As SVNStatus
         Dim bSuccess As Boolean
+        Dim sw As New Stopwatch
+        sw.Start()
 
         'Update to use getFileSVNStatus so its only the
         If IsNothing(modDocArr) Then
@@ -676,6 +702,9 @@ Public Module svnModule
         If updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True) Then
             myUserControl.switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
         End If
+
+        sw.Stop()
+        Debug.WriteLine("myGetLatestOrRevert Time Taken: " + sw.Elapsed.TotalMilliseconds.ToString("#,##0.00 'milliseconds'"))
     End Sub
     Public Enum getLatestType
         none
@@ -709,6 +738,8 @@ Public Module svnModule
         ' See https://tortoisesvn.net/docs/release/TortoiseSVN_en/tsvn-automation.html
         Dim oTortProcess As New Process()
         Dim tortStartInfo As New ProcessStartInfo
+        Dim sw As New Stopwatch
+        sw.Start()
 
         tortStartInfo.FileName = sTortPath  'System.Environment.CurrentDirectory & "\\TortoiseProc.exe" 'AppDomain.CurrentDomain.BaseDirectory & 'sTortPath
         'iSwApp.SendMsgToUser(sTortPath)
@@ -739,6 +770,9 @@ Public Module svnModule
             End If
             System.Threading.Thread.Sleep(1)
         Loop
+
+        sw.Stop()
+        Debug.WriteLine("tortoiseProc Time Taken: " + sw.Elapsed.TotalMilliseconds.ToString("#,##0.00 'milliseconds'"))
 
         Return True
     End Function

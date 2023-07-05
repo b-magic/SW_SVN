@@ -1,9 +1,9 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class UserControl1
     Inherits System.Windows.Forms.UserControl
 
     'UserControl overrides dispose to clean up the component list.
-    <System.Diagnostics.DebuggerNonUserCode()> _
+    <System.Diagnostics.DebuggerNonUserCode()>
     Protected Overrides Sub Dispose(ByVal disposing As Boolean)
         Try
             If disposing AndAlso components IsNot Nothing Then
@@ -20,48 +20,43 @@ Partial Class UserControl1
     'NOTE: The following procedure is required by the Windows Form Designer
     'It can be modified using the Windows Form Designer.  
     'Do not modify it using the code editor.
-    <System.Diagnostics.DebuggerStepThrough()> _
+    <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
-        Me.StatusStrip2 = New System.Windows.Forms.StatusStrip()
         Me.TreeView1 = New System.Windows.Forms.TreeView()
         Me.onlineCheckBox = New System.Windows.Forms.CheckBox()
         Me.localRepoPath = New System.Windows.Forms.TextBox()
-        Me.FolderBrowserDialog1 = New System.Windows.Forms.FolderBrowserDialog()
         Me.butPickFolder = New System.Windows.Forms.Button()
-        Me.butCleanup = New System.Windows.Forms.Button()
-        Me.butGetLatestAllRepo = New System.Windows.Forms.Button()
-        Me.butGetLatestOpenOnly = New System.Windows.Forms.Button()
-        Me.butGetLockWithDependents = New System.Windows.Forms.Button()
-        Me.butGetLockActiveDoc = New System.Windows.Forms.Button()
-        Me.butUnlockAll = New System.Windows.Forms.Button()
-        Me.butUnlockActive = New System.Windows.Forms.Button()
-        Me.butCommitAll = New System.Windows.Forms.Button()
-        Me.butCommitWithDependents = New System.Windows.Forms.Button()
         Me.butRefresh = New System.Windows.Forms.Button()
+        Me.ToolStrip1 = New System.Windows.Forms.ToolStrip()
+        Me.ToolStripDropDownButGetLocks = New System.Windows.Forms.ToolStripSplitButton()
+        Me.dropDownGetLocksWithDependents = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripDropDownButCommit = New System.Windows.Forms.ToolStripSplitButton()
+        Me.dropDownCommitWithDependents = New System.Windows.Forms.ToolStripMenuItem()
+        Me.dropDownCommitAll = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripDropDownButUnlock = New System.Windows.Forms.ToolStripSplitButton()
+        Me.dropDownUnlockWithDependents = New System.Windows.Forms.ToolStripMenuItem()
+        Me.dropDownUnlockAll = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripDropDownButGetLatest = New System.Windows.Forms.ToolStripSplitButton()
+        Me.dropDownGetLatestAllOpenFiles = New System.Windows.Forms.ToolStripMenuItem()
+        Me.dropDownGetLatestAll = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripContainer1 = New System.Windows.Forms.ToolStripContainer()
+        Me.butCleanup = New System.Windows.Forms.Button()
+        Me.StatusStrip2 = New System.Windows.Forms.StatusStrip()
+        Me.ToolStrip1.SuspendLayout()
+        Me.ToolStripContainer1.LeftToolStripPanel.SuspendLayout()
+        Me.ToolStripContainer1.SuspendLayout()
         Me.SuspendLayout()
-        '
-        'StatusStrip2
-        '
-        Me.StatusStrip2.BackColor = System.Drawing.SystemColors.ActiveCaption
-        Me.StatusStrip2.Font = New System.Drawing.Font("Segoe UI", 14.0!)
-        Me.StatusStrip2.ImageScalingSize = New System.Drawing.Size(32, 32)
-        Me.StatusStrip2.Location = New System.Drawing.Point(0, 780)
-        Me.StatusStrip2.Name = "StatusStrip2"
-        Me.StatusStrip2.Padding = New System.Windows.Forms.Padding(0, 0, 10, 0)
-        Me.StatusStrip2.Size = New System.Drawing.Size(483, 22)
-        Me.StatusStrip2.SizingGrip = False
-        Me.StatusStrip2.TabIndex = 9
-        Me.StatusStrip2.Text = "StatusStrip2"
         '
         'TreeView1
         '
         Me.TreeView1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.TreeView1.Location = New System.Drawing.Point(4, 488)
+        Me.TreeView1.Location = New System.Drawing.Point(4, 554)
+        Me.TreeView1.MinimumSize = New System.Drawing.Size(478, 200)
         Me.TreeView1.Name = "TreeView1"
         Me.TreeView1.ShowNodeToolTips = True
-        Me.TreeView1.Size = New System.Drawing.Size(481, 295)
+        Me.TreeView1.Size = New System.Drawing.Size(478, 326)
         Me.TreeView1.TabIndex = 10
         '
         'onlineCheckBox
@@ -69,7 +64,7 @@ Partial Class UserControl1
         Me.onlineCheckBox.AutoSize = True
         Me.onlineCheckBox.Checked = True
         Me.onlineCheckBox.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.onlineCheckBox.Location = New System.Drawing.Point(4, 375)
+        Me.onlineCheckBox.Location = New System.Drawing.Point(4, 461)
         Me.onlineCheckBox.Name = "onlineCheckBox"
         Me.onlineCheckBox.Size = New System.Drawing.Size(73, 24)
         Me.onlineCheckBox.TabIndex = 14
@@ -78,171 +73,218 @@ Partial Class UserControl1
         '
         'localRepoPath
         '
-        Me.localRepoPath.Location = New System.Drawing.Point(3, 340)
+        Me.localRepoPath.Location = New System.Drawing.Point(3, 426)
         Me.localRepoPath.Name = "localRepoPath"
-        Me.localRepoPath.Size = New System.Drawing.Size(478, 26)
+        Me.localRepoPath.Size = New System.Drawing.Size(507, 26)
         Me.localRepoPath.TabIndex = 15
         Me.localRepoPath.Text = "Enter Path to Local Repository"
         '
         'butPickFolder
         '
-        Me.butPickFolder.Location = New System.Drawing.Point(4, 305)
+        Me.butPickFolder.Location = New System.Drawing.Point(103, 458)
         Me.butPickFolder.Name = "butPickFolder"
-        Me.butPickFolder.Size = New System.Drawing.Size(129, 34)
+        Me.butPickFolder.Size = New System.Drawing.Size(101, 25)
         Me.butPickFolder.TabIndex = 16
         Me.butPickFolder.Text = "Pick Folder"
         Me.butPickFolder.UseVisualStyleBackColor = True
+        '
+        'butRefresh
+        '
+        Me.butRefresh.Location = New System.Drawing.Point(103, 502)
+        Me.butRefresh.Name = "butRefresh"
+        Me.butRefresh.Size = New System.Drawing.Size(101, 44)
+        Me.butRefresh.TabIndex = 17
+        Me.butRefresh.Text = "REFRESH"
+        Me.butRefresh.UseVisualStyleBackColor = True
+        '
+        'ToolStrip1
+        '
+        Me.ToolStrip1.Dock = System.Windows.Forms.DockStyle.None
+        Me.ToolStrip1.ImageScalingSize = New System.Drawing.Size(36, 50)
+        Me.ToolStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStripDropDownButGetLocks, Me.ToolStripDropDownButCommit, Me.ToolStripDropDownButUnlock, Me.ToolStripDropDownButGetLatest})
+        Me.ToolStrip1.Location = New System.Drawing.Point(0, 0)
+        Me.ToolStrip1.MaximumSize = New System.Drawing.Size(400, 1000)
+        Me.ToolStrip1.Name = "ToolStrip1"
+        Me.ToolStrip1.Padding = New System.Windows.Forms.Padding(4, 0, 4, 0)
+        Me.ToolStrip1.Size = New System.Drawing.Size(125, 373)
+        Me.ToolStrip1.Stretch = True
+        Me.ToolStrip1.TabIndex = 0
+        '
+        'ToolStripDropDownButGetLocks
+        '
+        Me.ToolStripDropDownButGetLocks.DropDownButtonWidth = 30
+        Me.ToolStripDropDownButGetLocks.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.dropDownGetLocksWithDependents})
+        Me.ToolStripDropDownButGetLocks.Image = Global.SolidWorksSVN.My.Resources.Resources.GetLocksIconOnly
+        Me.ToolStripDropDownButGetLocks.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.ToolStripDropDownButGetLocks.Name = "ToolStripDropDownButGetLocks"
+        Me.ToolStripDropDownButGetLocks.Padding = New System.Windows.Forms.Padding(4)
+        Me.ToolStripDropDownButGetLocks.Size = New System.Drawing.Size(116, 69)
+        Me.ToolStripDropDownButGetLocks.Text = "Get Locks"
+        Me.ToolStripDropDownButGetLocks.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText
+        '
+        'dropDownGetLocksWithDependents
+        '
+        Me.dropDownGetLocksWithDependents.Name = "dropDownGetLocksWithDependents"
+        Me.dropDownGetLocksWithDependents.Size = New System.Drawing.Size(180, 22)
+        Me.dropDownGetLocksWithDependents.Text = "With Dependents"
+        '
+        'ToolStripDropDownButCommit
+        '
+        Me.ToolStripDropDownButCommit.DropDownButtonWidth = 30
+        Me.ToolStripDropDownButCommit.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.dropDownCommitWithDependents, Me.dropDownCommitAll})
+        Me.ToolStripDropDownButCommit.Image = Global.SolidWorksSVN.My.Resources.Resources.Commit_Icon_Only
+        Me.ToolStripDropDownButCommit.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.ToolStripDropDownButCommit.Name = "ToolStripDropDownButCommit"
+        Me.ToolStripDropDownButCommit.Padding = New System.Windows.Forms.Padding(4)
+        Me.ToolStripDropDownButCommit.Size = New System.Drawing.Size(116, 69)
+        Me.ToolStripDropDownButCommit.Tag = "butTagCommit"
+        Me.ToolStripDropDownButCommit.Text = "Commit"
+        Me.ToolStripDropDownButCommit.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText
+        Me.ToolStripDropDownButCommit.ToolTipText = "Commit"
+        '
+        'dropDownCommitWithDependents
+        '
+        Me.dropDownCommitWithDependents.Name = "dropDownCommitWithDependents"
+        Me.dropDownCommitWithDependents.Size = New System.Drawing.Size(180, 22)
+        Me.dropDownCommitWithDependents.Text = "With Dependents"
+        '
+        'dropDownCommitAll
+        '
+        Me.dropDownCommitAll.Name = "dropDownCommitAll"
+        Me.dropDownCommitAll.Size = New System.Drawing.Size(180, 22)
+        Me.dropDownCommitAll.Text = "All"
+        '
+        'ToolStripDropDownButUnlock
+        '
+        Me.ToolStripDropDownButUnlock.DropDownButtonWidth = 30
+        Me.ToolStripDropDownButUnlock.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.dropDownUnlockWithDependents, Me.dropDownUnlockAll})
+        Me.ToolStripDropDownButUnlock.Image = Global.SolidWorksSVN.My.Resources.Resources.unlockIconOnly1
+        Me.ToolStripDropDownButUnlock.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.ToolStripDropDownButUnlock.Name = "ToolStripDropDownButUnlock"
+        Me.ToolStripDropDownButUnlock.Padding = New System.Windows.Forms.Padding(4)
+        Me.ToolStripDropDownButUnlock.Size = New System.Drawing.Size(116, 69)
+        Me.ToolStripDropDownButUnlock.Text = "Release Lock"
+        Me.ToolStripDropDownButUnlock.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText
+        '
+        'dropDownUnlockWithDependents
+        '
+        Me.dropDownUnlockWithDependents.Name = "dropDownUnlockWithDependents"
+        Me.dropDownUnlockWithDependents.Size = New System.Drawing.Size(180, 22)
+        Me.dropDownUnlockWithDependents.Text = "With Dependents"
+        '
+        'dropDownUnlockAll
+        '
+        Me.dropDownUnlockAll.Name = "dropDownUnlockAll"
+        Me.dropDownUnlockAll.Size = New System.Drawing.Size(180, 22)
+        Me.dropDownUnlockAll.Text = "All"
+        '
+        'ToolStripDropDownButGetLatest
+        '
+        Me.ToolStripDropDownButGetLatest.DropDownButtonWidth = 30
+        Me.ToolStripDropDownButGetLatest.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.dropDownGetLatestAllOpenFiles, Me.dropDownGetLatestAll})
+        Me.ToolStripDropDownButGetLatest.Image = Global.SolidWorksSVN.My.Resources.Resources.GetLatestIconOnly
+        Me.ToolStripDropDownButGetLatest.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.ToolStripDropDownButGetLatest.Name = "ToolStripDropDownButGetLatest"
+        Me.ToolStripDropDownButGetLatest.Padding = New System.Windows.Forms.Padding(4)
+        Me.ToolStripDropDownButGetLatest.Size = New System.Drawing.Size(116, 69)
+        Me.ToolStripDropDownButGetLatest.Text = "Get Latest"
+        Me.ToolStripDropDownButGetLatest.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText
+        '
+        'dropDownGetLatestAllOpenFiles
+        '
+        Me.dropDownGetLatestAllOpenFiles.Name = "dropDownGetLatestAllOpenFiles"
+        Me.dropDownGetLatestAllOpenFiles.Size = New System.Drawing.Size(180, 22)
+        Me.dropDownGetLatestAllOpenFiles.Text = "All Open Files"
+        '
+        'dropDownGetLatestAll
+        '
+        Me.dropDownGetLatestAll.Name = "dropDownGetLatestAll"
+        Me.dropDownGetLatestAll.Size = New System.Drawing.Size(180, 22)
+        Me.dropDownGetLatestAll.Text = "All"
+        '
+        'ToolStripContainer1
+        '
+        Me.ToolStripContainer1.BottomToolStripPanelVisible = False
+        '
+        'ToolStripContainer1.ContentPanel
+        '
+        Me.ToolStripContainer1.ContentPanel.Size = New System.Drawing.Size(21, 373)
+        '
+        'ToolStripContainer1.LeftToolStripPanel
+        '
+        Me.ToolStripContainer1.LeftToolStripPanel.Controls.Add(Me.ToolStrip1)
+        Me.ToolStripContainer1.Location = New System.Drawing.Point(10, 3)
+        Me.ToolStripContainer1.Name = "ToolStripContainer1"
+        Me.ToolStripContainer1.RightToolStripPanelVisible = False
+        Me.ToolStripContainer1.Size = New System.Drawing.Size(146, 373)
+        Me.ToolStripContainer1.TabIndex = 18
+        Me.ToolStripContainer1.Text = "ToolStripContainer1"
+        Me.ToolStripContainer1.TopToolStripPanelVisible = False
         '
         'butCleanup
         '
         Me.butCleanup.BackColor = System.Drawing.SystemColors.ControlLightLight
         Me.butCleanup.BackgroundImage = Global.SolidWorksSVN.My.Resources.Resources.Cleanup
         Me.butCleanup.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.butCleanup.Location = New System.Drawing.Point(4, 412)
+        Me.butCleanup.Cursor = System.Windows.Forms.Cursors.Cross
+        Me.butCleanup.Location = New System.Drawing.Point(4, 502)
         Me.butCleanup.Name = "butCleanup"
-        Me.butCleanup.Size = New System.Drawing.Size(120, 62)
+        Me.butCleanup.Size = New System.Drawing.Size(93, 44)
         Me.butCleanup.TabIndex = 12
         Me.butCleanup.UseVisualStyleBackColor = False
         '
-        'butGetLatestAllRepo
+        'StatusStrip2
         '
-        Me.butGetLatestAllRepo.BackgroundImage = Global.SolidWorksSVN.My.Resources.Resources.GetLatestAllRepo1
-        Me.butGetLatestAllRepo.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.butGetLatestAllRepo.Location = New System.Drawing.Point(135, 235)
-        Me.butGetLatestAllRepo.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
-        Me.butGetLatestAllRepo.Name = "butGetLatestAllRepo"
-        Me.butGetLatestAllRepo.Size = New System.Drawing.Size(120, 62)
-        Me.butGetLatestAllRepo.TabIndex = 7
-        Me.butGetLatestAllRepo.UseVisualStyleBackColor = True
-        '
-        'butGetLatestOpenOnly
-        '
-        Me.butGetLatestOpenOnly.BackgroundImage = Global.SolidWorksSVN.My.Resources.Resources.GetLatestAllOpen1
-        Me.butGetLatestOpenOnly.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.butGetLatestOpenOnly.Location = New System.Drawing.Point(4, 235)
-        Me.butGetLatestOpenOnly.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
-        Me.butGetLatestOpenOnly.Name = "butGetLatestOpenOnly"
-        Me.butGetLatestOpenOnly.Size = New System.Drawing.Size(120, 62)
-        Me.butGetLatestOpenOnly.TabIndex = 6
-        Me.butGetLatestOpenOnly.UseVisualStyleBackColor = True
-        '
-        'butGetLockWithDependents
-        '
-        Me.butGetLockWithDependents.BackgroundImage = Global.SolidWorksSVN.My.Resources.Resources.GetLocksPlusDependents
-        Me.butGetLockWithDependents.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.butGetLockWithDependents.Location = New System.Drawing.Point(135, 163)
-        Me.butGetLockWithDependents.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
-        Me.butGetLockWithDependents.Name = "butGetLockWithDependents"
-        Me.butGetLockWithDependents.Size = New System.Drawing.Size(120, 62)
-        Me.butGetLockWithDependents.TabIndex = 5
-        Me.butGetLockWithDependents.UseVisualStyleBackColor = True
-        '
-        'butGetLockActiveDoc
-        '
-        Me.butGetLockActiveDoc.BackgroundImage = Global.SolidWorksSVN.My.Resources.Resources.GetLocks
-        Me.butGetLockActiveDoc.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.butGetLockActiveDoc.Location = New System.Drawing.Point(4, 163)
-        Me.butGetLockActiveDoc.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
-        Me.butGetLockActiveDoc.Name = "butGetLockActiveDoc"
-        Me.butGetLockActiveDoc.Size = New System.Drawing.Size(120, 62)
-        Me.butGetLockActiveDoc.TabIndex = 4
-        Me.butGetLockActiveDoc.UseVisualStyleBackColor = True
-        '
-        'butUnlockAll
-        '
-        Me.butUnlockAll.BackgroundImage = Global.SolidWorksSVN.My.Resources.Resources.ReleaseAll
-        Me.butUnlockAll.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.butUnlockAll.Location = New System.Drawing.Point(135, 91)
-        Me.butUnlockAll.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
-        Me.butUnlockAll.Name = "butUnlockAll"
-        Me.butUnlockAll.Size = New System.Drawing.Size(120, 62)
-        Me.butUnlockAll.TabIndex = 3
-        Me.butUnlockAll.UseVisualStyleBackColor = True
-        '
-        'butUnlockActive
-        '
-        Me.butUnlockActive.BackgroundImage = Global.SolidWorksSVN.My.Resources.Resources.ReleaseActive
-        Me.butUnlockActive.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.butUnlockActive.Location = New System.Drawing.Point(4, 91)
-        Me.butUnlockActive.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
-        Me.butUnlockActive.Name = "butUnlockActive"
-        Me.butUnlockActive.Size = New System.Drawing.Size(120, 62)
-        Me.butUnlockActive.TabIndex = 2
-        Me.butUnlockActive.UseVisualStyleBackColor = True
-        '
-        'butCommitAll
-        '
-        Me.butCommitAll.BackgroundImage = Global.SolidWorksSVN.My.Resources.Resources.CommitAll
-        Me.butCommitAll.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.butCommitAll.Location = New System.Drawing.Point(135, 17)
-        Me.butCommitAll.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
-        Me.butCommitAll.Name = "butCommitAll"
-        Me.butCommitAll.Size = New System.Drawing.Size(120, 62)
-        Me.butCommitAll.TabIndex = 1
-        Me.butCommitAll.TextAlign = System.Drawing.ContentAlignment.MiddleRight
-        Me.butCommitAll.UseVisualStyleBackColor = True
-        '
-        'butCommitWithDependents
-        '
-        Me.butCommitWithDependents.BackgroundImage = Global.SolidWorksSVN.My.Resources.Resources.Commit
-        Me.butCommitWithDependents.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
-        Me.butCommitWithDependents.Location = New System.Drawing.Point(4, 17)
-        Me.butCommitWithDependents.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
-        Me.butCommitWithDependents.Name = "butCommitWithDependents"
-        Me.butCommitWithDependents.Size = New System.Drawing.Size(120, 62)
-        Me.butCommitWithDependents.TabIndex = 0
-        Me.butCommitWithDependents.UseVisualStyleBackColor = True
-        '
-        'butRefresh
-        '
-        Me.butRefresh.Location = New System.Drawing.Point(135, 412)
-        Me.butRefresh.Name = "butRefresh"
-        Me.butRefresh.Size = New System.Drawing.Size(120, 62)
-        Me.butRefresh.TabIndex = 17
-        Me.butRefresh.Text = "REFRESH"
-        Me.butRefresh.UseVisualStyleBackColor = True
+        Me.StatusStrip2.ImageScalingSize = New System.Drawing.Size(24, 24)
+        Me.StatusStrip2.Location = New System.Drawing.Point(0, 883)
+        Me.StatusStrip2.Name = "StatusStrip2"
+        Me.StatusStrip2.Size = New System.Drawing.Size(541, 22)
+        Me.StatusStrip2.TabIndex = 19
+        Me.StatusStrip2.Text = "StatusStrip1"
         '
         'UserControl1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 20.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
+        Me.Controls.Add(Me.StatusStrip2)
+        Me.Controls.Add(Me.ToolStripContainer1)
         Me.Controls.Add(Me.butRefresh)
         Me.Controls.Add(Me.butPickFolder)
         Me.Controls.Add(Me.localRepoPath)
         Me.Controls.Add(Me.onlineCheckBox)
         Me.Controls.Add(Me.butCleanup)
         Me.Controls.Add(Me.TreeView1)
-        Me.Controls.Add(Me.StatusStrip2)
-        Me.Controls.Add(Me.butGetLatestAllRepo)
-        Me.Controls.Add(Me.butGetLatestOpenOnly)
-        Me.Controls.Add(Me.butGetLockWithDependents)
-        Me.Controls.Add(Me.butGetLockActiveDoc)
-        Me.Controls.Add(Me.butUnlockAll)
-        Me.Controls.Add(Me.butUnlockActive)
-        Me.Controls.Add(Me.butCommitAll)
-        Me.Controls.Add(Me.butCommitWithDependents)
         Me.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.Name = "UserControl1"
-        Me.Size = New System.Drawing.Size(483, 802)
+        Me.Size = New System.Drawing.Size(541, 905)
+        Me.ToolStrip1.ResumeLayout(False)
+        Me.ToolStrip1.PerformLayout()
+        Me.ToolStripContainer1.LeftToolStripPanel.ResumeLayout(False)
+        Me.ToolStripContainer1.LeftToolStripPanel.PerformLayout()
+        Me.ToolStripContainer1.ResumeLayout(False)
+        Me.ToolStripContainer1.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
     End Sub
-
-    Friend WithEvents butCommitWithDependents As Windows.Forms.Button
-    Friend WithEvents butCommitAll As Windows.Forms.Button
-    Friend WithEvents butUnlockActive As Windows.Forms.Button
-    Friend WithEvents butUnlockAll As Windows.Forms.Button
-    Friend WithEvents butGetLockActiveDoc As Windows.Forms.Button
-    Friend WithEvents butGetLockWithDependents As Windows.Forms.Button
-    Friend WithEvents butGetLatestOpenOnly As Windows.Forms.Button
-    Friend WithEvents butGetLatestAllRepo As Windows.Forms.Button
-    Friend WithEvents StatusStrip2 As Windows.Forms.StatusStrip
     Friend WithEvents TreeView1 As Windows.Forms.TreeView
     Friend WithEvents butCleanup As Windows.Forms.Button
     Friend WithEvents onlineCheckBox As Windows.Forms.CheckBox
     Friend WithEvents localRepoPath As Windows.Forms.TextBox
-    Friend WithEvents FolderBrowserDialog1 As Windows.Forms.FolderBrowserDialog
     Friend WithEvents butPickFolder As Windows.Forms.Button
     Friend WithEvents butRefresh As Windows.Forms.Button
+    Friend WithEvents ToolStrip1 As Windows.Forms.ToolStrip
+    Friend WithEvents ToolStripContainer1 As Windows.Forms.ToolStripContainer
+    Friend WithEvents StatusStrip2 As Windows.Forms.StatusStrip
+    Friend WithEvents ToolStripDropDownButGetLocks As Windows.Forms.ToolStripSplitButton
+    Friend WithEvents dropDownGetLocksWithDependents As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ToolStripDropDownButCommit As Windows.Forms.ToolStripSplitButton
+    Friend WithEvents dropDownCommitWithDependents As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents dropDownCommitAll As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ToolStripDropDownButUnlock As Windows.Forms.ToolStripSplitButton
+    Friend WithEvents dropDownUnlockWithDependents As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents dropDownUnlockAll As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ToolStripDropDownButGetLatest As Windows.Forms.ToolStripSplitButton
+    Friend WithEvents dropDownGetLatestAllOpenFiles As Windows.Forms.ToolStripMenuItem
+    Friend WithEvents dropDownGetLatestAll As Windows.Forms.ToolStripMenuItem
 End Class
