@@ -66,7 +66,7 @@ Partial Class UserControl1
         Me.onlineCheckBox.CheckState = System.Windows.Forms.CheckState.Checked
         Me.onlineCheckBox.Location = New System.Drawing.Point(4, 461)
         Me.onlineCheckBox.Name = "onlineCheckBox"
-        Me.onlineCheckBox.Size = New System.Drawing.Size(73, 24)
+        Me.onlineCheckBox.Size = New System.Drawing.Size(80, 24)
         Me.onlineCheckBox.TabIndex = 14
         Me.onlineCheckBox.Text = "Online"
         Me.onlineCheckBox.UseVisualStyleBackColor = True
@@ -106,7 +106,7 @@ Partial Class UserControl1
         Me.ToolStrip1.MaximumSize = New System.Drawing.Size(400, 1000)
         Me.ToolStrip1.Name = "ToolStrip1"
         Me.ToolStrip1.Padding = New System.Windows.Forms.Padding(4, 0, 4, 0)
-        Me.ToolStrip1.Size = New System.Drawing.Size(125, 373)
+        Me.ToolStrip1.Size = New System.Drawing.Size(162, 373)
         Me.ToolStrip1.Stretch = True
         Me.ToolStrip1.TabIndex = 0
         '
@@ -118,14 +118,14 @@ Partial Class UserControl1
         Me.ToolStripDropDownButGetLocks.ImageTransparentColor = System.Drawing.Color.Magenta
         Me.ToolStripDropDownButGetLocks.Name = "ToolStripDropDownButGetLocks"
         Me.ToolStripDropDownButGetLocks.Padding = New System.Windows.Forms.Padding(4)
-        Me.ToolStripDropDownButGetLocks.Size = New System.Drawing.Size(116, 69)
+        Me.ToolStripDropDownButGetLocks.Size = New System.Drawing.Size(153, 79)
         Me.ToolStripDropDownButGetLocks.Text = "Get Locks"
         Me.ToolStripDropDownButGetLocks.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText
         '
         'dropDownGetLocksWithDependents
         '
         Me.dropDownGetLocksWithDependents.Name = "dropDownGetLocksWithDependents"
-        Me.dropDownGetLocksWithDependents.Size = New System.Drawing.Size(180, 22)
+        Me.dropDownGetLocksWithDependents.Size = New System.Drawing.Size(252, 34)
         Me.dropDownGetLocksWithDependents.Text = "With Dependents"
         '
         'ToolStripDropDownButCommit
@@ -136,7 +136,7 @@ Partial Class UserControl1
         Me.ToolStripDropDownButCommit.ImageTransparentColor = System.Drawing.Color.Magenta
         Me.ToolStripDropDownButCommit.Name = "ToolStripDropDownButCommit"
         Me.ToolStripDropDownButCommit.Padding = New System.Windows.Forms.Padding(4)
-        Me.ToolStripDropDownButCommit.Size = New System.Drawing.Size(116, 69)
+        Me.ToolStripDropDownButCommit.Size = New System.Drawing.Size(153, 79)
         Me.ToolStripDropDownButCommit.Tag = "butTagCommit"
         Me.ToolStripDropDownButCommit.Text = "Commit"
         Me.ToolStripDropDownButCommit.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText
@@ -145,13 +145,13 @@ Partial Class UserControl1
         'dropDownCommitWithDependents
         '
         Me.dropDownCommitWithDependents.Name = "dropDownCommitWithDependents"
-        Me.dropDownCommitWithDependents.Size = New System.Drawing.Size(180, 22)
+        Me.dropDownCommitWithDependents.Size = New System.Drawing.Size(252, 34)
         Me.dropDownCommitWithDependents.Text = "With Dependents"
         '
         'dropDownCommitAll
         '
         Me.dropDownCommitAll.Name = "dropDownCommitAll"
-        Me.dropDownCommitAll.Size = New System.Drawing.Size(180, 22)
+        Me.dropDownCommitAll.Size = New System.Drawing.Size(252, 34)
         Me.dropDownCommitAll.Text = "All"
         '
         'ToolStripDropDownButUnlock
@@ -162,20 +162,20 @@ Partial Class UserControl1
         Me.ToolStripDropDownButUnlock.ImageTransparentColor = System.Drawing.Color.Magenta
         Me.ToolStripDropDownButUnlock.Name = "ToolStripDropDownButUnlock"
         Me.ToolStripDropDownButUnlock.Padding = New System.Windows.Forms.Padding(4)
-        Me.ToolStripDropDownButUnlock.Size = New System.Drawing.Size(116, 69)
+        Me.ToolStripDropDownButUnlock.Size = New System.Drawing.Size(153, 79)
         Me.ToolStripDropDownButUnlock.Text = "Release Lock"
         Me.ToolStripDropDownButUnlock.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText
         '
         'dropDownUnlockWithDependents
         '
         Me.dropDownUnlockWithDependents.Name = "dropDownUnlockWithDependents"
-        Me.dropDownUnlockWithDependents.Size = New System.Drawing.Size(180, 22)
+        Me.dropDownUnlockWithDependents.Size = New System.Drawing.Size(252, 34)
         Me.dropDownUnlockWithDependents.Text = "With Dependents"
         '
         'dropDownUnlockAll
         '
         Me.dropDownUnlockAll.Name = "dropDownUnlockAll"
-        Me.dropDownUnlockAll.Size = New System.Drawing.Size(180, 22)
+        Me.dropDownUnlockAll.Size = New System.Drawing.Size(252, 34)
         Me.dropDownUnlockAll.Text = "All"
         '
         'ToolStripDropDownButGetLatest
@@ -186,20 +186,20 @@ Partial Class UserControl1
         Me.ToolStripDropDownButGetLatest.ImageTransparentColor = System.Drawing.Color.Magenta
         Me.ToolStripDropDownButGetLatest.Name = "ToolStripDropDownButGetLatest"
         Me.ToolStripDropDownButGetLatest.Padding = New System.Windows.Forms.Padding(4)
-        Me.ToolStripDropDownButGetLatest.Size = New System.Drawing.Size(116, 69)
+        Me.ToolStripDropDownButGetLatest.Size = New System.Drawing.Size(153, 79)
         Me.ToolStripDropDownButGetLatest.Text = "Get Latest"
         Me.ToolStripDropDownButGetLatest.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText
         '
         'dropDownGetLatestAllOpenFiles
         '
         Me.dropDownGetLatestAllOpenFiles.Name = "dropDownGetLatestAllOpenFiles"
-        Me.dropDownGetLatestAllOpenFiles.Size = New System.Drawing.Size(180, 22)
+        Me.dropDownGetLatestAllOpenFiles.Size = New System.Drawing.Size(222, 34)
         Me.dropDownGetLatestAllOpenFiles.Text = "All Open Files"
         '
         'dropDownGetLatestAll
         '
         Me.dropDownGetLatestAll.Name = "dropDownGetLatestAll"
-        Me.dropDownGetLatestAll.Size = New System.Drawing.Size(180, 22)
+        Me.dropDownGetLatestAll.Size = New System.Drawing.Size(222, 34)
         Me.dropDownGetLatestAll.Text = "All"
         '
         'ToolStripContainer1
@@ -208,7 +208,7 @@ Partial Class UserControl1
         '
         'ToolStripContainer1.ContentPanel
         '
-        Me.ToolStripContainer1.ContentPanel.Size = New System.Drawing.Size(21, 373)
+        Me.ToolStripContainer1.ContentPanel.Size = New System.Drawing.Size(88, 373)
         '
         'ToolStripContainer1.LeftToolStripPanel
         '
@@ -216,7 +216,7 @@ Partial Class UserControl1
         Me.ToolStripContainer1.Location = New System.Drawing.Point(10, 3)
         Me.ToolStripContainer1.Name = "ToolStripContainer1"
         Me.ToolStripContainer1.RightToolStripPanelVisible = False
-        Me.ToolStripContainer1.Size = New System.Drawing.Size(146, 373)
+        Me.ToolStripContainer1.Size = New System.Drawing.Size(250, 373)
         Me.ToolStripContainer1.TabIndex = 18
         Me.ToolStripContainer1.Text = "ToolStripContainer1"
         Me.ToolStripContainer1.TopToolStripPanelVisible = False

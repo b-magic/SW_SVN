@@ -54,16 +54,16 @@ Public Module svnModule
 
     Public Function updateStatusOfAllModelsVariable(Optional bRefreshAllTreeViews As Boolean = False) As Boolean
 
-        iSwApp.EnableBackgroundProcessing = True
+        'iSwApp.EnableBackgroundProcessing = True
 
         Dim output As SVNStatus = getFileSVNStatus(bCheckServer:=True, getAllOpenDocs(bMustBeVisible:=False))
         'Dim bProcessingTemp As Boolean = iSwApp.EnableBackgroundProcessing
 
         If IsNothing(output) Then
-            iSwApp.EnableBackgroundProcessing = False 'bProcessingTemp
+            'iSwApp.EnableBackgroundProcessing = False 'bProcessingTemp
             Return False
         ElseIf output.fp.Length = 0 Then
-            iSwApp.EnableBackgroundProcessing = False 'bProcessingTemp
+            'iSwApp.EnableBackgroundProcessing = False 'bProcessingTemp
             Return False
         End If
 
@@ -73,7 +73,7 @@ Public Module svnModule
 
         End If
 
-        iSwApp.EnableBackgroundProcessing = False 'bProcessingTemp
+        'iSwApp.EnableBackgroundProcessing = False 'bProcessingTemp
         Return True
     End Function
 
@@ -108,8 +108,8 @@ Public Module svnModule
         Dim bExpectStatusAgainstRevision As Boolean = False
         Dim Index As Integer
 
-        Dim sw As New Stopwatch
-        sw.Start()
+        'Dim sw As New Stopwatch
+        'sw.Start()
 
         'SVNstartInfo.Arguments = "status " & If(bCheckServer, "-u ", "") & "-v --non-interactive E:\SolidworksBackup\svn " 'sFilePathCat 
 
@@ -226,8 +226,8 @@ Public Module svnModule
         If j > 0 Then ReDim Preserve output.fp(j - 1)
         If m > 0 Then ReDim Preserve statusOfAllOpenModels.fp(m - 1)
 
-        sw.Stop()
-        Debug.WriteLine("getFileSVNStatus Time Taken: " + sw.Elapsed.TotalMilliseconds.ToString("#,##0.00 'milliseconds'"))
+        'sw.Stop()
+        'Debug.WriteLine("getFileSVNStatus Time Taken: " + sw.Elapsed.TotalMilliseconds.ToString("#,##0.00 'milliseconds'"))
 
         If IsNothing(modDocArr) Then
             Return statusOfAllOpenModels
@@ -500,8 +500,8 @@ Public Module svnModule
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
 
-        Dim sw As New Stopwatch
-        sw.Start()
+        'Dim sw As New Stopwatch
+        'sw.Start()
 
         'Dim modDocArr() As ModelDoc2 = {modDoc}
         'Dim sActiveDocPath() As String = getFilePathsFromModDocArr(modDocArr)
@@ -547,8 +547,8 @@ Public Module svnModule
 
         statusOfAllOpenModels.setReadWriteFromLockStatus()
 
-        sw.Stop()
-        Debug.WriteLine("getLocksOfDocs Time Taken: " + sw.Elapsed.TotalMilliseconds.ToString("#,##0.00 'milliseconds'"))
+        'sw.Stop()
+        'Debug.WriteLine("getLocksOfDocs Time Taken: " + sw.Elapsed.TotalMilliseconds.ToString("#,##0.00 'milliseconds'"))
 
     End Sub
     Function verifyLocalRepoPath(Optional bInteractive As Boolean = True) As Boolean

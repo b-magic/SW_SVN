@@ -58,8 +58,8 @@ Public Class SVNStatus
     End Sub
     Sub setReadWriteFromLockStatus()
         Dim i As Integer
-        Dim sw = New Stopwatch()
-        sw.Start()
+        'Dim sw = New Stopwatch()
+        'sw.Start()
 
         For i = 0 To UBound(fp)
             If fp(i).modDoc Is Nothing Then Continue For
@@ -77,8 +77,8 @@ Public Class SVNStatus
                 fp(i).bReconnect = True
             End If
         Next
-        sw.Stop()
-        Debug.WriteLine("setReadWriteFromLockStatus Time Taken: " + sw.Elapsed.TotalMilliseconds.ToString("#,##0.00 'milliseconds'"))
+        'sw.Stop()
+        'Debug.WriteLine("setReadWriteFromLockStatus Time Taken: " + sw.Elapsed.TotalMilliseconds.ToString("#,##0.00 'milliseconds'"))
     End Sub
     Public Function sFilterGetLatestType(ByRef filter As getLatestType, Optional ByVal bIgnoreUpdate As Boolean = False) As String()
         'bIgnoreUpdate will ignore the filter out elements where an update is required.
