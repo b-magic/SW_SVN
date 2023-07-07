@@ -54,15 +54,14 @@ Public Class UserControl1
     Private Sub ToolStripDropDownGetLocks_ButtonClick(sender As Object, e As EventArgs) Handles ToolStripDropDownButGetLocks.ButtonClick
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Error: Active Document not found") : Exit Sub
-        myGetLocksDoc(modDoc)
 
+        getLocksOfDocs(GetSelectedModDocList(iSwApp))
         updateStatusStrip()
-
     End Sub
     Private Sub dropDownGetLocksWithDependents_Click(sender As Object, e As EventArgs) Handles dropDownGetLocksWithDependents.Click
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Error: Active Document not found") : Exit Sub
-        myGetLocksWithDependents(modDoc)
+        getLocksOfDocs({modDoc}, bWithDependents:=True)
         updateStatusStrip()
     End Sub
 
@@ -70,7 +69,8 @@ Public Class UserControl1
     Private Sub ToolStripDropDownButCommit_ButtonClick(sender As Object, e As EventArgs) Handles ToolStripDropDownButCommit.ButtonClick
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Error: Active Document not found") : Exit Sub
-        commitDocs({modDoc})
+        commitDocs(GetSelectedModDocList(iSwApp))
+        updateStatusStrip()
     End Sub
     Private Sub dropDownCommitWithDependents_Click(sender As Object, e As EventArgs) Handles dropDownCommitWithDependents.Click
         myCommitWithDependents(iSwApp.ActiveDoc())
@@ -83,7 +83,7 @@ Public Class UserControl1
 
     ' ### Unlock
     Private Sub ToolStripDropDownButUnlock_ButtonClick(sender As Object, e As EventArgs) Handles ToolStripDropDownButUnlock.ButtonClick
-        myUnlockActive()
+        unlockDocs(GetSelectedModDocList(iSwApp))
         updateStatusStrip()
     End Sub
     Private Sub dropDownUnlockWithDependents_Click(sender As Object, e As EventArgs) Handles dropDownUnlockWithDependents.Click
@@ -102,7 +102,7 @@ Public Class UserControl1
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Error: Active Document not found") : Exit Sub
 
-        myGetLatestOrRevert({modDoc},, bVerbose:=True)
+        myGetLatestOrRevert(GetSelectedModDocList(iSwApp),, bVerbose:=True)
         'myGetLatestOpenOnly()
         updateStatusStrip()
     End Sub
@@ -375,7 +375,11 @@ Public Class UserControl1
         Dim sFileNameTemp As String = System.IO.Path.GetFileName(modDoc.GetPathName)
         Dim parentNode As TreeNode = Nothing
 
-        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Couldn't find model") : Return Nothing
+        If modDoc.GetType <> swDocumentTypes_e.swDocASSEMBLY Then
+            'check if it's actually an assembly...
+            If modDoc Is Nothing Then iSwApp.SendMsgToUser("Couldn't find model")
+            Return {modDoc}
+        End If
 
         If bUC Then
             allTreeViews(allTreeViewsIndexToUpdate).Nodes.Clear()
@@ -500,7 +504,7 @@ Public Class UserControl1
             unlockDocs({modDoc})
         End Sub
         Sub unlockWithDependentsEventHandler(sender As Object, e As EventArgs)
-            myUnlockWithDependents({modDoc})
+            myUnlockWithDependents(modDoc)
         End Sub
         Sub commitEventHandler(sender As Object, e As EventArgs)
             commitDocs({modDoc}, svnAddInUtils.createBoolArray(1, True))
@@ -519,10 +523,10 @@ Public Class UserControl1
             End If
         End Sub
         Sub getLockActiveDocEventHandler(sender As Object, e As EventArgs)
-            myGetLocksDoc(modDoc)
+            getLocksOfDocs({modDoc})
         End Sub
         Sub getLocksActiveWithDependentsEventHandler(sender As Object, e As EventArgs)
-            myGetLocksWithDependents(modDoc)
+            getLocksOfDocs({modDoc}, bWithDependents:=True)
         End Sub
 
     End Class
@@ -626,6 +630,44 @@ Public Class UserControl1
 
         rootNode.ContextMenuStrip = docMenu
     End Sub
+    Public Function GetSelectedModDocList(iSwApp As SolidWorks.Interop.sldworks.SldWorks) As SolidWorks.Interop.sldworks.ModelDoc2() 'SolidWorks.Interop.sldworks.Component2()
+
+        'Returns the active doc if nothing is selected
+
+        'Dim swSelCompArr() As SolidWorks.Interop.sldworks.Component2
+        Dim modDocArr() As SolidWorks.Interop.sldworks.ModelDoc2
+        Dim swComp As SolidWorks.Interop.sldworks.Component2
+        Dim i As Long
+
+        Dim activeModDoc As ModelDoc2 = iSwApp.ActiveDoc
+        Dim swSelMgr As SolidWorks.Interop.sldworks.SelectionMgr = activeModDoc.SelectionManager
+        Dim nSelCount As Long = swSelMgr.GetSelectedObjectCount2(-1)
+
+        'ReDim swSelCompArr(0)
+        ReDim modDocArr(0)
+
+        For i = 1 To nSelCount
+            swComp = swSelMgr.GetSelectedObjectsComponent4(i, -1)
+            If Not swComp Is Nothing Then
+                modDocArr(UBound(modDocArr)) = swComp.GetModelDoc2
+                ReDim Preserve modDocArr(UBound(modDocArr) + 1)
+                'swSelCompArr(UBound(swSelCompArr)) = swComp
+                'ReDim Preserve swSelCompArr(UBound(swSelCompArr) + 1)
+            End If
+        Next i
+
+        If IsNothing(modDocArr(0)) Then
+            'Return active doc if nothing is selected
+            modDocArr(0) = activeModDoc
+        End If
+
+        'Debug.Assert UBound(swSelCompArr) > 0
+        'ReDim Preserve swSelCompArr(UBound(swSelCompArr) - 1)
+        ReDim Preserve modDocArr(UBound(modDocArr) - 1)
+
+        Return modDocArr
+
+    End Function
     Class myColours
         Public lockedByYou As Drawing.Color
         Public lockedBySomeoneElse As Drawing.Color

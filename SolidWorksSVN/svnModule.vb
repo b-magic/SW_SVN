@@ -251,6 +251,8 @@ Public Module svnModule
         SVNstartInfo.CreateNoWindow = True
         oSVNProcess.StartInfo = SVNstartInfo
 
+        System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor
+
         '============
         'sbOutputLines = New System.Text.StringBuilder()
 
@@ -277,31 +279,23 @@ Public Module svnModule
                                   swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbYesNo) = swMessageBoxResult_e.swMbHitYes Then
                 iSwApp.SendMsgToUser("Switching to offline mode")
                 myUserControl.onlineCheckBox.Checked = False
+                System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default
                 Return Nothing
             Else
                 iWaitTime += 5000
             End If
         Loop
 
-
+        System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default
         Return output
     End Function
-
-    Public Sub myUnlockActive()
-        Dim modDoc() As ModelDoc2 = {iSwApp.ActiveDoc()}
-        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
-        unlockDocs(modDoc)
-    End Sub
-    Sub myUnlockWithDependents(modDoc As ModelDoc2())
+    Sub myUnlockWithDependents(modDoc As ModelDoc2)
 
         'Dim modDoc() As ModelDoc2 = {iSwApp.ActiveDoc()}
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
 
-        If modDoc(0).GetType <> swDocumentTypes_e.swDocASSEMBLY Then
-            unlockDocs(modDoc)
-        Else
-            unlockDocs(myUserControl.getComponentsOfAssemblyOptionalUpdateTree(modDoc(0)))
-        End If
+        unlockDocs(myUserControl.getComponentsOfAssemblyOptionalUpdateTree(modDoc))
+
     End Sub
     Sub unlockDocs(Optional ByRef modDocArr() As ModelDoc2 = Nothing)
         Dim bSuccess As Boolean
@@ -431,18 +425,6 @@ Public Module svnModule
         statusOfAllOpenModels.setReadWriteFromLockStatus()
 
     End Sub
-    Public Sub myGetLocksDoc(modDoc As ModelDoc2)
-        'Dim modDoc() As ModelDoc2 = {iSwApp.ActiveDoc()}
-        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
-
-        getLocksOfDocs({modDoc})
-    End Sub
-    Public Sub myGetLocksWithDependents(modDoc As ModelDoc2)
-        'Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()
-        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
-
-        getLocksOfDocs(myUserControl.getComponentsOfAssemblyOptionalUpdateTree(modDoc))
-    End Sub
     Sub myRepoStatus()
         Dim bSuccess As Boolean
         Dim modDoc As ModelDoc2
@@ -496,7 +478,7 @@ Public Module svnModule
                     "Try closing all open files and trying again. Or close SolidWorks and use ToroiseSVN to clean up. ")
         End If
     End Sub
-    Sub getLocksOfDocs(ByRef modDocArr() As ModelDoc2)
+    Public Sub getLocksOfDocs(ByRef modDocArr() As ModelDoc2, Optional bWithDependents As Boolean = False)
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
 
@@ -522,6 +504,10 @@ Public Module svnModule
         '    'Exit Sub
 
         'End If
+
+        If bWithDependents Then
+            modDocArr = myUserControl.getComponentsOfAssemblyOptionalUpdateTree(modDocArr(0))
+        End If
 
         sDocPathsToCheckout = status.sFilterUpToDate9("*", bFilterNot:=True)
 
