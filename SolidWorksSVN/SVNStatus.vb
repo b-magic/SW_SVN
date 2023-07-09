@@ -33,6 +33,17 @@ Public Class SVNStatus
     '    Public sFile As String
     '    Public modDocArr As ModelDoc2
     'End Structure
+    Public Function getModDocArr() As SolidWorks.Interop.sldworks.ModelDoc2()
+        Dim modDocArr(UBound(fp)) As SolidWorks.Interop.sldworks.ModelDoc2
+        Dim i As Integer
+
+        For i = 0 To UBound(fp)
+            modDocArr(i) = fp(i).modDoc
+        Next
+
+        Return modDocArr
+
+    End Function
     Sub addOutputLineToSVNStatus(ByRef sOutputLine As String,
                                  ByRef j As Integer,
                                  ByRef sFilePathTemp As String,
@@ -80,6 +91,51 @@ Public Class SVNStatus
         'sw.Stop()
         'Debug.WriteLine("setReadWriteFromLockStatus Time Taken: " + sw.Elapsed.TotalMilliseconds.ToString("#,##0.00 'milliseconds'"))
     End Sub
+    Public Sub mFilterLocked(Optional bFilterUnlocked As Boolean = False)
+        Dim newFilePropertyArr(UBound(fp)) As filePpty
+        Dim j As Integer = 0
+
+        For i = 0 To UBound(fp)
+            If (Not bFilterUnlocked) And (fp(i).lock6 = "K") Then
+                newFilePropertyArr(j) = fp(i)
+                j = j + 1
+            ElseIf (bFilterUnlocked) And (fp(i).lock6 = " ") Then
+                newFilePropertyArr(j) = fp(i)
+                j = j + 1
+            End If
+        Next
+
+        If j = 0 Then
+            fp = Nothing
+            Exit Sub
+        End If
+
+        ReDim Preserve newFilePropertyArr(j - 1)
+
+        fp = newFilePropertyArr
+    End Sub
+    Public Function sFilterLocked(Optional bFilterUnlocked As Boolean = False) As String()
+        Dim sFilePaths(UBound(fp)) As String
+        Dim j As Integer = 0
+
+        For i = 0 To UBound(fp)
+            If (Not bFilterUnlocked) And (fp(i).lock6 = "K") Then
+                sFilePaths(j) = fp(i).filename
+                j = j + 1
+            ElseIf (bFilterUnlocked) And (fp(i).lock6 = " ") Then
+                sFilePaths(j) = fp(i).filename
+                j = j + 1
+            End If
+        Next
+
+        If j = 0 Then
+            Return Nothing
+        End If
+
+        ReDim Preserve sFilePaths(j - 1)
+        Return sFilePaths
+    End Function
+
     Public Function sFilterGetLatestType(ByRef filter As getLatestType, Optional ByVal bIgnoreUpdate As Boolean = False) As String()
         'bIgnoreUpdate will ignore the filter out elements where an update is required.
         Dim sPath(UBound(fp)) As String
@@ -157,4 +213,23 @@ Public Class SVNStatus
             End If
         Next
     End Sub
+    Function updateFromSvnServer(Optional bRefreshAllTreeViews As Boolean = False) As Boolean
+        'iSwApp.EnableBackgroundProcessing = True
+
+        Dim output As SVNStatus = getFileSVNStatus(bCheckServer:=True, getAllOpenDocs(bMustBeVisible:=False))
+        'Dim bProcessingTemp As Boolean = iSwApp.EnableBackgroundProcessing
+
+        If IsNothing(output) Then
+            'iSwApp.EnableBackgroundProcessing = False 'bProcessingTemp
+            Return False
+        ElseIf output.fp.Length = 0 Then
+            'iSwApp.EnableBackgroundProcessing = False 'bProcessingTemp
+            Return False
+        End If
+
+        fp = output.fp
+        'iSwApp.EnableBackgroundProcessing = False 'bProcessingTemp
+        Return True
+
+    End Function
 End Class

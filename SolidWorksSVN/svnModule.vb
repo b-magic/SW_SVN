@@ -53,28 +53,14 @@ Public Module svnModule
     End Sub
 
     Public Function updateStatusOfAllModelsVariable(Optional bRefreshAllTreeViews As Boolean = False) As Boolean
+        Dim bWhatToReturn As Boolean = False
 
-        'iSwApp.EnableBackgroundProcessing = True
-
-        Dim output As SVNStatus = getFileSVNStatus(bCheckServer:=True, getAllOpenDocs(bMustBeVisible:=False))
-        'Dim bProcessingTemp As Boolean = iSwApp.EnableBackgroundProcessing
-
-        If IsNothing(output) Then
-            'iSwApp.EnableBackgroundProcessing = False 'bProcessingTemp
-            Return False
-        ElseIf output.fp.Length = 0 Then
-            'iSwApp.EnableBackgroundProcessing = False 'bProcessingTemp
-            Return False
-        End If
+        bWhatToReturn = statusOfAllOpenModels.updateFromSvnServer()
 
         If bRefreshAllTreeViews Then
-
             myUserControl.refreshAllTreeViewsVariable()
-
         End If
-
-        'iSwApp.EnableBackgroundProcessing = False 'bProcessingTemp
-        Return True
+        Return bWhatToReturn
     End Function
 
     Public Function getFileSVNStatus(ByVal bCheckServer As Boolean,
@@ -107,13 +93,14 @@ Public Module svnModule
         Dim m As Integer = 0
         Dim bExpectStatusAgainstRevision As Boolean = False
         Dim Index As Integer
+        Dim response As Integer
 
         'Dim sw As New Stopwatch
         'sw.Start()
 
         'SVNstartInfo.Arguments = "status " & If(bCheckServer, "-u ", "") & "-v --non-interactive E:\SolidworksBackup\svn " 'sFilePathCat 
 
-        If Not verifyLocalRepoPath() Then Return Nothing
+        If Not verifyLocalRepoPath(, bCheckLocalFolder:=True, bCheckServer = False) Then Return Nothing 'Don't check server because we will in runSVNProcess
 
         arguments = "status " & If(bCheckServer, "-u ", "") & "-v --non-interactive """ & myUserControl.localRepoPath.Text.TrimEnd("\\") & """" 'sFilePathCat 
 
@@ -167,6 +154,24 @@ Public Module svnModule
                         "Error W155007 the path is not associated with a repository. " &
                         "You may need to either checkout the repository to the folder with tortoiseSVN, " &
                         "or save the file inside an existing local repository And try again. "
+                ElseIf processOutput.outputError.Contains("W155007:") Then
+
+                    response = iSwApp.SendMsgToUser2("The files are not connected to an SVN Repository. " &
+                                            "Would you like to select a new folder? " & vbCrLf &
+                                            "Otherwise, Please use tortoiseSVN in Windows Explorer to CHECKOUT the repository, or ADD the files to the repository, and try again.",
+                                            swMessageBoxIcon_e.swMbWarning,
+                                            swMessageBoxBtn_e.swMbYesNo)
+                    If response = swMessageBoxResult_e.swMbHitYes Then
+                        If (myUserControl.pickFolder() = System.Windows.Forms.DialogResult.OK) Then
+                            Return getFileSVNStatus(bCheckServer, modDocArr, iRecursiveLevel:=(iRecursiveLevel + 1))
+                        Else
+                            Return Nothing
+                        End If
+                    ElseIf response = swMessageBoxResult_e.swMbHitNo Then
+                        iSwApp.SendMsgToUser2("Please switch to offline with the checkbox under the folder.", swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbOk)
+                        Return Nothing
+                    Else
+                    End If
                 Else
                     'Other Errors
                     sCatMessage &= vbCrLf &
@@ -294,7 +299,7 @@ Public Module svnModule
         'Dim modDoc() As ModelDoc2 = {iSwApp.ActiveDoc()}
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
 
-        unlockDocs(myUserControl.getComponentsOfAssemblyOptionalUpdateTree(modDoc))
+        unlockDocs(myUserControl.getComponentsOfAssemblyOptionalUpdateTree(myUserControl.GetSelectedModDocList(iSwApp)))
 
     End Sub
     Sub unlockDocs(Optional ByRef modDocArr() As ModelDoc2 = Nothing)
@@ -304,19 +309,22 @@ Public Module svnModule
         If IsNothing(modDocArr) Then
             If Not verifyLocalRepoPath() Then Exit Sub
             bSuccess = runTortoiseProcexeWithMonitor("/command:unlock /path:""" & myUserControl.localRepoPath.Text.TrimEnd("\\") & """ /closeonend:3")
-
+        ElseIf UBound(modDocArr) = -1 Then
+            Exit Sub
         Else
             Status = getFileSVNStatus(bCheckServer:=True, modDocArr)
             If IsNothing(Status) Then Exit Sub
 
-            ''force filesystem to release
-            'For Each modDoc In modDocArr
-            '    modDoc.ForceReleaseLocks()
-            'Next
+            Dim sFilePaths() As String = Status.sFilterLocked
+
+            If IsNothing(sFilePaths) Then
+                iSwApp.SendMsgToUser2("No Selected Items were locked", swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbOk)
+                Exit Sub
+            End If
 
             bSuccess = runTortoiseProcexeWithMonitor("/command:unlock /path:" &
                                              formatFilePathArrForTortoiseProc(
-                                                getFilePathsFromModDocArr(modDocArr)) & " /closeonend:3")
+                                                sFilePaths) & " /closeonend:3")
 
             'for each moddoc in moddocarr
             '    'manually reattach to file system
@@ -330,26 +338,7 @@ Public Module svnModule
         myGetLatestOrRevert(modDocArr, getLatestType.revert)
 
     End Sub
-
-    Public Sub myCommitWithDependents(modDoc As ModelDoc2)
-
-        Dim modDocArr1() As ModelDoc2
-        Dim bRequired() As Boolean
-
-        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
-
-        If modDoc.GetType = swDocumentTypes_e.swDocASSEMBLY Then
-            modDocArr1 = myUserControl.getComponentsOfAssemblyOptionalUpdateTree(modDoc)
-            bRequired = svnAddInUtils.createBoolArray(UBound(modDocArr1), False)
-            bRequired(0) = True
-            commitDocs(modDocArr1, bRequired)
-        Else
-            modDocArr1 = {modDoc}
-            commitDocs(modDocArr1, svnAddInUtils.createBoolArray(1, True))
-        End If
-    End Sub
-    Sub commitDocs(ByRef modDocArr() As ModelDoc2,
-                    Optional ByVal bRequiredDoc() As Boolean = Nothing)
+    Sub commitDocs(ByRef modDocArr() As ModelDoc2)
         Dim bSuccess As Boolean = False
         Dim sErrorFiles As String = ""
         Dim i As Integer
@@ -358,7 +347,7 @@ Public Module svnModule
         Dim activeDoc As ModelDoc2 = iSwApp.ActiveDoc
         If activeDoc Is Nothing Then Exit Sub
 
-        If bRequiredDoc Is Nothing Then bRequiredDoc = svnAddInUtils.createBoolArray(UBound(modDocArr), True)
+        'If bRequiredDoc Is Nothing Then bRequiredDoc = svnAddInUtils.createBoolArray(UBound(modDocArr), True)
 
         If modDocArr Is Nothing Then
             iSwApp.SendMsgToUser("Active Document not found")
@@ -368,21 +357,23 @@ Public Module svnModule
             Exit Sub
         End If
 
+        'Filter out read-only files
         For i = 0 To UBound(modDocArr)
             If modDocArr(i).IsOpenedReadOnly() Or modDocArr(i).IsOpenedViewOnly() Then
 
-                If bRequiredDoc(i) Then
-                    sErrorFiles &= modDocArr(i).GetPathName & vbCrLf
-                End If
+                'If bRequiredDoc(i) Then
+                '    sErrorFiles &= modDocArr(i).GetPathName & vbCrLf
+                'End If
                 modDocArr(i) = Nothing
                 j += 1
             End If
         Next
-        If sErrorFiles <> "" Then
-            iSwApp.SendMsgToUser("The following file(s) are Read-Only. You need write access to check in. " &
-                                 "If you believe you have the file locked, you can try File > Reload" & vbCrLf &
-                                 sErrorFiles)
-            If j = i Then Exit Sub 'All Files were removed
+
+        If j = i Then
+            'If sErrorFiles <> "" Then
+            iSwApp.SendMsgToUser("The file(s) are all Read-Only. You need write access to check in. " &
+                                 "If you believe you have the file locked, you can try File > Reload")
+            Exit Sub 'All Files were removed
         End If
 
         save3AndShowErrorMessages(modDocArr)
@@ -396,6 +387,9 @@ Public Module svnModule
         If Not bSuccess Then Exit Sub
 
         myUserControl.switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
+        statusOfAllOpenModels.setReadWriteFromLockStatus()
+    End Sub
+    Public Sub externalSetReadWriteFromLockStatus()
         statusOfAllOpenModels.setReadWriteFromLockStatus()
     End Sub
     Public Sub myCommitAll()
@@ -478,7 +472,7 @@ Public Module svnModule
                     "Try closing all open files and trying again. Or close SolidWorks and use ToroiseSVN to clean up. ")
         End If
     End Sub
-    Public Sub getLocksOfDocs(ByRef modDocArr() As ModelDoc2, Optional bWithDependents As Boolean = False)
+    Public Sub getLocksOfDocs(ByRef modDocArr() As ModelDoc2)
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
 
@@ -505,9 +499,7 @@ Public Module svnModule
 
         'End If
 
-        If bWithDependents Then
-            modDocArr = myUserControl.getComponentsOfAssemblyOptionalUpdateTree(modDocArr(0))
-        End If
+
 
         sDocPathsToCheckout = status.sFilterUpToDate9("*", bFilterNot:=True)
 
@@ -537,7 +529,7 @@ Public Module svnModule
         'Debug.WriteLine("getLocksOfDocs Time Taken: " + sw.Elapsed.TotalMilliseconds.ToString("#,##0.00 'milliseconds'"))
 
     End Sub
-    Function verifyLocalRepoPath(Optional bInteractive As Boolean = True) As Boolean
+    Function verifyLocalRepoPath(Optional bInteractive As Boolean = True, Optional bCheckLocalFolder As Boolean = True, Optional bCheckServer As Boolean = True) As Boolean
 
         Dim response As swMessageBoxResult_e
         Dim processOutput As rawProcessReturn
@@ -551,26 +543,28 @@ Public Module svnModule
         If Not myUserControl.onlineCheckBox.Checked Then Return False
 
         'Check the file exists on the computer
-        If Not My.Computer.FileSystem.DirectoryExists(sLocalPath) Then
-            If Not bInteractive Then Return False
-            response = iSwApp.SendMsgToUser2(
+        If bCheckLocalFolder Then
+            If Not My.Computer.FileSystem.DirectoryExists(sLocalPath) Then
+                If Not bInteractive Then Return False
+                response = iSwApp.SendMsgToUser2(
                 "Local Folder Location " & vbCrLf & sLocalPath & vbCrLf &
                 "was not found. Would you like to select a new folder? ",
                 swMessageBoxIcon_e.swMbWarning,
                 swMessageBoxBtn_e.swMbYesNo)
-            If response = swMessageBoxResult_e.swMbHitYes Then
+                If response = swMessageBoxResult_e.swMbHitYes Then
 
-                If (myUserControl.pickFolder() = System.Windows.Forms.DialogResult.OK) Then
-                    Return verifyLocalRepoPath(bInteractive)
-                Else
+                    If (myUserControl.pickFolder() = System.Windows.Forms.DialogResult.OK) Then
+                        Return verifyLocalRepoPath(bInteractive, bCheckLocalFolder, bCheckServer)
+                    Else
+                        Return False
+                    End If
+                ElseIf response = swMessageBoxResult_e.swMbHitNo Then
+                    iSwApp.SendMsgToUser2("Switching to offline.", swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbOk)
+                    myUserControl.onlineCheckBox.Checked = False
                     Return False
                 End If
-            ElseIf response = swMessageBoxResult_e.swMbHitNo Then
-                iSwApp.SendMsgToUser2("Switching to offline.", swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbOk)
-                myUserControl.onlineCheckBox.Checked = False
-                Return False
             End If
-
+            If Not bCheckServer Then Return True
         End If
 
         'Check the path is actually connected to a repo
@@ -580,24 +574,24 @@ Public Module svnModule
         If processOutput.outputError.Contains("W155007:") Then
             If Not bInteractive Then Return False
             response = iSwApp.SendMsgToUser2("The following directory is not connected to an SVN Repository. " &
-                                  "Would you like to download the entire vault to this folder? " & vbCrLf & sLocalPath,
-                                    swMessageBoxIcon_e.swMbWarning,
-                                    swMessageBoxBtn_e.swMbYesNo)
+                                "Would you like to download the entire vault to this folder? " & vbCrLf & sLocalPath,
+                                swMessageBoxIcon_e.swMbWarning,
+                                swMessageBoxBtn_e.swMbYesNo)
             If response = swMessageBoxResult_e.swMbHitYes Then
                 '1. Checkout entire folder
                 runTortoiseProcexeWithMonitor(" /command:checkout /path " & sLocalPath)
 
-                Return verifyLocalRepoPath(bInteractive)
+                Return verifyLocalRepoPath(bInteractive, bCheckLocalFolder, bCheckServer)
             End If
 
             response = iSwApp.SendMsgToUser2("The following directory is not connected to an SVN Repository. " &
-                                  "Would you like to select a new folder? " & vbCrLf & sLocalPath,
-                                    swMessageBoxIcon_e.swMbWarning,
-                                    swMessageBoxBtn_e.swMbYesNo)
+                                "Would you like to select a new folder? " & vbCrLf & sLocalPath,
+                                swMessageBoxIcon_e.swMbWarning,
+                                swMessageBoxBtn_e.swMbYesNo)
             If response = swMessageBoxResult_e.swMbHitYes Then
 
                 If (myUserControl.pickFolder() = System.Windows.Forms.DialogResult.OK) Then
-                    Return verifyLocalRepoPath(bInteractive)
+                    Return verifyLocalRepoPath(bInteractive, bCheckLocalFolder, bCheckServer)
                 Else
                     Return False
                 End If
@@ -610,6 +604,7 @@ Public Module svnModule
         Else
             Return True
         End If
+
 
         Return False ' code shouldn't get here...
 
@@ -699,22 +694,40 @@ Public Module svnModule
         both
     End Enum
     Function formatFilePathArrForTortoiseProc(ByRef sFilePathArr() As String) As String
-        Dim sFilePathCat As String = """" & sFilePathArr(0)
+        Dim sFilePathCat As String = """" '& sFilePathArr(0)
+        Dim bSkipAsterixForFirstOne As Boolean = True
+
         For i = 0 To sFilePathArr.Length - 1
             If sFilePathArr(i) Is Nothing Then Continue For
-            sFilePathCat &= "*" & sFilePathArr(i)
+            If sFilePathArr(i).Contains("~~") Then Continue For 'skip in-context parts/assemblies.
+
+            If bSkipAsterixForFirstOne Then
+                sFilePathCat &= sFilePathArr(i)
+                bSkipAsterixForFirstOne = False
+            Else
+                sFilePathCat &= "*" & sFilePathArr(i)
+            End If
+
         Next
         sFilePathCat &= """"
         Return sFilePathCat
     End Function
     Function formatModDocArrForTortoiseProc(ByRef modDocArr() As ModelDoc2) As String
-        Dim sFilePathCat As String = """" & modDocArr(0).GetPathName
+        Dim sFilePathCat As String = """" '& modDocArr(0).GetPathName
         Dim sTempPathName As String
-        For i = 1 To UBound(modDocArr)
+        Dim bSkipAsterixForFirstOne As Boolean = True
+
+        For i = 0 To UBound(modDocArr)
             If modDocArr(i) Is Nothing Then Continue For
             sTempPathName = modDocArr(i).GetPathName
             If sTempPathName.Contains("~~") Then Continue For    'skip in-context parts/assemblies.
-            sFilePathCat &= "*" & sTempPathName
+
+            If bSkipAsterixForFirstOne Then
+                sFilePathCat &= sTempPathName
+                bSkipAsterixForFirstOne = False
+            Else
+                sFilePathCat &= "*" & sTempPathName
+            End If
         Next
         sFilePathCat &= """"
         Return sFilePathCat
@@ -724,8 +737,8 @@ Public Module svnModule
         ' See https://tortoisesvn.net/docs/release/TortoiseSVN_en/tsvn-automation.html
         Dim oTortProcess As New Process()
         Dim tortStartInfo As New ProcessStartInfo
-        Dim sw As New Stopwatch
-        sw.Start()
+        'Dim sw As New Stopwatch
+        'sw.Start()
 
         tortStartInfo.FileName = sTortPath  'System.Environment.CurrentDirectory & "\\TortoiseProc.exe" 'AppDomain.CurrentDomain.BaseDirectory & 'sTortPath
         'iSwApp.SendMsgToUser(sTortPath)
@@ -757,8 +770,8 @@ Public Module svnModule
             System.Threading.Thread.Sleep(1)
         Loop
 
-        sw.Stop()
-        Debug.WriteLine("tortoiseProc Time Taken: " + sw.Elapsed.TotalMilliseconds.ToString("#,##0.00 'milliseconds'"))
+        'sw.Stop()
+        'System.Diagnostics.Debug.WriteLine("tortoiseProc Time Taken: " + sw.Elapsed.TotalMilliseconds.ToString("#,##0.00 'milliseconds'"))
 
         Return True
     End Function

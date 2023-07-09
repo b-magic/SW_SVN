@@ -7,6 +7,8 @@ Imports SolidWorks.Interop.swconst
 Imports System.Collections.Generic
 Imports System.Windows.Forms
 Imports System.Drawing
+Imports System.IO
+Imports System.CodeDom.Compiler
 'Imports System.Configuration
 
 <ProgId("SVN_AddIn")>
@@ -18,7 +20,7 @@ Public Class UserControl1
     'Public Const localRepoPath.text As String = "E:\SolidworksBackup\svn"
     'Public Const localRepoPath.text As String = "C:\Users\benne\Documents\SVN\cad1"
 
-    Public statusOfAllOpenModels As SVNStatus
+    Public statusOfAllOpenModels As SVNStatus = New SVNStatus
     Public allOpenDocs As ModelDoc2()
     Public allTreeViews As TreeView() = {New TreeView}
 
@@ -29,7 +31,7 @@ Public Class UserControl1
         Dim myToolItem As ToolStripMenuItem
 
         docMenu = New ContextMenuStrip()
-        myToolItem = New ToolStripMenuItem("Refresh", My.Resources.VaultLogo128, AddressOf RefreshToolStripMenuItem_click)
+        myToolItem = New ToolStripMenuItem("Refresh", My.Resources.VaultLogo128, AddressOf RefreshToolStripMenuItemEventHandler)
         docMenu.Items.AddRange({myToolItem})
 
         Me.ContextMenuStrip = docMenu
@@ -41,7 +43,7 @@ Public Class UserControl1
         iSwApp = swAppin
 
         initializeSwModelFunctions(iSwApp)
-            svnModuleInitialize(iSwApp, Me, statusOfAllOpenModels)
+        svnModuleInitialize(iSwApp, Me, statusOfAllOpenModels)
 
         localRepoPath.Text = My.Settings.localRepoPath
         refreshAddIn(bsaveLocalRepoPathSettings:=False)
@@ -59,9 +61,13 @@ Public Class UserControl1
         updateStatusStrip()
     End Sub
     Private Sub dropDownGetLocksWithDependents_Click(sender As Object, e As EventArgs) Handles dropDownGetLocksWithDependents.Click
-        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
-        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Error: Active Document not found") : Exit Sub
-        getLocksOfDocs({modDoc}, bWithDependents:=True)
+        Dim modDocArr() As ModelDoc2
+
+        modDocArr = getComponentsOfAssemblyOptionalUpdateTree(GetSelectedModDocList(iSwApp))
+
+        If modDocArr Is Nothing Then iSwApp.SendMsgToUser("Error: Active Document not found") : Exit Sub
+
+        getLocksOfDocs(modDocArr)
         updateStatusStrip()
     End Sub
 
@@ -73,7 +79,7 @@ Public Class UserControl1
         updateStatusStrip()
     End Sub
     Private Sub dropDownCommitWithDependents_Click(sender As Object, e As EventArgs) Handles dropDownCommitWithDependents.Click
-        myCommitWithDependents(iSwApp.ActiveDoc())
+        commitDocs(getComponentsOfAssemblyOptionalUpdateTree(GetSelectedModDocList(iSwApp)))
         updateStatusStrip()
     End Sub
     Private Sub dropDownCommitAll_Click(sender As Object, e As EventArgs) Handles dropDownCommitAll.Click
@@ -89,7 +95,7 @@ Public Class UserControl1
     Private Sub dropDownUnlockWithDependents_Click(sender As Object, e As EventArgs) Handles dropDownUnlockWithDependents.Click
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Error: Active Document not found") : Exit Sub
-        unlockDocs(getComponentsOfAssemblyOptionalUpdateTree(modDoc))
+        unlockDocs(getComponentsOfAssemblyOptionalUpdateTree(GetSelectedModDocList(iSwApp)))
         updateStatusStrip()
     End Sub
     Private Sub dropDownUnlockAll_Click(sender As Object, e As EventArgs) Handles dropDownUnlockAll.Click
@@ -118,14 +124,15 @@ Public Class UserControl1
     End Sub
 
     ' ### Refresh
-    Private Sub RefreshToolStripMenuItem_click(sender As Object, e As EventArgs)
-
+    Private Sub RefreshToolStripMenuItemEventHandler(sender As Object, e As EventArgs)
         refreshAddIn()
     End Sub
 
     Private Sub butRefresh_Click(sender As Object, e As EventArgs) Handles butRefresh.Click
-        updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True)
+        statusOfAllOpenModels = New SVNStatus
+        statusOfAllOpenModels.updateFromSvnServer(bRefreshAllTreeViews:=True)
         switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
+
         statusOfAllOpenModels.setReadWriteFromLockStatus()
     End Sub
 
@@ -152,22 +159,12 @@ Public Class UserControl1
     Private Sub StatusStrip2_ItemClicked(sender As Object, e As Windows.Forms.ToolStripItemClickedEventArgs)
         updateStatusStrip()
     End Sub
-
-
-
-
-
-
-    'Private Sub butStatus_Click(sender As Object, e As EventArgs) Handles butStatus.Click
-    '    myRepoStatus()
-    'End Sub
-
-
-
-
+    Public Sub externalSetReadWriteFromLockStatus1()
+        externalSetReadWriteFromLockStatus()
+    End Sub
     Public Function refreshAddIn(Optional bsaveLocalRepoPathSettings As Boolean = True) As Boolean
 
-        If Not verifyLocalRepoPath() Then Return False
+        If Not verifyLocalRepoPath(, bCheckLocalFolder:=True, bCheckServer:=False) Then Return False     'Only need to check the local since updateStatusOfAllModelsVariable will check server. 
 
         Dim pathArr() As String = IO.Directory.GetDirectories(localRepoPath.Text, "*.*", IO.SearchOption.AllDirectories)
         Dim sUserPreference As String
@@ -344,8 +341,10 @@ Public Class UserControl1
         If Not bSuccess Then iSwApp.SendMsgToUser("Status Update Failed.") : Return Nothing
 
         For i = 0 To UBound(allTreeViews)
-            If (Strings.InStr(allTreeViews(i).Nodes(0).Text, System.IO.Path.GetFileName(pathName), CompareMethod.Text) <> 0) Then
-                Return allTreeViews(i).Nodes(0)
+            If allTreeViews(i).Nodes.Count > 0 Then
+                If (Strings.InStr(allTreeViews(i).Nodes(0).Text, System.IO.Path.GetFileName(pathName), CompareMethod.Text) <> 0) Then
+                    Return allTreeViews(i).Nodes(0)
+                End If
             End If
         Next
 
@@ -361,55 +360,77 @@ Public Class UserControl1
         For i = 0 To UBound(modDocArray)
             If modDocArray(i) Is Nothing Then Continue For
             allTreeViews(i) = New TreeView
-            getComponentsOfAssemblyOptionalUpdateTree(modDocArray(i), i)
+            getComponentsOfAssemblyOptionalUpdateTree({modDocArray(i)}, i)
         Next
     End Sub
 
     Public Function getComponentsOfAssemblyOptionalUpdateTree(
-                                    ByRef modDoc As ModelDoc2,
+                                    ByRef modDocArr() As ModelDoc2,
                                     Optional ByVal allTreeViewsIndexToUpdate As Integer = Nothing) As ModelDoc2()
 
         ' Checkin and checkout needs the modDocArray. The others just want filepaths. 
 
-        Dim bUC As Boolean = If(IsNothing(allTreeViewsIndexToUpdate), False, True)
-        Dim sFileNameTemp As String = System.IO.Path.GetFileName(modDoc.GetPathName)
+        Dim bUpdateTreeView As Boolean = If(IsNothing(allTreeViewsIndexToUpdate), False, True)
+        Dim sFileNameTemp As String
         Dim parentNode As TreeNode = Nothing
-
-        If modDoc.GetType <> swDocumentTypes_e.swDocASSEMBLY Then
-            'check if it's actually an assembly...
-            If modDoc Is Nothing Then iSwApp.SendMsgToUser("Couldn't find model")
-            Return {modDoc}
-        End If
-
-        If bUC Then
-            allTreeViews(allTreeViewsIndexToUpdate).Nodes.Clear()
-            parentNode = New TreeNode(sFileNameTemp)
-            parentNode.Tag = modDoc
-        End If
-
-        If modDoc.GetType <> swDocumentTypes_e.swDocASSEMBLY Then
-            If bUC Then
-                setNodeColorFromStatus(parentNode)
-                allTreeViews(allTreeViewsIndexToUpdate).Nodes.Add(parentNode)
-            End If
-            Return {modDoc}
-            'iswApp.SendMsgToUser("Error: Model is not an assembly.")
-            'Throw New System.Exception("modDoc is not an Assembly")
-        End If
-
-        Dim mdComponentList As New List(Of ModelDoc2)()
+        Dim modelDocList As New List(Of ModelDoc2)()
         Dim swConfMgr As ConfigurationManager
         Dim swConf As Configuration
         Dim swRootComp As Component2
 
-        swConfMgr = modDoc.ConfigurationManager
-        swConf = swConfMgr.ActiveConfiguration
-        swRootComp = swConf.GetRootComponent3(True)
+        Dim i, j As Integer
+        j = 0
 
-        TraverseComponent(swRootComp, mdComponentList, 1, parentNode)
+        If (UBound(modDocArr) > 0) And (Not IsNothing(allTreeViewsIndexToUpdate)) Then
+            iSwApp.SendMsgToUser("Error: getComponentsOfAssemblyOptionalUpdateTree wasn't written to update tree views on multiple assemblies")
+            Return Nothing
+        End If
 
-        Dim mdComponentArr() As ModelDoc2 = mdComponentList.ToArray
-        If bUC Then allTreeViews(allTreeViewsIndexToUpdate).Nodes.Add(parentNode)
+        For i = 0 To UBound(modDocArr)
+
+            If IsNothing(modDocArr(i)) Then Continue For
+            sFileNameTemp = System.IO.Path.GetFileName(modDocArr(i).GetPathName)
+
+            'If modDocArr(i).GetType <> swDocumentTypes_e.swDocASSEMBLY Then
+            '    'check if it's actually an assembly...
+            '    modelDocList.Add(modDocArr(i))
+            '    Continue For
+            'End If
+
+            If bUpdateTreeView Then
+                allTreeViews(allTreeViewsIndexToUpdate).Nodes.Clear()
+                parentNode = New TreeNode(sFileNameTemp)
+                parentNode.Tag = modDocArr(0)
+            End If
+
+            If modDocArr(i).GetType <> swDocumentTypes_e.swDocASSEMBLY Then
+                If bUpdateTreeView Then
+                    setNodeColorFromStatus(parentNode)
+                    allTreeViews(allTreeViewsIndexToUpdate).Nodes.Add(parentNode)
+                End If
+                modelDocList.Add(modDocArr(i))
+                j += 1
+                Continue For
+                'iswApp.SendMsgToUser("Error: Model is not an assembly.")
+                'Throw New System.Exception("modDoc is not an Assembly")
+            End If
+
+            swConfMgr = modDocArr(i).ConfigurationManager
+            swConf = swConfMgr.ActiveConfiguration
+            swRootComp = swConf.GetRootComponent3(True)
+
+            TraverseComponent(swRootComp, modelDocList, 1, parentNode)
+            j += 1
+
+        Next
+
+        If j = 0 Then
+            iSwApp.SendMsgToUser("Couldn't find model")
+            Return Nothing
+        End If
+
+        Dim mdComponentArr() As ModelDoc2 = modelDocList.ToArray
+        If bUpdateTreeView Then allTreeViews(allTreeViewsIndexToUpdate).Nodes.Add(parentNode)
 
         Return mdComponentArr
     End Function
@@ -478,10 +499,12 @@ Public Class UserControl1
         End If
 
     End Sub
-    Class myContextMenuClass
+    Public Class myContextMenuClass
 
-        Dim iSwApp2 As SldWorks
+        Public Shared iSwApp2 As SldWorks
         Dim modDoc As ModelDoc2
+        Dim modDocArr As ModelDoc2()
+        Dim parentUserControl2 As UserControl1
         'Dim comp As Component2
         Public openLabel As New ToolStripMenuItem("Open", My.Resources.VaultLogo128, AddressOf openEventHandler)
         Public unlockLabel As New ToolStripMenuItem("Release Lock", My.Resources.ReleaseActive, AddressOf unlockEventHandler)
@@ -491,10 +514,11 @@ Public Class UserControl1
         Public getLocksStealLabel As New ToolStripMenuItem("Get Lock (Steal Locks)", My.Resources.CheckOutActive, AddressOf getLockStealLockEventHandler)
         Public getLockActiveDoc As New ToolStripMenuItem("Get Lock Doc", My.Resources.CheckOutActive, AddressOf getLockActiveDocEventHandler)
         Public getLockWithDependents As New ToolStripMenuItem("Get Lock With Dependents", My.Resources.CheckOutWithDependents, AddressOf getLocksActiveWithDependentsEventHandler)
-        Public Sub New(modDocInput As ModelDoc2, iSwAppInput As SldWorks)
+        Public Sub New(modDocInput As ModelDoc2, iSwAppInput As SldWorks, parentUserControl As UserControl1)
             modDoc = modDocInput 'compInput.GetModelDoc2
             'comp = compInput
             iSwApp2 = iSwAppInput
+            parentUserControl2 = parentUserControl
         End Sub
 
         Sub openEventHandler(sender As Object, e As EventArgs)
@@ -507,10 +531,11 @@ Public Class UserControl1
             myUnlockWithDependents(modDoc)
         End Sub
         Sub commitEventHandler(sender As Object, e As EventArgs)
-            commitDocs({modDoc}, svnAddInUtils.createBoolArray(1, True))
+            commitDocs({modDoc})
         End Sub
-        Sub commitWithDependentsEventHandler(sender As Object, e As EventArgs)
-            myCommitWithDependents(modDoc)
+        Public Sub commitWithDependentsEventHandler(sender As Object, e As EventArgs)
+            modDocArr = parentUserControl2.GetSelectedModDocList(iSwApp2)
+            commitDocs(parentUserControl2.getComponentsOfAssemblyOptionalUpdateTree(modDocArr))
         End Sub
         Sub getLockStealLockEventHandler(sender As Object, e As EventArgs)
             If swMessageBoxResult_e.swMbHitOk =
@@ -523,10 +548,10 @@ Public Class UserControl1
             End If
         End Sub
         Sub getLockActiveDocEventHandler(sender As Object, e As EventArgs)
-            getLocksOfDocs({modDoc})
+            getLocksOfDocs(parentUserControl2.GetSelectedModDocList(iSwApp2))
         End Sub
         Sub getLocksActiveWithDependentsEventHandler(sender As Object, e As EventArgs)
-            getLocksOfDocs({modDoc}, bWithDependents:=True)
+            getLocksOfDocs(parentUserControl2.getComponentsOfAssemblyOptionalUpdateTree(parentUserControl2.GetSelectedModDocList(iSwApp2)))
         End Sub
 
     End Class
@@ -565,7 +590,7 @@ Public Class UserControl1
         End If
 
         If bModelDocAttached Then
-            myContextMenu = New myContextMenuClass(modDoc, iSwApp)
+            myContextMenu = New myContextMenuClass(modDoc, iSwApp, Me)
             docMenu.Items.AddRange({myContextMenu.openLabel})
             'modDoc = rootNode.Tag
         End If
@@ -638,6 +663,7 @@ Public Class UserControl1
         Dim modDocArr() As SolidWorks.Interop.sldworks.ModelDoc2
         Dim swComp As SolidWorks.Interop.sldworks.Component2
         Dim i As Long
+        'Dim tempObj As Object
 
         Dim activeModDoc As ModelDoc2 = iSwApp.ActiveDoc
         Dim swSelMgr As SolidWorks.Interop.sldworks.SelectionMgr = activeModDoc.SelectionManager
@@ -645,9 +671,11 @@ Public Class UserControl1
 
         'ReDim swSelCompArr(0)
         ReDim modDocArr(0)
-
         For i = 1 To nSelCount
             swComp = swSelMgr.GetSelectedObjectsComponent4(i, -1)
+            'tempObj = swSelMgr.GetSelectedObject6(i, -1)
+            'System.Diagnostics.Debug.Print(GetType(tempObj))
+
             If Not swComp Is Nothing Then
                 modDocArr(UBound(modDocArr)) = swComp.GetModelDoc2
                 ReDim Preserve modDocArr(UBound(modDocArr) + 1)
@@ -658,12 +686,19 @@ Public Class UserControl1
 
         If IsNothing(modDocArr(0)) Then
             'Return active doc if nothing is selected
-            modDocArr(0) = activeModDoc
+            Return {activeModDoc}
         End If
 
         'Debug.Assert UBound(swSelCompArr) > 0
         'ReDim Preserve swSelCompArr(UBound(swSelCompArr) - 1)
-        ReDim Preserve modDocArr(UBound(modDocArr) - 1)
+        If inclParentAssemblyCheckBox.Checked Then
+            modDocArr(UBound(modDocArr)) = activeModDoc
+            inclParentAssemblyCheckBox.Checked = False
+        Else
+            ReDim Preserve modDocArr(UBound(modDocArr) - 1)
+        End If
+
+
 
         Return modDocArr
 
@@ -685,5 +720,4 @@ Public Class UserControl1
             'Drawing.Color.Bisque 'Drawing.Color.FromArgb(255, 77, 77) 'light red
         End Sub
     End Class
-
 End Class

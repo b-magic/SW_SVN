@@ -534,7 +534,7 @@ Public Class SwAddin
     Function SldWorks_FileOpenPostNotify(ByVal FileName As String) As Integer
         'AttachEventsToAllDocuments()
         myTaskPaneHost.switchTreeViewToCurrentModel()
-
+        myTaskPaneHost.externalSetReadWriteFromLockStatus1()
         'Dim mycontextmenu As New UserControl1.myContextMenuClass(iSwApp.ActiveDoc, iSwApp)
         'myTaskPaneHost.ContextMenuStrip.Items.AddRange({mycontextmenu.openLabel})
 
