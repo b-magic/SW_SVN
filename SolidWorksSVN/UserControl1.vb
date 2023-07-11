@@ -174,18 +174,19 @@ Public Class UserControl1
         'https://blogs.solidworks.com/tech/2014/06/search-path-order-for-opening-files-in-solidworks.html
         'http://help.solidworks.com/2012/English/api/swconst/SO_FileLocations.htm
 
-        'Add all the subdirectories of the repo to the "reference files location" 
-        ' This will let solidworks find the files!
-        For Each myPath In pathArr
-            If myPath.Contains("\.svn") Then Continue For 'Skips the hidden folder that contains all the backup files
+        '=== Had to comment out, since it was adding 5000 file locations references to SolidWorks====
+        ''Add all the subdirectories of the repo to the "reference files location" 
+        '' This will let solidworks find the files!
+        'For Each myPath In pathArr
+        '    If myPath.Contains("\.svn") Then Continue For 'Skips the hidden folder that contains all the backup files
 
-            sUserPreference = iSwApp.GetUserPreferenceStringValue(
-                swUserPreferenceStringValue_e.swFileLocationsDocuments) 'Get existing preferences
+        '    sUserPreference = iSwApp.GetUserPreferenceStringValue(
+        '        swUserPreferenceStringValue_e.swFileLocationsDocuments) 'Get existing preferences
 
-            iSwApp.SetUserPreferenceStringValue(
-                swUserPreferenceStringValue_e.swFileLocationsDocuments,
-                sUserPreference & ";" & myPath)
-        Next
+        '    iSwApp.SetUserPreferenceStringValue(
+        '        swUserPreferenceStringValue_e.swFileLocationsDocuments,
+        '        sUserPreference & ";" & myPath)
+        'Next
 
         'TODO: try to change setuserPreference to only be once in this file
 
