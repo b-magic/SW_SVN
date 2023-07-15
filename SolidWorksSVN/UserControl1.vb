@@ -361,6 +361,7 @@ Public Class UserControl1
         For i = 0 To UBound(modDocArray)
             If modDocArray(i) Is Nothing Then Continue For
             allTreeViews(i) = New TreeView
+            allTreeViews(i).Visible = False
             getComponentsOfAssemblyOptionalUpdateTree({modDocArray(i)}, i)
         Next
     End Sub
@@ -399,6 +400,7 @@ Public Class UserControl1
             'End If
 
             If bUpdateTreeView Then
+                allTreeViews(allTreeViewsIndexToUpdate).Visible = False
                 allTreeViews(allTreeViewsIndexToUpdate).Nodes.Clear()
                 parentNode = New TreeNode(sFileNameTemp)
                 parentNode.Tag = modDocArr(0)
