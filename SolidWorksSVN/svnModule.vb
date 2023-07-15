@@ -1,6 +1,8 @@
 ﻿Imports SolidWorks.Interop.sldworks
 Imports SolidWorks.Interop.swconst
+Imports System.Collections.Generic
 Imports System.Configuration
+Imports System.IO
 
 
 Public Module svnModule
@@ -275,6 +277,35 @@ Public Module svnModule
         Using ostreamreader As System.IO.StreamReader = oSVNProcess.StandardError
             output.outputError = ostreamreader.ReadToEnd()
         End Using
+
+        'Using Sync
+        'Dim returnLines(10000) As String
+        'Dim returnError(10000) As String
+
+        'Dim oneReturnLine As String
+        'Dim oneErrorLine As String
+
+        'Dim returnLines As New List(Of String)()
+        'Dim returnError As New List(Of String)()
+        '
+        'Using ostreamreader As System.IO.StreamReader = oSVNProcess.StandardOutput
+        '    oneReturnLine = ostreamreader.ReadLine()
+        '    While Not IsNothing(oneReturnLine)
+        '        returnLines.Add(oneReturnLine)
+        '        oneReturnLine = ostreamreader.ReadLine() 'read next line
+        '    End While
+        'End Using
+        'Using ostreamreader As System.IO.StreamReader = oSVNProcess.StandardError
+        '    oneErrorLine = ostreamreader.ReadLine()
+        '    While Not IsNothing(oneErrorLine)
+        '        returnError.Add(oneErrorLine)
+        '        oneErrorLine = ostreamreader.ReadLine() 'read next line
+        '    End While
+        'End Using
+
+        'output.output = returnLines.ToArray
+        'output.outputError = returnError.ToArray
+
 
         Do While Not oSVNProcess.WaitForExit(iWaitTime)
             'If the process doesn't finish after 10s then kill it and send error message to user

@@ -167,7 +167,7 @@ Public Class UserControl1
         If Not verifyLocalRepoPath(, bCheckLocalFolder:=True, bCheckServer:=False) Then Return False     'Only need to check the local since updateStatusOfAllModelsVariable will check server. 
 
         Dim pathArr() As String = IO.Directory.GetDirectories(localRepoPath.Text, "*.*", IO.SearchOption.AllDirectories)
-        Dim sUserPreference As String
+        'Dim sUserPreference As String
 
         'Set the referenced folder file to the local repository.
         'This will allow solidworks to find the files.

@@ -43,9 +43,9 @@ Partial Class UserControl1
         Me.ToolStripContainer1 = New System.Windows.Forms.ToolStripContainer()
         Me.butCleanup = New System.Windows.Forms.Button()
         Me.StatusStrip2 = New System.Windows.Forms.StatusStrip()
-        Me.TextBox1 = New System.Windows.Forms.TextBox()
         Me.ContextMenuStrip1 = New System.Windows.Forms.ContextMenuStrip(Me.components)
         Me.inclParentAssemblyCheckBox = New System.Windows.Forms.CheckBox()
+        Me.TextBox1 = New System.Windows.Forms.TextBox()
         Me.ToolStrip1.SuspendLayout()
         Me.ToolStripContainer1.LeftToolStripPanel.SuspendLayout()
         Me.ToolStripContainer1.SuspendLayout()
@@ -56,11 +56,11 @@ Partial Class UserControl1
         Me.TreeView1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.TreeView1.Location = New System.Drawing.Point(4, 580)
-        Me.TreeView1.MinimumSize = New System.Drawing.Size(478, 200)
+        Me.TreeView1.Location = New System.Drawing.Point(4, 847)
+        Me.TreeView1.MinimumSize = New System.Drawing.Size(478, 199)
         Me.TreeView1.Name = "TreeView1"
         Me.TreeView1.ShowNodeToolTips = True
-        Me.TreeView1.Size = New System.Drawing.Size(478, 364)
+        Me.TreeView1.Size = New System.Drawing.Size(478, 579)
         Me.TreeView1.TabIndex = 10
         '
         'onlineCheckBox
@@ -68,7 +68,7 @@ Partial Class UserControl1
         Me.onlineCheckBox.AutoSize = True
         Me.onlineCheckBox.Checked = True
         Me.onlineCheckBox.CheckState = System.Windows.Forms.CheckState.Checked
-        Me.onlineCheckBox.Location = New System.Drawing.Point(4, 485)
+        Me.onlineCheckBox.Location = New System.Drawing.Point(4, 753)
         Me.onlineCheckBox.Name = "onlineCheckBox"
         Me.onlineCheckBox.Size = New System.Drawing.Size(80, 24)
         Me.onlineCheckBox.TabIndex = 14
@@ -77,18 +77,18 @@ Partial Class UserControl1
         '
         'localRepoPath
         '
-        Me.localRepoPath.Location = New System.Drawing.Point(3, 450)
+        Me.localRepoPath.Location = New System.Drawing.Point(3, 718)
         Me.localRepoPath.Name = "localRepoPath"
-        Me.localRepoPath.Size = New System.Drawing.Size(507, 26)
+        Me.localRepoPath.Size = New System.Drawing.Size(506, 26)
         Me.localRepoPath.TabIndex = 15
         Me.localRepoPath.Text = "Enter Path to Local Repository"
         '
         'butPickFolder
         '
         Me.butPickFolder.Cursor = System.Windows.Forms.Cursors.Hand
-        Me.butPickFolder.Location = New System.Drawing.Point(103, 482)
+        Me.butPickFolder.Location = New System.Drawing.Point(104, 750)
         Me.butPickFolder.Name = "butPickFolder"
-        Me.butPickFolder.Size = New System.Drawing.Size(101, 25)
+        Me.butPickFolder.Size = New System.Drawing.Size(100, 25)
         Me.butPickFolder.TabIndex = 16
         Me.butPickFolder.Text = "Pick Folder"
         Me.butPickFolder.UseVisualStyleBackColor = True
@@ -96,10 +96,10 @@ Partial Class UserControl1
         'butRefresh
         '
         Me.butRefresh.Cursor = System.Windows.Forms.Cursors.Hand
-        Me.butRefresh.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.butRefresh.Location = New System.Drawing.Point(10, 526)
+        Me.butRefresh.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.butRefresh.Location = New System.Drawing.Point(10, 795)
         Me.butRefresh.Name = "butRefresh"
-        Me.butRefresh.Size = New System.Drawing.Size(101, 44)
+        Me.butRefresh.Size = New System.Drawing.Size(136, 45)
         Me.butRefresh.TabIndex = 17
         Me.butRefresh.Text = "Refresh"
         Me.butRefresh.UseVisualStyleBackColor = True
@@ -113,7 +113,7 @@ Partial Class UserControl1
         Me.ToolStrip1.MaximumSize = New System.Drawing.Size(400, 1000)
         Me.ToolStrip1.Name = "ToolStrip1"
         Me.ToolStrip1.Padding = New System.Windows.Forms.Padding(4, 0, 4, 0)
-        Me.ToolStrip1.Size = New System.Drawing.Size(251, 373)
+        Me.ToolStrip1.Size = New System.Drawing.Size(251, 612)
         Me.ToolStrip1.Stretch = True
         Me.ToolStrip1.TabIndex = 0
         '
@@ -152,13 +152,13 @@ Partial Class UserControl1
         'dropDownCommitWithDependents
         '
         Me.dropDownCommitWithDependents.Name = "dropDownCommitWithDependents"
-        Me.dropDownCommitWithDependents.Size = New System.Drawing.Size(270, 34)
+        Me.dropDownCommitWithDependents.Size = New System.Drawing.Size(252, 34)
         Me.dropDownCommitWithDependents.Text = "With Dependents"
         '
         'dropDownCommitAll
         '
         Me.dropDownCommitAll.Name = "dropDownCommitAll"
-        Me.dropDownCommitAll.Size = New System.Drawing.Size(270, 34)
+        Me.dropDownCommitAll.Size = New System.Drawing.Size(252, 34)
         Me.dropDownCommitAll.Text = "All"
         '
         'ToolStripDropDownButUnlock
@@ -176,13 +176,13 @@ Partial Class UserControl1
         'dropDownUnlockWithDependents
         '
         Me.dropDownUnlockWithDependents.Name = "dropDownUnlockWithDependents"
-        Me.dropDownUnlockWithDependents.Size = New System.Drawing.Size(270, 34)
+        Me.dropDownUnlockWithDependents.Size = New System.Drawing.Size(252, 34)
         Me.dropDownUnlockWithDependents.Text = "With Dependents"
         '
         'dropDownUnlockAll
         '
         Me.dropDownUnlockAll.Name = "dropDownUnlockAll"
-        Me.dropDownUnlockAll.Size = New System.Drawing.Size(270, 34)
+        Me.dropDownUnlockAll.Size = New System.Drawing.Size(252, 34)
         Me.dropDownUnlockAll.Text = "All"
         '
         'ToolStripDropDownButGetLatest
@@ -200,13 +200,13 @@ Partial Class UserControl1
         'dropDownGetLatestAllOpenFiles
         '
         Me.dropDownGetLatestAllOpenFiles.Name = "dropDownGetLatestAllOpenFiles"
-        Me.dropDownGetLatestAllOpenFiles.Size = New System.Drawing.Size(222, 34)
+        Me.dropDownGetLatestAllOpenFiles.Size = New System.Drawing.Size(270, 34)
         Me.dropDownGetLatestAllOpenFiles.Text = "All Open Files"
         '
         'dropDownGetLatestAll
         '
         Me.dropDownGetLatestAll.Name = "dropDownGetLatestAll"
-        Me.dropDownGetLatestAll.Size = New System.Drawing.Size(222, 34)
+        Me.dropDownGetLatestAll.Size = New System.Drawing.Size(270, 34)
         Me.dropDownGetLatestAll.Text = "All"
         '
         'ToolStripContainer1
@@ -215,46 +215,41 @@ Partial Class UserControl1
         '
         'ToolStripContainer1.ContentPanel
         '
-        Me.ToolStripContainer1.ContentPanel.Size = New System.Drawing.Size(52, 373)
+        Me.ToolStripContainer1.ContentPanel.Size = New System.Drawing.Size(223, 612)
         '
         'ToolStripContainer1.LeftToolStripPanel
         '
         Me.ToolStripContainer1.LeftToolStripPanel.Controls.Add(Me.ToolStrip1)
         Me.ToolStripContainer1.Location = New System.Drawing.Point(10, 3)
+        Me.ToolStripContainer1.MinimumSize = New System.Drawing.Size(474, 612)
         Me.ToolStripContainer1.Name = "ToolStripContainer1"
         Me.ToolStripContainer1.RightToolStripPanelVisible = False
-        Me.ToolStripContainer1.Size = New System.Drawing.Size(303, 373)
+        Me.ToolStripContainer1.Size = New System.Drawing.Size(474, 612)
         Me.ToolStripContainer1.TabIndex = 18
         Me.ToolStripContainer1.Text = "ToolStripContainer1"
         Me.ToolStripContainer1.TopToolStripPanelVisible = False
         '
         'butCleanup
         '
-        Me.butCleanup.BackColor = System.Drawing.SystemColors.ControlLightLight
-        Me.butCleanup.BackgroundImage = Global.SolidWorksSVN.My.Resources.Resources.Cleanup
+        Me.butCleanup.BackColor = System.Drawing.SystemColors.ControlLight
         Me.butCleanup.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
         Me.butCleanup.Cursor = System.Windows.Forms.Cursors.Hand
-        Me.butCleanup.Location = New System.Drawing.Point(117, 526)
+        Me.butCleanup.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.butCleanup.Location = New System.Drawing.Point(153, 796)
         Me.butCleanup.Name = "butCleanup"
-        Me.butCleanup.Size = New System.Drawing.Size(93, 44)
+        Me.butCleanup.Size = New System.Drawing.Size(128, 45)
         Me.butCleanup.TabIndex = 12
+        Me.butCleanup.Text = "Clean Up"
         Me.butCleanup.UseVisualStyleBackColor = False
         '
         'StatusStrip2
         '
         Me.StatusStrip2.ImageScalingSize = New System.Drawing.Size(24, 24)
-        Me.StatusStrip2.Location = New System.Drawing.Point(0, 947)
+        Me.StatusStrip2.Location = New System.Drawing.Point(0, 1429)
         Me.StatusStrip2.Name = "StatusStrip2"
-        Me.StatusStrip2.Size = New System.Drawing.Size(541, 22)
+        Me.StatusStrip2.Padding = New System.Windows.Forms.Padding(2, 0, 14, 0)
+        Me.StatusStrip2.Size = New System.Drawing.Size(542, 22)
         Me.StatusStrip2.TabIndex = 19
-        '
-        'TextBox1
-        '
-        Me.TextBox1.Location = New System.Drawing.Point(459, 249)
-        Me.TextBox1.Name = "TextBox1"
-        Me.TextBox1.Size = New System.Drawing.Size(51, 26)
-        Me.TextBox1.TabIndex = 20
-        Me.TextBox1.Text = "v0.1"
         '
         'ContextMenuStrip1
         '
@@ -265,19 +260,27 @@ Partial Class UserControl1
         'inclParentAssemblyCheckBox
         '
         Me.inclParentAssemblyCheckBox.AutoSize = True
-        Me.inclParentAssemblyCheckBox.Location = New System.Drawing.Point(3, 401)
+        Me.inclParentAssemblyCheckBox.Location = New System.Drawing.Point(3, 670)
         Me.inclParentAssemblyCheckBox.Name = "inclParentAssemblyCheckBox"
-        Me.inclParentAssemblyCheckBox.Size = New System.Drawing.Size(315, 36)
+        Me.inclParentAssemblyCheckBox.Size = New System.Drawing.Size(210, 24)
         Me.inclParentAssemblyCheckBox.TabIndex = 21
         Me.inclParentAssemblyCheckBox.Text = "Include Parent Assembly"
         Me.inclParentAssemblyCheckBox.UseVisualStyleBackColor = True
+        '
+        'TextBox1
+        '
+        Me.TextBox1.Location = New System.Drawing.Point(501, 226)
+        Me.TextBox1.Name = "TextBox1"
+        Me.TextBox1.Size = New System.Drawing.Size(38, 26)
+        Me.TextBox1.TabIndex = 22
+        Me.TextBox1.Text = "0.13"
         '
         'UserControl1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 20.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.Controls.Add(Me.inclParentAssemblyCheckBox)
         Me.Controls.Add(Me.TextBox1)
+        Me.Controls.Add(Me.inclParentAssemblyCheckBox)
         Me.Controls.Add(Me.StatusStrip2)
         Me.Controls.Add(Me.ToolStripContainer1)
         Me.Controls.Add(Me.butRefresh)
@@ -288,7 +291,7 @@ Partial Class UserControl1
         Me.Controls.Add(Me.TreeView1)
         Me.Margin = New System.Windows.Forms.Padding(4, 5, 4, 5)
         Me.Name = "UserControl1"
-        Me.Size = New System.Drawing.Size(541, 969)
+        Me.Size = New System.Drawing.Size(542, 1451)
         Me.ToolStrip1.ResumeLayout(False)
         Me.ToolStrip1.PerformLayout()
         Me.ToolStripContainer1.LeftToolStripPanel.ResumeLayout(False)
@@ -319,7 +322,7 @@ Partial Class UserControl1
     Friend WithEvents ToolStripDropDownButGetLatest As Windows.Forms.ToolStripSplitButton
     Friend WithEvents dropDownGetLatestAllOpenFiles As Windows.Forms.ToolStripMenuItem
     Friend WithEvents dropDownGetLatestAll As Windows.Forms.ToolStripMenuItem
-    Friend WithEvents TextBox1 As TextBox
     Friend WithEvents ContextMenuStrip1 As ContextMenuStrip
     Friend WithEvents inclParentAssemblyCheckBox As CheckBox
+    Friend WithEvents TextBox1 As TextBox
 End Class
