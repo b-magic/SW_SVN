@@ -401,7 +401,15 @@ Public Class UserControl1
 
             If bUpdateTreeView Then
                 allTreeViews(allTreeViewsIndexToUpdate).Visible = False
-                allTreeViews(allTreeViewsIndexToUpdate).Nodes.Clear()
+
+
+                'For k = 0 To (allTreeViews(allTreeViewsIndexToUpdate).Nodes.Count - 1)
+                '    allTreeViews(allTreeViewsIndexToUpdate).Nodes(0).Remove()
+                'Next
+                'allTreeViews(allTreeViewsIndexToUpdate).Nodes.Clear() ' <- HAS A BUG THAT FREEZES IN INTERNAL LOOP
+                allTreeViews(allTreeViewsIndexToUpdate) = Nothing
+                allTreeViews(allTreeViewsIndexToUpdate) = New TreeView
+
                 parentNode = New TreeNode(sFileNameTemp)
                 parentNode.Tag = modDocArr(0)
             End If
@@ -433,7 +441,7 @@ Public Class UserControl1
         End If
 
         Dim mdComponentArr() As ModelDoc2 = modelDocList.ToArray
-        If bUpdateTreeView Then allTreeViews(allTreeViewsIndexToUpdate).Nodes.Add(parentNode)
+        If bUpdateTreeView Then allTreeViews(allTreeViewsIndexToUpdate).Nodes.Add(parentNode)   'Do we really need this??
 
         Return mdComponentArr
     End Function
