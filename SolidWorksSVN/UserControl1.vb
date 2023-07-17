@@ -525,7 +525,7 @@ Public Class UserControl1
         Public getLocksStealLabel As New ToolStripMenuItem("Get Lock (Steal Locks)", My.Resources.CheckOutActive, AddressOf getLockStealLockEventHandler)
         Public getLockActiveDoc As New ToolStripMenuItem("Get Lock Doc", My.Resources.CheckOutActive, AddressOf getLockActiveDocEventHandler)
         Public getLockWithDependents As New ToolStripMenuItem("Get Lock With Dependents", My.Resources.CheckOutWithDependents, AddressOf getLocksActiveWithDependentsEventHandler)
-        Public addToRepo As New ToolStripMenuItem("Add & Initial Commit", , AddressOf addToRepoEventHandler)
+        Public addToRepo As New ToolStripMenuItem("Add & Initial Commit", My.Resources.VaultLogo128, AddressOf addToRepoEventHandler)
         Public Sub New(modDocInput As ModelDoc2, iSwAppInput As SldWorks, parentUserControl As UserControl1)
             modDoc = modDocInput 'compInput.GetModelDoc2
             'comp = compInput
