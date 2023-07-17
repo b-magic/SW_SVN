@@ -200,13 +200,13 @@ Partial Class UserControl1
         'dropDownGetLatestAllOpenFiles
         '
         Me.dropDownGetLatestAllOpenFiles.Name = "dropDownGetLatestAllOpenFiles"
-        Me.dropDownGetLatestAllOpenFiles.Size = New System.Drawing.Size(270, 34)
+        Me.dropDownGetLatestAllOpenFiles.Size = New System.Drawing.Size(222, 34)
         Me.dropDownGetLatestAllOpenFiles.Text = "All Open Files"
         '
         'dropDownGetLatestAll
         '
         Me.dropDownGetLatestAll.Name = "dropDownGetLatestAll"
-        Me.dropDownGetLatestAll.Size = New System.Drawing.Size(270, 34)
+        Me.dropDownGetLatestAll.Size = New System.Drawing.Size(222, 34)
         Me.dropDownGetLatestAll.Text = "All"
         '
         'ToolStripContainer1

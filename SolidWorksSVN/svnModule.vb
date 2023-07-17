@@ -97,8 +97,8 @@ Public Module svnModule
         Dim Index As Integer
         Dim response As Integer
 
-        'Dim sw As New Stopwatch
-        'sw.Start()
+        Dim sw As New Stopwatch
+        sw.Start()
 
         'SVNstartInfo.Arguments = "status " & If(bCheckServer, "-u ", "") & "-v --non-interactive E:\SolidworksBackup\svn " 'sFilePathCat 
 
@@ -233,8 +233,8 @@ Public Module svnModule
         If j > 0 Then ReDim Preserve output.fp(j - 1)
         If m > 0 Then ReDim Preserve statusOfAllOpenModels.fp(m - 1)
 
-        'sw.Stop()
-        'Debug.WriteLine("getFileSVNStatus Time Taken: " + sw.Elapsed.TotalMilliseconds.ToString("#,##0.00 'milliseconds'"))
+        sw.Stop()
+        Debug.WriteLine("getFileSVNStatus Time Taken: " + sw.Elapsed.TotalMilliseconds.ToString("#,##0.00 'milliseconds'"))
 
         If IsNothing(modDocArr) Then
             Return statusOfAllOpenModels
@@ -502,6 +502,13 @@ Public Module svnModule
                     "to open a file that SolidWorks is currently accessing. This occurs even when the file is read only. " &
                     "Try closing all open files and trying again. Or close SolidWorks and use ToroiseSVN to clean up. ")
         End If
+    End Sub
+    Public Sub addtoRepoFunc(ByRef modDocArr() As ModelDoc2)
+        Dim bSuccess As Boolean
+        If Not verifyLocalRepoPath() Then Exit Sub
+        runTortoiseProcexeWithMonitor("/command:add /path:" & formatModDocArrForTortoiseProc(modDocArr) & " /closeonend:3")
+        commitDocs(modDocArr)
+
     End Sub
     Public Sub getLocksOfDocs(ByRef modDocArr() As ModelDoc2)
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()

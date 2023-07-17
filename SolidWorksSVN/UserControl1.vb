@@ -525,6 +525,7 @@ Public Class UserControl1
         Public getLocksStealLabel As New ToolStripMenuItem("Get Lock (Steal Locks)", My.Resources.CheckOutActive, AddressOf getLockStealLockEventHandler)
         Public getLockActiveDoc As New ToolStripMenuItem("Get Lock Doc", My.Resources.CheckOutActive, AddressOf getLockActiveDocEventHandler)
         Public getLockWithDependents As New ToolStripMenuItem("Get Lock With Dependents", My.Resources.CheckOutWithDependents, AddressOf getLocksActiveWithDependentsEventHandler)
+        Public addToRepo As New ToolStripMenuItem("Add & Initial Commit", , AddressOf addToRepoEventHandler)
         Public Sub New(modDocInput As ModelDoc2, iSwAppInput As SldWorks, parentUserControl As UserControl1)
             modDoc = modDocInput 'compInput.GetModelDoc2
             'comp = compInput
@@ -564,7 +565,10 @@ Public Class UserControl1
         Sub getLocksActiveWithDependentsEventHandler(sender As Object, e As EventArgs)
             getLocksOfDocs(parentUserControl2.getComponentsOfAssemblyOptionalUpdateTree(parentUserControl2.GetSelectedModDocList(iSwApp2)))
         End Sub
+        Sub addToRepoEventHandler(sender As Object, e As EventArgs)
 
+            addToRepoFunc(parentUserControl2.GetSelectedModDocList(iSwApp2))
+        End Sub
     End Class
     Sub setNodeColorFromStatus(
         ByRef rootNode As TreeNode)
@@ -647,6 +651,10 @@ Public Class UserControl1
         ElseIf status1.fp(0).addDelChg1 = "?" Then
             rootNode.BackColor = myCol.notOnVault
             rootNode.ToolTipText = "File is not saved the to the Vault"
+            If bModelDocAttached Then
+                docMenu.Items.Add(myContextMenu.addToRepo)
+            End If
+
         ElseIf status1.fp(0).lock6 = " " Then
             rootNode.BackColor = myCol.available
             rootNode.ToolTipText = "Available"
@@ -731,4 +739,5 @@ Public Class UserControl1
             'Drawing.Color.Bisque 'Drawing.Color.FromArgb(255, 77, 77) 'light red
         End Sub
     End Class
+
 End Class
