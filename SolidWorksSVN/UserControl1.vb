@@ -129,11 +129,15 @@ Public Class UserControl1
     End Sub
 
     Private Sub butRefresh_Click(sender As Object, e As EventArgs) Handles butRefresh.Click
+
+        'CLEANUP
         statusOfAllOpenModels = New SVNStatus
         statusOfAllOpenModels.updateFromSvnServer(bRefreshAllTreeViews:=True)
         switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
 
         statusOfAllOpenModels.setReadWriteFromLockStatus()
+
+        refreshAddIn()
     End Sub
 
     ' ### Clean Up
