@@ -336,6 +336,11 @@ Public Module svnModule
     Sub unlockDocs(Optional ByRef modDocArr() As ModelDoc2 = Nothing)
         Dim bSuccess As Boolean
         Dim Status As SVNStatus
+        Dim userPickMsg As swMessageBoxResult_e
+
+        userPickMsg = iSwApp.SendMsgToUser2("Release Locks, and revert changes to vault version?" & vbCrLf & "WARNING: Changes to the selected files will be lost, whether saved locally or not!",
+                              Icon:=swMessageBoxIcon_e.swMbWarning, Buttons:=swMessageBoxBtn_e.swMbOkCancel)
+        If userPickMsg = swMessageBoxResult_e.swMbHitCancel Then Exit Sub
 
         If IsNothing(modDocArr) Then
             If Not verifyLocalRepoPath() Then Exit Sub
@@ -680,6 +685,7 @@ Public Module svnModule
                 'sFileListToUpdate(j) = mySVNStatus.fp(i).filename : 
                 status.fp(i).revertUpdate = getLatestType.update
                 sFileList(j) = status.fp(i).filename
+                'status.fp(i).bReconnect = True 'Should be set in releaseFileSystemAccessToReadOnlyModels
                 j += 1
             ElseIf (status.fp(i).addDelChg1 = "M") And (myGetType = getLatestType.revert) And (statusOfAllOpenModels.fp(i).lock6 <> "K") Then
                 ' Local copy has been modified
@@ -701,7 +707,7 @@ Public Module svnModule
             Exit Sub
         End If
 
-        status.releaseFileSystemAccessToReadOnlyModels()
+        status.releaseFileSystemAccessToReadOnlyModels() 'This should be setting bReconnect to True
 
         'HELP
         sFileList = status.sFilterGetLatestType(getLatestType.revert, bIgnoreUpdate:=False)
@@ -715,6 +721,10 @@ Public Module svnModule
             bSuccess = runTortoiseProcexeWithMonitor("/command:update /path:" & formatFilePathArrForTortoiseProc(sFileList) & " /closeonend:3")
             If Not bSuccess Then iSwApp.SendMsgToUserv("Updating Files Failed.")
         End If
+
+        'What happens if user cancels any items in tortoise window???
+
+        'status.setReadWriteFromLockStatus()
 
         status.reattachDocsToFileSystem()
 

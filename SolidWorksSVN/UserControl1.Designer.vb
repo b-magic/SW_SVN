@@ -56,11 +56,11 @@ Partial Class UserControl1
         Me.TreeView1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.TreeView1.Location = New System.Drawing.Point(4, 847)
+        Me.TreeView1.Location = New System.Drawing.Point(4, 832)
         Me.TreeView1.MinimumSize = New System.Drawing.Size(478, 199)
         Me.TreeView1.Name = "TreeView1"
         Me.TreeView1.ShowNodeToolTips = True
-        Me.TreeView1.Size = New System.Drawing.Size(478, 579)
+        Me.TreeView1.Size = New System.Drawing.Size(478, 594)
         Me.TreeView1.TabIndex = 10
         '
         'onlineCheckBox
@@ -77,7 +77,7 @@ Partial Class UserControl1
         '
         'localRepoPath
         '
-        Me.localRepoPath.Location = New System.Drawing.Point(3, 718)
+        Me.localRepoPath.Location = New System.Drawing.Point(3, 703)
         Me.localRepoPath.Name = "localRepoPath"
         Me.localRepoPath.Size = New System.Drawing.Size(506, 26)
         Me.localRepoPath.TabIndex = 15
@@ -86,7 +86,7 @@ Partial Class UserControl1
         'butPickFolder
         '
         Me.butPickFolder.Cursor = System.Windows.Forms.Cursors.Hand
-        Me.butPickFolder.Location = New System.Drawing.Point(104, 750)
+        Me.butPickFolder.Location = New System.Drawing.Point(104, 735)
         Me.butPickFolder.Name = "butPickFolder"
         Me.butPickFolder.Size = New System.Drawing.Size(100, 25)
         Me.butPickFolder.TabIndex = 16
@@ -97,7 +97,7 @@ Partial Class UserControl1
         '
         Me.butRefresh.Cursor = System.Windows.Forms.Cursors.Hand
         Me.butRefresh.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.butRefresh.Location = New System.Drawing.Point(10, 795)
+        Me.butRefresh.Location = New System.Drawing.Point(10, 780)
         Me.butRefresh.Name = "butRefresh"
         Me.butRefresh.Size = New System.Drawing.Size(136, 45)
         Me.butRefresh.TabIndex = 17
@@ -113,19 +113,19 @@ Partial Class UserControl1
         Me.ToolStrip1.MaximumSize = New System.Drawing.Size(400, 1000)
         Me.ToolStrip1.Name = "ToolStrip1"
         Me.ToolStrip1.Padding = New System.Windows.Forms.Padding(4, 0, 4, 0)
-        Me.ToolStrip1.Size = New System.Drawing.Size(251, 612)
+        Me.ToolStrip1.Size = New System.Drawing.Size(200, 612)
         Me.ToolStrip1.Stretch = True
         Me.ToolStrip1.TabIndex = 0
         '
         'ToolStripDropDownButGetLocks
         '
-        Me.ToolStripDropDownButGetLocks.DropDownButtonWidth = 30
+        Me.ToolStripDropDownButGetLocks.DropDownButtonWidth = 40
         Me.ToolStripDropDownButGetLocks.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.dropDownGetLocksWithDependents})
         Me.ToolStripDropDownButGetLocks.Image = Global.SolidWorksSVN.My.Resources.Resources.GetLocksIconOnly
         Me.ToolStripDropDownButGetLocks.ImageTransparentColor = System.Drawing.Color.Magenta
         Me.ToolStripDropDownButGetLocks.Name = "ToolStripDropDownButGetLocks"
         Me.ToolStripDropDownButGetLocks.Padding = New System.Windows.Forms.Padding(4)
-        Me.ToolStripDropDownButGetLocks.Size = New System.Drawing.Size(242, 79)
+        Me.ToolStripDropDownButGetLocks.Size = New System.Drawing.Size(191, 79)
         Me.ToolStripDropDownButGetLocks.Text = "Get Locks"
         Me.ToolStripDropDownButGetLocks.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText
         '
@@ -137,13 +137,13 @@ Partial Class UserControl1
         '
         'ToolStripDropDownButCommit
         '
-        Me.ToolStripDropDownButCommit.DropDownButtonWidth = 30
+        Me.ToolStripDropDownButCommit.DropDownButtonWidth = 40
         Me.ToolStripDropDownButCommit.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.dropDownCommitWithDependents, Me.dropDownCommitAll})
         Me.ToolStripDropDownButCommit.Image = Global.SolidWorksSVN.My.Resources.Resources.Commit_Icon_Only
         Me.ToolStripDropDownButCommit.ImageTransparentColor = System.Drawing.Color.Magenta
         Me.ToolStripDropDownButCommit.Name = "ToolStripDropDownButCommit"
         Me.ToolStripDropDownButCommit.Padding = New System.Windows.Forms.Padding(4)
-        Me.ToolStripDropDownButCommit.Size = New System.Drawing.Size(242, 79)
+        Me.ToolStripDropDownButCommit.Size = New System.Drawing.Size(191, 79)
         Me.ToolStripDropDownButCommit.Tag = "butTagCommit"
         Me.ToolStripDropDownButCommit.Text = "Commit"
         Me.ToolStripDropDownButCommit.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText
@@ -163,14 +163,14 @@ Partial Class UserControl1
         '
         'ToolStripDropDownButUnlock
         '
-        Me.ToolStripDropDownButUnlock.DropDownButtonWidth = 30
+        Me.ToolStripDropDownButUnlock.DropDownButtonWidth = 40
         Me.ToolStripDropDownButUnlock.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.dropDownUnlockWithDependents, Me.dropDownUnlockAll})
         Me.ToolStripDropDownButUnlock.Image = Global.SolidWorksSVN.My.Resources.Resources.unlockIconOnly1
         Me.ToolStripDropDownButUnlock.ImageTransparentColor = System.Drawing.Color.Magenta
         Me.ToolStripDropDownButUnlock.Name = "ToolStripDropDownButUnlock"
         Me.ToolStripDropDownButUnlock.Padding = New System.Windows.Forms.Padding(4)
-        Me.ToolStripDropDownButUnlock.Size = New System.Drawing.Size(242, 79)
-        Me.ToolStripDropDownButUnlock.Text = "Release Lock and Revert"
+        Me.ToolStripDropDownButUnlock.Size = New System.Drawing.Size(191, 79)
+        Me.ToolStripDropDownButUnlock.Text = "Unlock && Revert"
         Me.ToolStripDropDownButUnlock.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText
         '
         'dropDownUnlockWithDependents
@@ -187,13 +187,13 @@ Partial Class UserControl1
         '
         'ToolStripDropDownButGetLatest
         '
-        Me.ToolStripDropDownButGetLatest.DropDownButtonWidth = 30
+        Me.ToolStripDropDownButGetLatest.DropDownButtonWidth = 40
         Me.ToolStripDropDownButGetLatest.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.dropDownGetLatestAllOpenFiles, Me.dropDownGetLatestAll})
         Me.ToolStripDropDownButGetLatest.Image = Global.SolidWorksSVN.My.Resources.Resources.GetLatestIconOnly
         Me.ToolStripDropDownButGetLatest.ImageTransparentColor = System.Drawing.Color.Magenta
         Me.ToolStripDropDownButGetLatest.Name = "ToolStripDropDownButGetLatest"
         Me.ToolStripDropDownButGetLatest.Padding = New System.Windows.Forms.Padding(4)
-        Me.ToolStripDropDownButGetLatest.Size = New System.Drawing.Size(242, 79)
+        Me.ToolStripDropDownButGetLatest.Size = New System.Drawing.Size(191, 79)
         Me.ToolStripDropDownButGetLatest.Text = "Get Latest"
         Me.ToolStripDropDownButGetLatest.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText
         '
@@ -215,7 +215,7 @@ Partial Class UserControl1
         '
         'ToolStripContainer1.ContentPanel
         '
-        Me.ToolStripContainer1.ContentPanel.Size = New System.Drawing.Size(223, 612)
+        Me.ToolStripContainer1.ContentPanel.Size = New System.Drawing.Size(274, 612)
         '
         'ToolStripContainer1.LeftToolStripPanel
         '
@@ -235,7 +235,7 @@ Partial Class UserControl1
         Me.butCleanup.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch
         Me.butCleanup.Cursor = System.Windows.Forms.Cursors.Hand
         Me.butCleanup.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.butCleanup.Location = New System.Drawing.Point(153, 796)
+        Me.butCleanup.Location = New System.Drawing.Point(153, 781)
         Me.butCleanup.Name = "butCleanup"
         Me.butCleanup.Size = New System.Drawing.Size(128, 45)
         Me.butCleanup.TabIndex = 12
@@ -260,7 +260,7 @@ Partial Class UserControl1
         'inclParentAssemblyCheckBox
         '
         Me.inclParentAssemblyCheckBox.AutoSize = True
-        Me.inclParentAssemblyCheckBox.Location = New System.Drawing.Point(3, 670)
+        Me.inclParentAssemblyCheckBox.Location = New System.Drawing.Point(3, 655)
         Me.inclParentAssemblyCheckBox.Name = "inclParentAssemblyCheckBox"
         Me.inclParentAssemblyCheckBox.Size = New System.Drawing.Size(210, 24)
         Me.inclParentAssemblyCheckBox.TabIndex = 21
@@ -273,7 +273,7 @@ Partial Class UserControl1
         Me.TextBox1.Name = "TextBox1"
         Me.TextBox1.Size = New System.Drawing.Size(38, 26)
         Me.TextBox1.TabIndex = 22
-        Me.TextBox1.Text = "0.13"
+        Me.TextBox1.Text = "0.14"
         '
         'UserControl1
         '

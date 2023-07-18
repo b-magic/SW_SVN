@@ -193,7 +193,7 @@ Public Class SVNStatus
                 ' This allows the file to be overwritten by the New version
                 If fp(i).modDoc.GetType <> swDocumentTypes_e.swDocDRAWING Then
                     'The method doesn't work for Drawings
-                    fp(i).modDoc.ForceReleaseLocks()
+                    fp(i).modDoc.ForceReleaseLocks() 'Forces solidworks to release it's lock on the file, not to be confused with SVN lock.
                     fp(i).bReconnect = True
                 End If
             Else
@@ -204,17 +204,25 @@ Public Class SVNStatus
         Next
     End Sub
     Sub reattachDocsToFileSystem()
+        Dim reloadOrReplaceResult As swComponentReloadError_e
         For i = 0 To UBound(fp)
             If fp(i).modDoc Is Nothing Then Continue For
             'Reattaches the file system to SolidWorks. Whatever that means :p
             If fp(i).bReconnect Then
-                fp(i).modDoc.ReloadOrReplace(
-                    ReadOnly:=True, ReplaceFileName:=False, DiscardChanges:=True)
+                reloadOrReplaceResult = fp(i).modDoc.ReloadOrReplace(
+                    ReadOnly:=True, ReplaceFileName:=Nothing, DiscardChanges:=True)
+                Debug.Print(fp(i).filename & " - Reload/Replace Result: " & reloadOrReplaceResult)
+                fp(i).bReconnect = False 'reset it
             End If
         Next
     End Sub
-    Function updateFromSvnServer(Optional bRefreshAllTreeViews As Boolean = False) As Boolean
+    Function updateFromSvnServer(Optional bRefreshAllTreeViews As Boolean = False, Optional bCheckServerA As Boolean = True) As Boolean
         'iSwApp.EnableBackgroundProcessing = True
+
+        If Not bCheckServerA Then
+            'HAVENT PROGRAMMED THIS YES
+            Return False
+        End If
 
         Dim output As SVNStatus = getFileSVNStatus(bCheckServer:=True, getAllOpenDocs(bMustBeVisible:=False))
         'Dim bProcessingTemp As Boolean = iSwApp.EnableBackgroundProcessing
