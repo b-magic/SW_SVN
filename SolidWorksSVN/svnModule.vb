@@ -333,14 +333,43 @@ Public Module svnModule
         unlockDocs(myUserControl.getComponentsOfAssemblyOptionalUpdateTree(myUserControl.GetSelectedModDocList(iSwApp)))
 
     End Sub
+    Function stringArrToSingleStringWithNewLines(inputStrings() As String, Optional bTrimFileNames As Boolean = False) As String
+        Dim myReturnString As String = ""
+        Dim i As Integer
+
+        If inputStrings Is Nothing Then Return "< no file list available... feature coming in future versions >"
+
+        For i = 0 To UBound(inputStrings)
+            If inputStrings(i) Is Nothing Then Continue For
+
+            If bTrimFileNames Then
+                myReturnString &= System.IO.Path.GetFileName(inputStrings(i)) & vbCrLf
+            Else
+                myReturnString &= inputStrings(i) & vbCrLf
+            End If
+        Next
+
+        Return myReturnString
+    End Function
+    Function userAcceptsLossOfChanges(ByRef modDocArr() As ModelDoc2, Optional msg As String = "") As Boolean
+        Dim userPickMsg As swMessageBoxResult_e
+        userPickMsg = iSwApp.SendMsgToUser2(msg & vbCrLf &
+                                            "WARNING: Changes to the selected files will be lost!" & vbCrLf &
+                                            stringArrToSingleStringWithNewLines(getFilePathsFromModDocArr(modDocArr), bTrimFileNames:=True),
+                              Icon:=swMessageBoxIcon_e.swMbWarning, Buttons:=swMessageBoxBtn_e.swMbOkCancel)
+
+        If userPickMsg = swMessageBoxResult_e.swMbHitOk Then
+            Return True
+        Else
+            Return True
+        End If
+    End Function
+
     Sub unlockDocs(Optional ByRef modDocArr() As ModelDoc2 = Nothing)
         Dim bSuccess As Boolean
         Dim Status As SVNStatus
-        Dim userPickMsg As swMessageBoxResult_e
 
-        userPickMsg = iSwApp.SendMsgToUser2("Release Locks, and revert changes to vault version?" & vbCrLf & "WARNING: Changes to the selected files will be lost, whether saved locally or not!",
-                              Icon:=swMessageBoxIcon_e.swMbWarning, Buttons:=swMessageBoxBtn_e.swMbOkCancel)
-        If userPickMsg = swMessageBoxResult_e.swMbHitCancel Then Exit Sub
+        If Not userAcceptsLossOfChanges(modDocArr, "Release Locks, and revert changes to vault version?") Then Exit Sub
 
         If IsNothing(modDocArr) Then
             If Not verifyLocalRepoPath() Then Exit Sub
@@ -664,6 +693,10 @@ Public Module svnModule
         Dim bSuccess As Boolean
         Dim sw As New Stopwatch
         sw.Start()
+
+        If ((myGetType = getLatestType.both) Or (myGetType = getLatestType.update)) Then
+            If Not userAcceptsLossOfChanges(modDocArr, "Update the following Files to latest vault version?") Then Exit Sub
+        End If
 
         'Update to use getFileSVNStatus so its only the
         If IsNothing(modDocArr) Then
