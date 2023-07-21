@@ -1,4 +1,6 @@
-﻿Imports SolidWorks.Interop.sldworks
+﻿Imports System.Collections.Generic
+Imports System.Linq
+Imports SolidWorks.Interop.sldworks
 Imports SolidWorks.Interop.swconst
 
 Public Class SVNStatus
@@ -69,11 +71,20 @@ Public Class SVNStatus
     End Sub
     Sub setReadWriteFromLockStatus()
         Dim i As Integer
+        Dim temp As String
         'Dim sw = New Stopwatch()
         'sw.Start()
 
         For i = 0 To UBound(fp)
+
             If fp(i).modDoc Is Nothing Then Continue For
+            Try
+                fp(i).modDoc.IsOpenedReadOnly() 'catching error where modDoc2 obj get unattached
+            Catch ex As Exception
+                fp(i).modDoc = Nothing
+                Continue For
+            End Try
+
             If fp(i).lock6 = "K" Then
                 ' The user got a lock! Let's change to write access
                 fp(i).modDoc.SetReadOnlyState(False)
@@ -135,6 +146,56 @@ Public Class SVNStatus
         ReDim Preserve sFilePaths(j - 1)
         Return sFilePaths
     End Function
+    Public Function mFilterGetLatestType(ByRef filter As getLatestType, Optional ByVal bIgnoreUpdate As Boolean = False) As ModelDoc2()
+        'bIgnoreUpdate will ignore the filter out elements where an update is required.
+        Dim modDocArr(UBound(fp)) As ModelDoc2
+        Dim j As Integer = 0
+        For i As Integer = 0 To UBound(fp)
+            If (fp(i).revertUpdate = filter) And Not ((bIgnoreUpdate) And (fp(i).upToDate9 = "*")) Then
+                modDocArr(j) = fp(i).modDoc
+                j += 1
+            End If
+        Next
+        If j = 0 Then Return Nothing
+        Return modDocArr
+    End Function
+    Function mSubsetAndGetModDocArr(ByRef iIndex() As Integer) As ModelDoc2()
+        Dim modelDocList As New List(Of ModelDoc2)()
+
+        For i = 0 To UBound(iIndex)
+            modelDocList.Add(fp(iIndex(i)).modDoc)
+        Next
+
+        Dim returnModDocArr As ModelDoc2() = modelDocList.ToArray
+        Return returnModDocArr
+    End Function
+    Function sSubsetAndGetFileNameArr(ByRef iIndex() As Integer) As String()
+        Dim fileNameList As New List(Of String)()
+
+        For i = 0 To UBound(iIndex)
+            fileNameList.Add(fp(iIndex(i)).filename)
+        Next
+
+        Dim returnFileNameArr As ModelDoc2() = fileNameList.ToArray
+        Return returnFileNameArr
+    End Function
+    Public Function indexFilterGetLatestType(ByRef filter As getLatestType, Optional ByVal bIgnoreUpdate As Boolean = False) As Integer()
+        'bIgnoreUpdate will ignore the filter out elements where an update is required.
+
+        Dim indexList As New List(Of Integer)()
+
+        Dim sPath(UBound(fp)) As String
+        Dim j As Integer = 0
+        For i As Integer = 0 To UBound(fp)
+            If (fp(i).revertUpdate = filter) And Not ((bIgnoreUpdate) And (fp(i).upToDate9 = "*")) Then
+                indexList.Add(i)
+                j += 1
+            End If
+        Next
+        If j = 0 Then Return Nothing
+        Dim iReturnIndex As Integer() = indexList.ToArray
+        Return iReturnIndex
+    End Function
 
     Public Function sFilterGetLatestType(ByRef filter As getLatestType, Optional ByVal bIgnoreUpdate As Boolean = False) As String()
         'bIgnoreUpdate will ignore the filter out elements where an update is required.
@@ -179,22 +240,33 @@ Public Class SVNStatus
         If j = 0 Then Return Nothing
         Return sPath
     End Function
-    Sub releaseFileSystemAccessToReadOnlyModels()
+    Sub releaseFileSystemAccessToRevertOrUpdateModels(Optional index As Integer() = Nothing)
         'Even if files are read-only, they are still "in-use" by Solidworks, so the files cannot be
         ' overwritten by SVN. We have to dettach each file, overwrite with SVN, then reattach.
-        'Dim i As Integer
+        Dim i As Integer
         'Dim k As Integer
         'Dim mdDocsToReattach(UBound(modDocArr)) As ModelDoc2
-        For i = 0 To UBound(fp)
-            If fp(i).modDoc Is Nothing Then Continue For
-            If fp(i).modDoc.IsOpenedReadOnly() Then
+
+        If index Is Nothing Then Exit Sub
+
+        If index(0) = -1 Then
+            'index = Enumerable.Range(0, UBound(fp))
+            ReDim index(UBound(fp))
+            For i = 0 To UBound(fp)
+                index(i) = i
+            Next
+        End If
+
+        For i = 0 To UBound(index)
+            If fp(index(i)).modDoc Is Nothing Then Continue For
+            If fp(index(i)).modDoc.IsOpenedReadOnly() Then
                 ' ForceReleaseLocks is releasing SolidWorks's system lock on the file
                 ' Which prevents other programs (like SVN) from overwriting the file
                 ' This allows the file to be overwritten by the New version
-                If fp(i).modDoc.GetType <> swDocumentTypes_e.swDocDRAWING Then
+                If fp(index(i)).modDoc.GetType <> swDocumentTypes_e.swDocDRAWING Then
                     'The method doesn't work for Drawings
-                    fp(i).modDoc.ForceReleaseLocks() 'Forces solidworks to release it's lock on the file, not to be confused with SVN lock.
-                    fp(i).bReconnect = True
+                    fp(index(i)).modDoc.ForceReleaseLocks() 'Forces solidworks to release it's lock on the file, not to be confused with SVN lock.
+                    fp(index(i)).bReconnect = True
                 End If
             Else
                 ' The user has an obsolete write copy of a file. They'll have to
@@ -203,15 +275,34 @@ Public Class SVNStatus
             End If
         Next
     End Sub
-    Sub reattachDocsToFileSystem()
+    Sub reattachDocsToFileSystem(index As Integer())
+        'Pass -1 to set index as all
         Dim reloadOrReplaceResult As swComponentReloadError_e
-        For i = 0 To UBound(fp)
-            If fp(i).modDoc Is Nothing Then Continue For
+
+        If index Is Nothing Then Exit Sub
+
+        If index(0) = -1 Then
+            'index = Enumerable.Range(0, UBound(fp))
+            ReDim index(UBound(fp))
+            For i = 0 To UBound(fp)
+                index(i) = i
+            Next
+        End If
+
+        For i = 0 To UBound(index)
+            If fp(index(i)).modDoc Is Nothing Then Continue For
+            Try
+                fp(index(i)).modDoc.IsOpenedReadOnly()
+            Catch ex As Exception
+                fp(index(i)).modDoc = Nothing
+                Continue For
+            End Try
+
             'Reattaches the file system to SolidWorks. Whatever that means :p
-            If fp(i).bReconnect Then
-                reloadOrReplaceResult = fp(i).modDoc.ReloadOrReplace(
+            If fp(index(i)).bReconnect Then
+                reloadOrReplaceResult = fp(index(i)).modDoc.ReloadOrReplace(
                     ReadOnly:=True, ReplaceFileName:=Nothing, DiscardChanges:=True)
-                Debug.Print(fp(i).filename & " - Reload/Replace Result: " & reloadOrReplaceResult)
+                Debug.Print(fp(index(i)).filename & " - Reload/Replace Result: " & reloadOrReplaceResult)
                 fp(i).bReconnect = False 'reset it
             End If
         Next

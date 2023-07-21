@@ -312,6 +312,7 @@ Public Class UserControl1
         TreeView1.Nodes.Clear()
         TreeView1.Nodes.Insert(0, clonedNode)
         TreeView1.Nodes(0).Expand()
+        'TreeView1.ExpandAll()
         TreeView1.Show()
 
     End Sub
@@ -480,6 +481,7 @@ Public Class UserControl1
         Debug.Print(swComp.GetPathName())
 
         vChildComp = swComp.GetChildren
+        If vChildComp Is Nothing Then Exit Sub 'I dunno why this would happen, but gotta prevent errors. Maybe all the children are lightweight??
         For i = 0 To UBound(vChildComp)
             swChildComp = vChildComp(i)
             Debug.Print(swChildComp.GetPathName())
@@ -499,9 +501,11 @@ Public Class UserControl1
                 End If
 
                 mdComponentList.Add(modDocChild)
-            Else
+            ElseIf modDocChild.GetType = swDocumentTypes_e.swDocASSEMBLY Then
                 'Is assembly
                 TraverseComponent(swChildComp, mdComponentList, nLevel + 1, parentNode)
+            Else
+                Exit Sub
             End If
         Next i
 

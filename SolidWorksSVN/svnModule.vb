@@ -333,13 +333,15 @@ Public Module svnModule
         unlockDocs(myUserControl.getComponentsOfAssemblyOptionalUpdateTree(myUserControl.GetSelectedModDocList(iSwApp)))
 
     End Sub
-    Function stringArrToSingleStringWithNewLines(inputStrings() As String, Optional bTrimFileNames As Boolean = False) As String
+    Function stringArrToSingleStringWithNewLines(inputStrings() As String, Optional bTrimFileNames As Boolean = False, Optional iLimit As Integer = 99999) As String
         Dim myReturnString As String = ""
         Dim i As Integer
 
         If inputStrings Is Nothing Then Return "< no file list available... feature coming in future versions >"
 
-        For i = 0 To UBound(inputStrings)
+
+
+        For i = 0 To Math.Min(UBound(inputStrings), iLimit)
             If inputStrings(i) Is Nothing Then Continue For
 
             If bTrimFileNames Then
@@ -349,13 +351,17 @@ Public Module svnModule
             End If
         Next
 
+        If iLimit < UBound(inputStrings) Then
+            myReturnString &= "... And " & UBound(inputStrings) - iLimit & " more..."
+        End If
+
         Return myReturnString
     End Function
     Function userAcceptsLossOfChanges(ByRef modDocArr() As ModelDoc2, Optional msg As String = "") As Boolean
         Dim userPickMsg As swMessageBoxResult_e
         userPickMsg = iSwApp.SendMsgToUser2(msg & vbCrLf &
                                             "WARNING: Changes to the selected files will be lost!" & vbCrLf &
-                                            stringArrToSingleStringWithNewLines(getFilePathsFromModDocArr(modDocArr), bTrimFileNames:=True),
+                                            stringArrToSingleStringWithNewLines(getFilePathsFromModDocArr(modDocArr), bTrimFileNames:=True, iLimit:=10),
                               Icon:=swMessageBoxIcon_e.swMbWarning, Buttons:=swMessageBoxBtn_e.swMbOkCancel)
 
         If userPickMsg = swMessageBoxResult_e.swMbHitOk Then
@@ -692,7 +698,8 @@ Public Module svnModule
         Dim status As SVNStatus
         Dim bSuccess As Boolean
         Dim sw As New Stopwatch
-        sw.Start()
+        Dim mfileList() As ModelDoc2
+
 
         If ((myGetType = getLatestType.both) Or (myGetType = getLatestType.update)) Then
             If Not userAcceptsLossOfChanges(modDocArr, "Update the following Files to latest vault version?") Then Exit Sub
@@ -718,7 +725,7 @@ Public Module svnModule
                 'sFileListToUpdate(j) = mySVNStatus.fp(i).filename : 
                 status.fp(i).revertUpdate = getLatestType.update
                 sFileList(j) = status.fp(i).filename
-                'status.fp(i).bReconnect = True 'Should be set in releaseFileSystemAccessToReadOnlyModels
+                'status.fp(i).bReconnect = True 'Should be set in releaseFileSystemAccessToRevertOrUpdateModels
                 j += 1
             ElseIf (status.fp(i).addDelChg1 = "M") And (myGetType = getLatestType.revert) And (statusOfAllOpenModels.fp(i).lock6 <> "K") Then
                 ' Local copy has been modified
@@ -740,31 +747,37 @@ Public Module svnModule
             Exit Sub
         End If
 
-        status.releaseFileSystemAccessToReadOnlyModels() 'This should be setting bReconnect to True
+        sw.Start()
+        System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor
 
-        'HELP
+
+        Dim indexOfFilestoRevert As Integer() = status.indexFilterGetLatestType(getLatestType.revert, bIgnoreUpdate:=False)
+        status.releaseFileSystemAccessToRevertOrUpdateModels(indexOfFilestoRevert) 'This should be setting bReconnect to 
         sFileList = status.sFilterGetLatestType(getLatestType.revert, bIgnoreUpdate:=False)
         If (Not sFileList Is Nothing) And ((myGetType = getLatestType.revert) Or (myGetType = getLatestType.both)) Then
             bSuccess = runTortoiseProcexeWithMonitor("/command:revert /path:" &
                                           formatFilePathArrForTortoiseProc(sFileList) & " /closeonend:3")
             If Not bSuccess Then iSwApp.SendMsgToUserv("Revert Files Failed.")
         End If
+
+        Dim indexOfFilestoUpdate As Integer() = status.indexFilterGetLatestType(getLatestType.update, bIgnoreUpdate:=False)
+        status.releaseFileSystemAccessToRevertOrUpdateModels(indexOfFilestoUpdate)
         sFileList = status.sFilterGetLatestType(getLatestType.update, bIgnoreUpdate:=False)
         If (Not sFileList Is Nothing) And ((myGetType = getLatestType.update) Or (myGetType = getLatestType.both)) Then
             bSuccess = runTortoiseProcexeWithMonitor("/command:update /path:" & formatFilePathArrForTortoiseProc(sFileList) & " /closeonend:3")
             If Not bSuccess Then iSwApp.SendMsgToUserv("Updating Files Failed.")
         End If
 
-        'What happens if user cancels any items in tortoise window???
+        'What happens if user cancels any items in tortoise window??? Or if tortoiseSVN fails, such as needing clean up
 
-        'status.setReadWriteFromLockStatus()
-
-        status.reattachDocsToFileSystem()
+        status.reattachDocsToFileSystem(indexOfFilestoRevert)
+        status.reattachDocsToFileSystem(indexOfFilestoUpdate)
 
         If updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True) Then
             myUserControl.switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
         End If
 
+        System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default
         sw.Stop()
         Debug.WriteLine("myGetLatestOrRevert Time Taken: " + sw.Elapsed.TotalMilliseconds.ToString("#,##0.00 'milliseconds'"))
     End Sub
