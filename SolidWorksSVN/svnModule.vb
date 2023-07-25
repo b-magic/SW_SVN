@@ -210,10 +210,13 @@ Public Module svnModule
 
         For i = 0 To UBound(sOutputLines)
             Try
-                If sOutputLines(i).Substring(0, 23) = "Status against revision" Then Continue For
+                If sOutputLines(i).Length >= 23 Then
+                    If sOutputLines(i).Substring(0, 23) = "Status against revision" Then Continue For
+                End If
             Catch e As Exception
                 Continue For
             End Try
+
             If sOutputLines(i).Contains("~$") Then Continue For 'Temporary file!
             sFileStartIndex = Strings.InStr(sOutputLines(i), myUserControl.localRepoPath.Text, CompareMethod.Text) - 1
             If sFileStartIndex = -2 Then Continue For
@@ -241,6 +244,7 @@ Public Module svnModule
         Debug.WriteLine("getFileSVNStatus Time Taken: " + sw.Elapsed.TotalMilliseconds.ToString("#,##0.00 'milliseconds'"))
 
         If IsNothing(modDocArr) Then
+            'iSwApp.SendMsgToUser("Unknown error attempting to retrieve SVN Status from server")
             Return statusOfAllOpenModels
         Else
             Return output
