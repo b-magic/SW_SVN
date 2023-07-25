@@ -209,7 +209,11 @@ Public Module svnModule
         statusOfAllOpenModels = output.Clone
 
         For i = 0 To UBound(sOutputLines)
-            If sOutputLines(i).Substring(0, 23) = "Status against revision" Then Continue For
+            Try
+                If sOutputLines(i).Substring(0, 23) = "Status against revision" Then Continue For
+            Catch e As Exception
+                Continue For
+            End Try
             If sOutputLines(i).Contains("~$") Then Continue For 'Temporary file!
             sFileStartIndex = Strings.InStr(sOutputLines(i), myUserControl.localRepoPath.Text, CompareMethod.Text) - 1
             If sFileStartIndex = -2 Then Continue For
