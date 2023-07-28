@@ -14,7 +14,8 @@ Imports System.CodeDom.Compiler
 <ProgId("SVN_AddIn")>
 Public Class UserControl1
 
-    Public WithEvents iSwApp As SldWorks
+    Public WithEvents iSwApp As SolidWorks.Interop.sldworks.SldWorks
+
     'Dim userAddin As SwAddin = New SwAddin() 'couldn't get access to swapp in here!
 
     'Public Const localRepoPath.text As String = "E:\SolidworksBackup\svn"
@@ -426,18 +427,16 @@ Public Class UserControl1
                 End If
                 modelDocList.Add(modDocArr(i))
                 j += 1
-                Continue For
                 'iswApp.SendMsgToUser("Error: Model is not an assembly.")
                 'Throw New System.Exception("modDoc is not an Assembly")
+            Else
+                swConfMgr = modDocArr(i).ConfigurationManager
+                swConf = swConfMgr.ActiveConfiguration
+                swRootComp = swConf.GetRootComponent3(True)
+
+                TraverseComponent(swRootComp, modelDocList, 1, parentNode)
+                j += 1
             End If
-
-            swConfMgr = modDocArr(i).ConfigurationManager
-            swConf = swConfMgr.ActiveConfiguration
-            swRootComp = swConf.GetRootComponent3(True)
-
-            TraverseComponent(swRootComp, modelDocList, 1, parentNode)
-            j += 1
-
         Next
 
         If j = 0 Then
@@ -485,6 +484,7 @@ Public Class UserControl1
         For i = 0 To UBound(vChildComp)
             swChildComp = vChildComp(i)
             Debug.Print(swChildComp.GetPathName())
+            If swChildComp.IsEnvelope Then Continue For 'Skip envelope components
             modDocChild = swChildComp.GetModelDoc2
             If IsNothing(modDocChild) Then
                 Continue For
@@ -575,7 +575,7 @@ Public Class UserControl1
         End Sub
         Sub addToRepoEventHandler(sender As Object, e As EventArgs)
 
-            addToRepoFunc(parentUserControl2.GetSelectedModDocList(iSwApp2))
+            addtoRepoFunc(parentUserControl2.GetSelectedModDocList(iSwApp2))
         End Sub
     End Class
     Sub setNodeColorFromStatus(
