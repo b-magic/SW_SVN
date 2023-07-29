@@ -1,5 +1,7 @@
-﻿Imports System.Collections.Generic
+﻿Imports System.CodeDom
+Imports System.Collections.Generic
 Imports System.Linq
+Imports System.Windows.Forms.VisualStyles.VisualStyleElement
 Imports SolidWorks.Interop.sldworks
 Imports SolidWorks.Interop.swconst
 
@@ -29,6 +31,7 @@ Public Class SVNStatus
         Public tree7 As String
         'col 8 is blank
         Public upToDate9 As String
+        Public iTemp As Byte
     End Structure
     'Structure statusError
     '    Public sMessage As String
@@ -125,26 +128,199 @@ Public Class SVNStatus
 
         fp = newFilePropertyArr
     End Sub
-    Public Function sFilterLocked(Optional bFilterUnlocked As Boolean = False) As String()
-        Dim sFilePaths(UBound(fp)) As String
+    Public Function statusFilter(
+                                 Optional sFiltAddDelChg1 As String = Nothing,
+                                 Optional sFiltPptyMods2 As String = Nothing,
+                                 Optional sFiltWorkingDirLock3 As String = Nothing,
+                                 Optional sFiltAddWithHist4 As String = Nothing,
+                                 Optional sFiltSwitchWParent5 As String = Nothing,
+                                 Optional sFiltLock6 As String = Nothing,
+                                 Optional sFiltTree7 As String = Nothing, 'note: svn leave col 8 blank
+                                 Optional sFiltUpToDate9 As String = Nothing,
+                                 Optional byFiltITemp As Byte = Nothing,
+                                 Optional sFiltFileName As String = Nothing,
+                                 Optional bFiltBReconnect As Boolean = Nothing,
+                                 Optional gltFiltRevertUpdate As getLatestType = Nothing) As SVNStatus
+        'Dim sFilePaths(UBound(fp)) As String
+        Dim returnFunc As SVNStatus
+        Dim newFP(UBound(fp)) As filePpty
         Dim j As Integer = 0
+        Dim iPassFilter As Integer = 0
 
-        For i = 0 To UBound(fp)
-            If (Not bFilterUnlocked) And (fp(i).lock6 = "K") Then
-                sFilePaths(j) = fp(i).filename
-                j = j + 1
-            ElseIf (bFilterUnlocked) And (fp(i).lock6 = " ") Then
-                sFilePaths(j) = fp(i).filename
-                j = j + 1
-            End If
-        Next
+        Dim iNumFilters As Integer =
+            (IsNothing(sFiltAddDelChg1) * 1 + IsNothing(sFiltPptyMods2) * 2 + IsNothing(sFiltWorkingDirLock3) * 4 + IsNothing(sFiltAddWithHist4) * 8 +
+            IsNothing(sFiltSwitchWParent5) * 16 + IsNothing(sFiltLock6) * 32 + IsNothing(sFiltTree7) * 64 + IsNothing(sFiltUpToDate9) * 128 +
+            IsNothing(byFiltITemp) * 256 + IsNothing(sFiltFileName) * 512 + IsNothing(bFiltBReconnect) * 1024 + IsNothing(gltFiltRevertUpdate) * 2048)
 
-        If j = 0 Then
+        If iNumFilters = 0 Then
             Return Nothing
+        ElseIf (iNumFilters = 2) Or (((Math.Log(iNumFilters) / Math.Log(2.0#)) Mod 2) = 0) Then
+            'Fancy way of determining that only one option was selected
+
+            Select Case iNumFilters
+                Case 1
+                    For i = 0 To UBound(fp)
+                        If sFiltAddDelChg1.Contains(fp(i).addDelChg1) Then
+                            newFP(j) = fp(i)
+                            j += 1
+                        End If
+                    Next
+                Case 2
+                    For i = 0 To UBound(fp)
+                        If sFiltPptyMods2.Contains(fp(i).pptyMods2) Then
+                            newFP(j) = fp(i)
+                            j += 1
+                        End If
+                    Next
+                Case 4
+                    For i = 0 To UBound(fp)
+                        If sFiltWorkingDirLock3.Contains(fp(i).workingDirLock3) Then
+                            newFP(j) = fp(i)
+                            j += 1
+                        End If
+                    Next
+                Case 8
+                    For i = 0 To UBound(fp)
+                        If sFiltAddWithHist4.Contains(fp(i).addWithHist4) Then
+                            newFP(j) = fp(i)
+                            j += 1
+                        End If
+                    Next
+                Case 16
+                    For i = 0 To UBound(fp)
+                        If sFiltSwitchWParent5.Contains(fp(i).switchWParent5) Then
+                            newFP(j) = fp(i)
+                            j += 1
+                        End If
+                    Next
+                Case 32
+                    For i = 0 To UBound(fp)
+                        If sFiltLock6.Contains(fp(i).lock6) Then
+                            newFP(j) = fp(i)
+                            j += 1
+                        End If
+                    Next
+                Case 64
+                    For i = 0 To UBound(fp)
+                        If sFiltTree7.Contains(fp(i).tree7) Then
+                            newFP(j) = fp(i)
+                            j += 1
+                        End If
+                    Next
+                Case 128
+                    For i = 0 To UBound(fp)
+                        If sFiltUpToDate9.Contains(fp(i).upToDate9) Then
+                            newFP(j) = fp(i)
+                            j += 1
+                        End If
+                    Next
+                Case 256
+                    For i = 0 To UBound(fp)
+                        If fp(i).iTemp = byFiltITemp Then
+                            newFP(j) = fp(i)
+                            j += 1
+                        End If
+                    Next
+                Case 512
+                    For i = 0 To UBound(fp)
+                        If fp(i).filename = sFiltFileName Then
+                            newFP(j) = fp(i)
+                            j += 1
+                        End If
+                    Next
+                Case 1024
+                    For i = 0 To UBound(fp)
+                        If fp(i).bReconnect = bFiltBReconnect Then
+                            newFP(j) = fp(i)
+                            j += 1
+                        End If
+                    Next
+                Case 2048
+                    For i = 0 To UBound(fp)
+                        If fp(i).revertUpdate = gltFiltRevertUpdate Then
+                            newFP(j) = fp(i)
+                            j += 1
+                        End If
+                    Next
+            End Select
+        Else
+            'more than 1 option was selected
+
+            For i = 0 To UBound(fp)
+                If (IsNothing(sFiltAddDelChg1)) Then
+                ElseIf sFiltAddDelChg1.Contains(fp(i).addDelChg1) Then
+                Else Continue For
+                End If
+
+                If (IsNothing(sFiltPptyMods2)) Then
+                ElseIf sFiltPptyMods2.Contains(fp(i).pptyMods2) Then
+                Else Continue For
+                End If
+
+                If (IsNothing(sFiltWorkingDirLock3)) Then
+                ElseIf sFiltWorkingDirLock3.Contains(fp(i).workingDirLock3) Then
+                Else Continue For
+                End If
+
+                If (IsNothing(sFiltAddWithHist4)) Then
+                ElseIf sFiltAddWithHist4.Contains(fp(i).addWithHist4) Then
+                Else Continue For
+                End If
+
+                If (IsNothing(sFiltSwitchWParent5)) Then
+                ElseIf sFiltSwitchWParent5.Contains(fp(i).switchWParent5) Then
+                Else Continue For
+                End If
+
+                If (IsNothing(sFiltLock6)) Then
+                ElseIf sFiltLock6.Contains(fp(i).lock6) Then
+                Else Continue For
+                End If
+
+                If (IsNothing(sFiltTree7)) Then
+                ElseIf sFiltTree7.Contains(fp(i).tree7) Then
+                Else Continue For
+                End If
+
+                If (IsNothing(sFiltUpToDate9)) Then
+                ElseIf sFiltUpToDate9.Contains(fp(i).upToDate9) Then
+                Else Continue For
+                End If
+
+                If (IsNothing(byFiltITemp)) Then
+                ElseIf fp(i).iTemp = byFiltITemp Then
+                Else Continue For
+                End If
+
+                If (IsNothing(sFiltFileName)) Then
+                ElseIf fp(i).filename = sFiltFileName Then
+                Else Continue For
+                End If
+
+                If (IsNothing(bFiltBReconnect)) Then
+                ElseIf fp(i).bReconnect = bFiltBReconnect Then
+                Else Continue For
+                End If
+
+                If (IsNothing(gltFiltRevertUpdate)) Then
+                ElseIf fp(i).revertUpdate = gltFiltRevertUpdate Then
+                Else Continue For
+                End If
+
+                'made it this far, passed the filter
+                newFP(j) = fp(i)
+                j += 1
+            Next
         End If
 
-        ReDim Preserve sFilePaths(j - 1)
-        Return sFilePaths
+        If j <> 0 Then
+            ReDim Preserve newFP(j - 1)
+            returnFunc = Me.Clone
+            returnFunc.fp = newFP
+            Return returnFunc
+        Else
+            Return Nothing
+        End If
     End Function
     Public Function mFilterGetLatestType(ByRef filter As getLatestType, Optional ByVal bIgnoreUpdate As Boolean = False) As ModelDoc2()
         'bIgnoreUpdate will ignore the filter out elements where an update is required.
@@ -307,13 +483,56 @@ Public Class SVNStatus
             End If
         Next
     End Sub
-    Function updateFromSvnServer(Optional bRefreshAllTreeViews As Boolean = False, Optional bCheckServerA As Boolean = True) As Boolean
-        'iSwApp.EnableBackgroundProcessing = True
+    Function updateLockStatusLocally() As Boolean
 
-        If Not bCheckServerA Then
-            'HAVENT PROGRAMMED THIS YES
+        Dim newOutput As SVNStatus = getFileSVNStatus(bCheckServer:=False, Me.getModDocArr())
+        Dim newOutputFilteredLocked As SVNStatus
+        Dim newOutputFilteredUnlocked As SVNStatus
+        Dim i As Integer
+
+        Try
+            newOutputFilteredLocked = newOutput.statusFilter(sFiltLock6:="K")
+            newOutputFilteredUnlocked = newOutput.statusFilter(sFiltLock6:=" OTB")
+        Catch
+            Return Nothing
+        End Try
+        If IsNothing(newOutput) Then
+            'iSwApp.EnableBackgroundProcessing = False 'bProcessingTemp
+            Return False
+        ElseIf newOutput.fp.Length = 0 Then
+            'iSwApp.EnableBackgroundProcessing = False 'bProcessingTemp
             Return False
         End If
+
+        'First pass
+        For i = 0 To UBound(fp)
+
+            If fp(i).filename = newOutput.fp(i).filename Then
+                'First Try worked
+                fp(i).lock6 = newOutput.fp(i).lock6
+            ElseIf fp(i).lock6 = "K" Then
+                'Search through the unlocked ones from the new svnstatus
+                'there's no point searching through the locked ones from the new svn status
+                For j = 0 To UBound(newOutputFilteredUnlocked.fp)
+                    If fp(i).filename = newOutputFilteredUnlocked.fp(j).filename Then
+                        fp(i).lock6 = newOutputFilteredUnlocked.fp(j).lock6
+                        Exit For
+                    End If
+                Next
+            Else
+                'Old was unlocked; search through the new locked... 
+                For j = 0 To UBound(newOutputFilteredLocked.fp)
+                    If fp(i).filename = newOutputFilteredLocked.fp(j).filename Then
+                        fp(i).lock6 = newOutputFilteredLocked.fp(j).lock6
+                        Exit For
+                    End If
+                Next
+            End If
+        Next
+        Return True
+    End Function
+    Function updateFromSvnServer(Optional bRefreshAllTreeViews As Boolean = False) As Boolean
+        'iSwApp.EnableBackgroundProcessing = True
 
         Dim output As SVNStatus = getFileSVNStatus(bCheckServer:=True, getAllOpenDocs(bMustBeVisible:=False))
         'Dim bProcessingTemp As Boolean = iSwApp.EnableBackgroundProcessing

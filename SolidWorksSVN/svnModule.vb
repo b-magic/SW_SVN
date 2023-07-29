@@ -53,11 +53,14 @@ Public Module svnModule
         statusOfAllOpenModels = statusOfAllOpenModelsPass
 
     End Sub
-
+    Public Function updateLockStatusPublic(Optional bRefreshAllTreeViews As Boolean = True) As Boolean
+        updateLockStatusPublic = statusOfAllOpenModels.updateLockStatusLocally()
+        If bRefreshAllTreeViews Then myUserControl.refreshAllTreeViewsVariable()
+    End Function
     Public Function updateStatusOfAllModelsVariable(Optional bRefreshAllTreeViews As Boolean = False) As Boolean
         Dim bWhatToReturn As Boolean = False
 
-        bWhatToReturn = statusOfAllOpenModels.updateFromSvnServer()
+        bWhatToReturn = statusOfAllOpenModels.updateFromSvnServer(bRefreshAllTreeViews)
 
         If bRefreshAllTreeViews Then
             myUserControl.refreshAllTreeViewsVariable()
@@ -104,7 +107,12 @@ Public Module svnModule
 
         If Not verifyLocalRepoPath(, bCheckLocalFolder:=True, bCheckServer = False) Then Return Nothing 'Don't check server because we will in runSVNProcess
 
-        arguments = "status " & If(bCheckServer, "-u ", "") & "-v --non-interactive """ & myUserControl.localRepoPath.Text.TrimEnd("\\") & """" 'sFilePathCat 
+        If bCheckServer Then
+            'Have to just check the whole file path, because otherwise, svn sends a separate server request for ech individual path sent
+            arguments = "status -uv --non-interactive """ & myUserControl.localRepoPath.Text.TrimEnd("\\") & """" 'sFilePathCat 
+        Else
+            arguments = "status -v --non-interactive " & formatFilePathArrForProc(sModDocPathArr, sDelimiter:=""" """) & """" 'sFilePathCat 
+        End If
 
         'iSwApp.SendMsgToUser(sSVNPath)
         processOutput = runSvnProcess(sSVNPath, arguments)
@@ -276,6 +284,15 @@ Public Module svnModule
 
         'iSwApp.SendMsgToUser(filename & vbCrLf & arguments)
 
+        If arguments.Length > (32768 - 1) Then
+            iSwApp.SendMsgToUser2("Error: Too many arguments sent from the Add-In to TortoiseSVN, " +
+                                  "likely caused by doing an action to too many components." +
+                                  "You can do the action using TortoiseSVN in Windows Explorer," +
+                                  "then back in the Add-in hit the Refresh command.",
+                                    swMessageBoxIcon_e.swMbStop, swMessageBoxBtn_e.swMbOk)
+            Return Nothing 'Avoids error. https://stackoverflow.com/questions/9115279/commandline-argument-parameter-limitation
+        End If
+
         oSVNProcess.Start()
 
         'Using Sync
@@ -394,7 +411,7 @@ Public Module svnModule
             Status = getFileSVNStatus(bCheckServer:=True, modDocArr)
             If IsNothing(Status) Then Exit Sub
 
-            Dim sFilePaths() As String = Status.sFilterLocked
+            Dim sFilePaths() As String = sGetFileNames(Status.statusFilter(sFiltLock6:="K"))
 
             If IsNothing(sFilePaths) Then
                 iSwApp.SendMsgToUser2("No Selected Items were locked", swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbOk)
@@ -402,7 +419,7 @@ Public Module svnModule
             End If
 
             bSuccess = runTortoiseProcexeWithMonitor("/command:unlock /path:" &
-                                             formatFilePathArrForTortoiseProc(
+                                             formatFilePathArrForProc(
                                                 sFilePaths) & " /closeonend:3")
 
             'for each moddoc in moddocarr
@@ -458,13 +475,12 @@ Public Module svnModule
         save3AndShowErrorMessages(modDocArr)
 
         bSuccess = runTortoiseProcexeWithMonitor("/command:commit /path:" &
-                                                 formatFilePathArrForTortoiseProc(
+                                                 formatFilePathArrForProc(
                                                     getFilePathsFromModDocArr(modDocArr)) & " /closeonend:3")
         If Not bSuccess Then iSwApp.SendMsgToUser("Tortoise App Failed.") : Exit Sub
 
-        bSuccess = updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True)
+        bSuccess = updateLockStatusPublic(bRefreshAllTreeViews:=True)
         If Not bSuccess Then Exit Sub
-
         myUserControl.switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
         statusOfAllOpenModels.setReadWriteFromLockStatus()
     End Sub
@@ -491,9 +507,8 @@ Public Module svnModule
 
         'Dim sOpenDocPath() As String = getFilePathsFromModDoiSwApp.SendMsgToUser("Active Document not found") cArr(OpenDocModels)
 
-        bSuccess = updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True)
+        bSuccess = updateLockStatusPublic(bRefreshAllTreeViews:=True)
         If Not bSuccess Then Exit Sub
-
         myUserControl.switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
         statusOfAllOpenModels.setReadWriteFromLockStatus()
 
@@ -600,15 +615,13 @@ Public Module svnModule
             iSwApp.SendMsgToUser("No Files available to be locked.")
             Exit Sub
         End If
-        bSuccess = runTortoiseProcexeWithMonitor("/command:lock /path:" & formatFilePathArrForTortoiseProc(sDocPathsToCheckout) & " /closeonend:3")
+        bSuccess = runTortoiseProcexeWithMonitor("/command:lock /path:" & formatFilePathArrForProc(sDocPathsToCheckout) & " /closeonend:3")
         If Not bSuccess Then iSwApp.SendMsgToUser("Tortoise Process Locking Failed.") : Exit Sub
         'status = getFileSVNStatus(bCheckServer:=False, modDocArr)
 
-        bSuccess = updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True)
+        bSuccess = updateLockStatusPublic(bRefreshAllTreeViews:=True)
         If Not bSuccess Then Exit Sub
-
         myUserControl.switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
-
         statusOfAllOpenModels.setReadWriteFromLockStatus()
 
         'sw.Stop()
@@ -764,7 +777,7 @@ Public Module svnModule
         sFileList = status.sFilterGetLatestType(getLatestType.revert, bIgnoreUpdate:=False)
         If (Not sFileList Is Nothing) And ((myGetType = getLatestType.revert) Or (myGetType = getLatestType.both)) Then
             bSuccess = runTortoiseProcexeWithMonitor("/command:revert /path:" &
-                                          formatFilePathArrForTortoiseProc(sFileList) & " /closeonend:3")
+                                          formatFilePathArrForProc(sFileList) & " /closeonend:3")
             If Not bSuccess Then iSwApp.SendMsgToUserv("Revert Files Failed.")
         End If
 
@@ -772,7 +785,7 @@ Public Module svnModule
         status.releaseFileSystemAccessToRevertOrUpdateModels(indexOfFilestoUpdate)
         sFileList = status.sFilterGetLatestType(getLatestType.update, bIgnoreUpdate:=False)
         If (Not sFileList Is Nothing) And ((myGetType = getLatestType.update) Or (myGetType = getLatestType.both)) Then
-            bSuccess = runTortoiseProcexeWithMonitor("/command:update /path:" & formatFilePathArrForTortoiseProc(sFileList) & " /closeonend:3")
+            bSuccess = runTortoiseProcexeWithMonitor("/command:update /path:" & formatFilePathArrForProc(sFileList) & " /closeonend:3")
             If Not bSuccess Then iSwApp.SendMsgToUserv("Updating Files Failed.")
         End If
 
@@ -795,23 +808,33 @@ Public Module svnModule
         update
         both
     End Enum
-    Function formatFilePathArrForTortoiseProc(ByRef sFilePathArr() As String) As String
-        Dim sFilePathCat As String = """" '& sFilePathArr(0)
-        Dim bSkipAsterixForFirstOne As Boolean = True
+    Function formatFilePathArrForProc(ByRef sFilePathArr() As String, Optional sDelimiter As String = "*") As String
+        'Use "*" delimiter for tortoiseProc.exe, and " " (space) for SVN.exe
+        'Dim bSkipDelimiterForFirstOne As Boolean = True
+        Dim sFilePathCat As String = ""
+
 
         For i = 0 To sFilePathArr.Length - 1
             If sFilePathArr(i) Is Nothing Then Continue For
             If sFilePathArr(i).Contains("~~") Then Continue For 'skip in-context parts/assemblies.
 
-            If bSkipAsterixForFirstOne Then
-                sFilePathCat &= sFilePathArr(i)
-                bSkipAsterixForFirstOne = False
-            Else
-                sFilePathCat &= "*" & sFilePathArr(i)
-            End If
+            'If bSkipDelimiterForFirstOne Then
+            '    sFilePathCat &= sFilePathArr(i)
+            '    bSkipDelimiterForFirstOne = False
+            'Else
+            sFilePathCat &= sDelimiter & sFilePathArr(i)
+            'End If
 
         Next
-        sFilePathCat &= """"
+
+        sFilePathCat = sFilePathCat.Trim(sDelimiter) 'removes first delimiter
+
+        If sDelimiter = "*" Then             'for tortoiseproc
+            sFilePathCat = """" & sFilePathCat & """"
+        Else
+            'sFilePathCat = sFilePathCat & """"
+        End If
+
         Return sFilePathCat
     End Function
     Function formatModDocArrForTortoiseProc(ByRef modDocArr() As ModelDoc2) As String
@@ -876,6 +899,16 @@ Public Module svnModule
         'System.Diagnostics.Debug.WriteLine("tortoiseProc Time Taken: " + sw.Elapsed.TotalMilliseconds.ToString("#,##0.00 'milliseconds'"))
 
         Return True
+    End Function
+    Public Function sGetFileNames(status As SVNStatus) As String()
+        Dim returnsGetFileNames(UBound(status.fp)) As String
+
+        If status.fp Is Nothing Then Return Nothing
+
+        For i = 0 To UBound(status.fp)
+            returnsGetFileNames(i) = status.fp(i).filename
+        Next
+        Return returnsGetFileNames
     End Function
     Public Function findStatusForFile(ByRef sFileName As String) As SVNStatus
         Dim i As Integer
