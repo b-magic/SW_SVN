@@ -708,6 +708,30 @@ Public Module svnModule
         Return False ' code shouldn't get here...
 
     End Function
+    Public Function sGetDescription(modDoc As ModelDoc2) As String
+        'https://help.solidworks.com/2023/english/api/sldworksapi/Get_Custom_Properties_of_Referenced_Part_Example_VBNET.htm
+        Dim swModelDocExt As ModelDocExtension
+        Dim swCustProp As CustomPropertyManager
+        Dim val As String = ""
+        Dim valout As String = ""
+        Dim bool As Boolean
+        If modDoc Is Nothing Then Return Nothing
+
+        Try
+            swModelDocExt = modDoc.Extension
+
+            swCustProp = swModelDocExt.CustomPropertyManager("")
+            bool = swCustProp.Get4("Property_Name", False, val, valout)
+
+            'Debug.Print("Value:                    " & val)
+            'Debug.Print("Evaluated value:          " & valout)
+            'Debug.Print("Up-to-date data:          " & bool)
+
+            Return ("valout")
+        Catch
+            Return Nothing
+        End Try
+    End Function
 
 
     Sub myGetLatestOrRevert(Optional ByRef modDocArr As ModelDoc2() = Nothing,

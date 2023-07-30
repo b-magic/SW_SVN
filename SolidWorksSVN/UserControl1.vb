@@ -471,8 +471,12 @@ Public Class UserControl1
         Dim tempStatus As SVNStatus = New SVNStatus()
 
         mdComponentList.Add(modDocParent)
+
         If bUC Then
-            parentNode = New TreeNode(sParentFileName)
+
+
+
+            parentNode = New TreeNode(sParentFileName & " " & sGetDescription(modDocParent)) 'consider & " modDocParent.
             parentNode.Tag = swComp 'modDocParent
             setNodeColorFromStatus(parentNode)
         End If
@@ -486,15 +490,13 @@ Public Class UserControl1
             Debug.Print(swChildComp.GetPathName())
             If swChildComp.IsEnvelope Then Continue For 'Skip envelope components
             modDocChild = swChildComp.GetModelDoc2
-            If IsNothing(modDocChild) Then
-                Continue For
-            End If
+            If IsNothing(modDocChild) Then Continue For
             If modDocChild.GetType <> swDocumentTypes_e.swDocASSEMBLY Then
                 'Is part file
                 If mdComponentList.Contains(modDocChild) Then Continue For 'avoid duplicates
                 If bUC Then
                     sChildFileName = System.IO.Path.GetFileName(modDocChild.GetPathName)
-                    childNode = New TreeNode(sChildFileName)
+                    childNode = New TreeNode(sChildFileName & " " & sGetDescription(modDocChild))
                     childNode.Tag = swChildComp 'modDocChild
                     setNodeColorFromStatus(childNode)
                     parentNode.Nodes.Add(childNode)
@@ -624,7 +626,7 @@ Public Class UserControl1
 
         ElseIf status1.fp(0).lock6 = "K" Then
             rootNode.BackColor = myCol.lockedByYou
-            rootNode.ToolTipText = "Checked Out By You"
+            rootNode.ToolTipText = "You have the Lock"
 
             If bModelDocAttached Then
                 If modDoc.GetType = swDocumentTypes_e.swDocASSEMBLY Then
