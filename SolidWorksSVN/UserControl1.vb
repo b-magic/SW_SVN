@@ -445,7 +445,10 @@ Public Class UserControl1
         End If
 
         Dim mdComponentArr() As ModelDoc2 = modelDocList.ToArray
-        If bUpdateTreeView Then allTreeViews(allTreeViewsIndexToUpdate).Nodes.Add(parentNode)   'Do we really need this??
+        If bUpdateTreeView Then
+            allTreeViews(allTreeViewsIndexToUpdate).Sort()
+            allTreeViews(allTreeViewsIndexToUpdate).Nodes.Add(parentNode)   'Do we really need this??
+        End If
 
         Return mdComponentArr
     End Function
@@ -473,9 +476,6 @@ Public Class UserControl1
         mdComponentList.Add(modDocParent)
 
         If bUC Then
-
-
-
             parentNode = New TreeNode(sParentFileName & " " & sGetDescription(modDocParent)) 'consider & " modDocParent.
             parentNode.Tag = swComp 'modDocParent
             setNodeColorFromStatus(parentNode)
@@ -494,6 +494,7 @@ Public Class UserControl1
             If modDocChild.GetType <> swDocumentTypes_e.swDocASSEMBLY Then
                 'Is part file
                 If mdComponentList.Contains(modDocChild) Then Continue For 'avoid duplicates
+
                 If bUC Then
                     sChildFileName = System.IO.Path.GetFileName(modDocChild.GetPathName)
                     childNode = New TreeNode(sChildFileName & " " & sGetDescription(modDocChild))
