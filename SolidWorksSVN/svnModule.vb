@@ -727,7 +727,7 @@ Public Module svnModule
             'Debug.Print("Evaluated value:          " & valout)
             'Debug.Print("Up-to-date data:          " & bool)
 
-            Return ("valout")
+            Return valout
         Catch
             Return Nothing
         End Try
