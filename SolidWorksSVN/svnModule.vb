@@ -934,6 +934,16 @@ Public Module svnModule
         Next
         Return returnsGetFileNames
     End Function
+    Public Function sGetFileNames(modDocArr() As ModelDoc2) As String()
+        Dim returnsGetFileNames(UBound(status.fp)) As String
+
+        If status.fp Is Nothing Then Return Nothing
+
+        For i = 0 To UBound(status.fp)
+            returnsGetFileNames(i) = status.fp(i).filename
+        Next
+        Return returnsGetFileNames
+    End Function
     Public Function findStatusForFile(ByRef sFileName As String) As SVNStatus
         Dim i As Integer
         Dim bSuccess As Boolean

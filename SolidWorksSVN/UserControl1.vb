@@ -476,7 +476,7 @@ Public Class UserControl1
         mdComponentList.Add(modDocParent)
 
         If bUC Then
-            parentNode = New TreeNode(sParentFileName & " " & sGetDescription(modDocParent)) 'consider & " modDocParent.
+            parentNode = New TreeNode(sParentFileName) '& " " & sGetDescription(modDocParent)
             parentNode.Tag = swComp 'modDocParent
             setNodeColorFromStatus(parentNode)
         End If
@@ -497,7 +497,7 @@ Public Class UserControl1
 
                 If bUC Then
                     sChildFileName = System.IO.Path.GetFileName(modDocChild.GetPathName)
-                    childNode = New TreeNode(sChildFileName & " " & sGetDescription(modDocChild))
+                    childNode = New TreeNode(sChildFileName) '& " " & sGetDescription(modDocChild)
                     childNode.Tag = swChildComp 'modDocChild
                     setNodeColorFromStatus(childNode)
                     parentNode.Nodes.Add(childNode)
@@ -581,12 +581,34 @@ Public Class UserControl1
             addtoRepoFunc(parentUserControl2.GetSelectedModDocList(iSwApp2))
         End Sub
     End Class
+    ' TODO
+
+    ' make the treenode tag attach a custom class that contains component, modDoc, filepath, description, maybe all the svnstatus stuff too? 
+    Function getModDocAttachedToNode(rootNode As TreeNode) As ModelDoc2
+        Dim comp As Component2
+
+        If Not IsNothing(rootNode.Tag) Then
+            If TypeOf rootNode.Tag Is Component2 Then
+                comp = rootNode.Tag
+                getModDocAttachedToNode = comp.GetModelDoc2
+            ElseIf TypeOf rootNode.Tag Is ModelDoc2 Then
+
+                getModDocAttachedToNode = rootNode.Tag
+            Else
+                Return Nothing
+            End If
+        Else
+            Return Nothing
+        End If
+        Return getModDocAttachedToNode
+    End Function
+
     Sub setNodeColorFromStatus(
         ByRef rootNode As TreeNode)
 
         Dim myCol As myColours = New myColours()
         myCol.initialize()
-        Dim status1 As SVNStatus = findStatusForFile(rootNode.Text)
+        Dim status1 As SVNStatus
         Dim modDoc As ModelDoc2
         Dim comp As Component2
 
@@ -600,19 +622,13 @@ Public Class UserControl1
         '    rootNode.ContextMenuStrip.Items.Add(myContextMenu.openLabel)
         'End If
 
-        If Not IsNothing(rootNode.Tag) Then
-            If TypeOf rootNode.Tag Is Component2 Then
-                bModelDocAttached = True
-                comp = rootNode.Tag
-                modDoc = comp.GetModelDoc2
-            ElseIf TypeOf rootNode.Tag Is ModelDoc2 Then
-                bModelDocAttached = True
-                modDoc = rootNode.Tag
-            Else
-                bModelDocAttached = False
-            End If
-        Else
+        modDoc = getModDocAttachedToNode(rootNode)
+        status1 = findStatusForFile(rootNode.Text) 'IMPROVE ME FIXME. We want to include description, but still need to find the filename. Try separating by "*" since that is not allowed in filenames
+
+        If modDoc Is Nothing Then
             bModelDocAttached = False
+        Else
+            bModelDocAttached = True
         End If
 
         If bModelDocAttached Then
