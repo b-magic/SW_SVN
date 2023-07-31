@@ -123,6 +123,10 @@ Public Class UserControl1
         updateStatusStrip()
         'myGetLatestAllRepo()
     End Sub
+    Private Sub butFindComponent_Click(sender As Object, e As EventArgs) Handles butFindComponent.Click
+        Dim modDocArr As ModelDoc() = GetSelectedModDocList(iSwApp)
+
+    End Sub
 
     ' ### Refresh
     Private Sub RefreshToolStripMenuItemEventHandler(sender As Object, e As EventArgs)
@@ -528,6 +532,7 @@ Public Class UserControl1
         Dim modDocArr As ModelDoc2()
         Dim parentUserControl2 As UserControl1
         'Dim comp As Component2
+        Public collapse As New ToolStripMenuItem("Collapse", My.Resources.VaultLogo128, AddressOf collapseTreeViewHandler)
         Public openLabel As New ToolStripMenuItem("Open", My.Resources.VaultLogo128, AddressOf openEventHandler)
         Public unlockLabel As New ToolStripMenuItem("Release Lock", My.Resources.ReleaseActive, AddressOf unlockEventHandler)
         Public unlockWithDependentsLabel As New ToolStripMenuItem("Release Lock With Dependents", My.Resources.ReleaseAll, AddressOf unlockWithDependentsEventHandler)
@@ -543,7 +548,9 @@ Public Class UserControl1
             iSwApp2 = iSwAppInput
             parentUserControl2 = parentUserControl
         End Sub
-
+        Sub collapseTreeViewHandler(sender As Object, e As EventArgs)
+            parentUserControl2.TreeView1.CollapseAll()
+        End Sub
         Sub openEventHandler(sender As Object, e As EventArgs)
             iSwApp2.ActivateDoc3(modDoc.GetPathName, True, swRebuildOnActivation_e.swUserDecision, 0)
         End Sub
@@ -698,6 +705,7 @@ Public Class UserControl1
             If bModelDocAttached Then docMenu.Items.AddRange({myContextMenu.openLabel})
 
         End If
+        docMenu.Items.AddRange({myContextMenu.openLabel, myContextMenu.collapse})
 
         rootNode.ContextMenuStrip = docMenu
     End Sub
