@@ -29,11 +29,13 @@ Public Class UserControl1
            Handles MyBase.Load
 
         Dim docMenu As ContextMenuStrip
-        Dim myToolItem As ToolStripMenuItem
+        Dim myrefreshItem, myCollapseItem As ToolStripMenuItem
 
         docMenu = New ContextMenuStrip()
-        myToolItem = New ToolStripMenuItem("Refresh", My.Resources.VaultLogo128, AddressOf RefreshToolStripMenuItemEventHandler)
-        docMenu.Items.AddRange({myToolItem})
+        myrefreshItem = New ToolStripMenuItem("Refresh", My.Resources.VaultLogo128, AddressOf RefreshToolStripMenuItemEventHandler)
+        myCollapseItem = New ToolStripMenuItem("Collapse", My.Resources.VaultLogo128, AddressOf collapseTreeViewHandler2)
+
+        docMenu.Items.AddRange({myrefreshItem, myCollapseItem})
 
         Me.ContextMenuStrip = docMenu
 
@@ -132,7 +134,10 @@ Public Class UserControl1
     Private Sub RefreshToolStripMenuItemEventHandler(sender As Object, e As EventArgs)
         refreshAddIn()
     End Sub
-
+    Private Sub collapseTreeViewHandler2(sender As Object, e As EventArgs)
+        TreeView1.CollapseAll()
+        TreeView1.Nodes(0).Expand()
+    End Sub
     Private Sub butRefresh_Click(sender As Object, e As EventArgs) Handles butRefresh.Click
 
         'CLEANUP
