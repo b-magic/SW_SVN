@@ -646,7 +646,7 @@ Public Class UserControl1
 
         If bModelDocAttached Then
             myContextMenu = New myContextMenuClass(modDoc, iSwApp, Me)
-            docMenu.Items.AddRange({myContextMenu.openLabel})
+            docMenu.Items.AddRange({myContextMenu.openLabel, myContextMenu.collapse})
             'modDoc = rootNode.Tag
         End If
 
@@ -711,7 +711,7 @@ Public Class UserControl1
             If bModelDocAttached Then docMenu.Items.AddRange({myContextMenu.openLabel})
 
         End If
-        docMenu.Items.AddRange({myContextMenu.openLabel, myContextMenu.collapse})
+
 
         rootNode.ContextMenuStrip = docMenu
     End Sub

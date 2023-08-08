@@ -70,6 +70,7 @@ Public Module svnModule
 
     Public Function getFileSVNStatus(ByVal bCheckServer As Boolean,
                               Optional ByRef modDocArr() As ModelDoc2 = Nothing,
+                              Optional ByRef bUpdateStatusOfAllOpenModels As Boolean = True,
                               Optional ByVal iRecursiveLevel As Integer = 0) As SVNStatus
         'Pass sFilePath = Create from the file path
         'Pass modDocArr = create from the modDocArr
@@ -100,6 +101,9 @@ Public Module svnModule
         Dim Index As Integer
         Dim response As Integer
 
+        Dim entireSVNStatus As SVNStatus = New SVNStatus()
+        Dim svnStatusOfPassedModDoc As SVNStatus = New SVNStatus()
+
         Dim sw As New Stopwatch
         sw.Start()
 
@@ -123,10 +127,11 @@ Public Module svnModule
         k = sOutputErrorLines.Length - 1
         'sOutputErrorLines = {""}
 
-        Dim output As SVNStatus = New SVNStatus()
-        statusOfAllOpenModels = output ' Be careful! This does not copy. This makes both point to the same memory! We will split/copy them later if theres no errors.
+
+
+        entireSVNStatus = svnStatusOfPassedModDoc ' Be careful! This does not copy. This makes both point to the same memory! We will split/copy them later if theres no errors.
         'ReDim output.fp(UBound(sOutputLines))
-        ReDim output.fp(sOutputLines.Length - 1)
+        ReDim svnStatusOfPassedModDoc.fp(sOutputLines.Length - 1)
 
         'Error Checking
         If (sOutputErrorLines Is Nothing) Or (sOutputLines Is Nothing) Then
@@ -205,16 +210,16 @@ Public Module svnModule
         If (bCheckServer) Then
             If sOutputLines(0).Substring(0, 23) = "Status against revision" Then
                 iSwApp.SendMsgToUser("Status Returned from SVN Server with No Items") 'If you change the string, change it other places in the code too!
-                Return output
+                Return svnStatusOfPassedModDoc
             ElseIf (sOutputLines.Length = 1) Then
                 'If we are checking the server, we should expect a line 2. If its not there then theres an error.
                 iSwApp.SendMsgToUser("Error: Incomplete SVN Status. Could not Read Line 2. Line 1:" & sOutputLines(0))
-                Return output
+                Return svnStatusOfPassedModDoc
             End If
         End If
 
-        ReDim output.fp(UBound(sOutputLines))
-        statusOfAllOpenModels = output.Clone
+        ReDim svnStatusOfPassedModDoc.fp(UBound(sOutputLines))
+        entireSVNStatus = svnStatusOfPassedModDoc.Clone 'FIXME
 
         For i = 0 To UBound(sOutputLines)
             Try
@@ -234,28 +239,32 @@ Public Module svnModule
             modDocTemp = iSwApp.GetOpenDocumentByName(sFilePathTemp)
             If modDocTemp Is Nothing Then Continue For
 
-            statusOfAllOpenModels.addOutputLineToSVNStatus(sOutputLines(i), m, sFilePathTemp, modDocTemp, bCheckServer)
+            entireSVNStatus.addOutputLineToSVNStatus(sOutputLines(i), m, sFilePathTemp, modDocTemp, bCheckServer)
             m = m + 1
 
             If Not IsNothing(modDocArr) Then
                 Index = svnAddInUtils.findIndexContains(sModDocPathArr, sFilePathTemp)
                 If Index = -1 Then Continue For
-                output.addOutputLineToSVNStatus(sOutputLines(i), j, sFilePathTemp, modDocTemp, bCheckServer)
+                svnStatusOfPassedModDoc.addOutputLineToSVNStatus(sOutputLines(i), j, sFilePathTemp, modDocTemp, bCheckServer)
                 j += 1
             End If
         Next i
 
-        If j > 0 Then ReDim Preserve output.fp(j - 1)
-        If m > 0 Then ReDim Preserve statusOfAllOpenModels.fp(m - 1)
+        If j > 0 Then ReDim Preserve svnStatusOfPassedModDoc.fp(j - 1)
+        If m > 0 Then ReDim Preserve entireSVNStatus.fp(m - 1)
 
         sw.Stop()
         Debug.WriteLine("getFileSVNStatus Time Taken: " + sw.Elapsed.TotalMilliseconds.ToString("#,##0.00 'milliseconds'"))
 
+        If bUpdateStatusOfAllOpenModels Then
+            statusOfAllOpenModels = entireSVNStatus.Clone
+        End If
+
         If IsNothing(modDocArr) Then
             'iSwApp.SendMsgToUser("Unknown error attempting to retrieve SVN Status from server")
-            Return statusOfAllOpenModels
+            Return entireSVNStatus
         Else
-            Return output
+            Return svnStatusOfPassedModDoc
         End If
 
     End Function
@@ -955,13 +964,26 @@ Public Module svnModule
         Return True
     End Function
     Public Function sGetFileNames(status As SVNStatus) As String()
+        If status Is Nothing Then Return Nothing
         Dim returnsGetFileNames(UBound(status.fp)) As String
-
+        Dim i, j As Integer
         If status.fp Is Nothing Then Return Nothing
+        j = 0
 
         For i = 0 To UBound(status.fp)
-            returnsGetFileNames(i) = status.fp(i).filename
+            Try
+                returnsGetFileNames(i - j) = status.fp(i).filename
+            Catch
+                j += 1
+            End Try
+
         Next
+
+        If j > 0 Then
+            If i = j Then Return Nothing
+            ReDim Preserve returnsGetFileNames(UBound(returnsGetFileNames) - j)
+        End If
+
         Return returnsGetFileNames
     End Function
     'Public Function sGetFileNames(modDoc As ModelDoc2) As String()

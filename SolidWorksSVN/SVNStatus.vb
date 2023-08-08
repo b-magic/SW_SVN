@@ -485,7 +485,7 @@ Public Class SVNStatus
     End Sub
     Function updateLockStatusLocally() As Boolean
 
-        Dim newOutput As SVNStatus = getFileSVNStatus(bCheckServer:=False, Me.getModDocArr())
+        Dim newOutput As SVNStatus = getFileSVNStatus(bCheckServer:=False, Me.getModDocArr(), bUpdateStatusOfAllOpenModels:=False)
         Dim newOutputFilteredLocked As SVNStatus
         Dim newOutputFilteredUnlocked As SVNStatus
         Dim i As Integer
