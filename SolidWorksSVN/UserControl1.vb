@@ -675,7 +675,7 @@ Public Class UserControl1
         ElseIf status1.fp(0).upToDate9 = "*" Then
             rootNode.BackColor = myCol.outOfDate
             rootNode.ToolTipText = "Your Copy is Out Of Date"
-            If bModelDocAttached Then docMenu.Items.AddRange({myContextMenu.getLocksStealLabel})
+            'If bModelDocAttached Then docMenu.Items.AddRange({myContextMenu.getLocksStealLabel})
 
         ElseIf status1.fp(0).lock6 = "O" Then
             rootNode.BackColor = myCol.lockedBySomeoneElse
@@ -738,10 +738,10 @@ Public Class UserControl1
 
             If Not ensureResolvedComponent(swComp) Then Continue For
 
-                modDocArr(UBound(modDocArr)) = swComp.GetModelDoc2
-                ReDim Preserve modDocArr(UBound(modDocArr) + 1)
-                'swSelCompArr(UBound(swSelCompArr)) = swComp
-                'ReDim Preserve swSelCompArr(UBound(swSelCompArr) + 1)
+            modDocArr(UBound(modDocArr)) = swComp.GetModelDoc2
+            ReDim Preserve modDocArr(UBound(modDocArr) + 1)
+            'swSelCompArr(UBound(swSelCompArr)) = swComp
+            'ReDim Preserve swSelCompArr(UBound(swSelCompArr) + 1)
         Next i
 
         If IsNothing(modDocArr(0)) Then

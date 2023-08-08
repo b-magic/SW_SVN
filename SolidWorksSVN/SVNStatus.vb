@@ -508,9 +508,9 @@ Public Class SVNStatus
         For i = 0 To UBound(fp)
 
             Try 'need to do try to prevent 'outside of bounds' error with newOutput.fp(i)
-            If fp(i).filename = newOutput.fp(i).filename Then
-                'First Try worked
-                fp(i).lock6 = newOutput.fp(i).lock6
+                If fp(i).filename = newOutput.fp(i).filename Then
+                    'First Try worked
+                    fp(i).lock6 = newOutput.fp(i).lock6
                 End If
             Catch
             End Try

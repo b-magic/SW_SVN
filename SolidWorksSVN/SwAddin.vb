@@ -165,7 +165,6 @@ Public Class SwAddin
 
         ConnectToSW = True
     End Function
-
     Function DisconnectFromSW() As Boolean Implements SolidWorks.Interop.swpublished.SwAddin.DisconnectFromSW
 
         'RemoveCommandMgr()

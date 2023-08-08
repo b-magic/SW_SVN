@@ -12,12 +12,22 @@ Module swModelFunctions
 
     Public Function getFilePathsFromModDocArr(modDocArr() As ModelDoc2) As String()
         If IsNothing(modDocArr) Then Return Nothing
-
+        Dim i, j As Integer
+        j = 0
         Dim getFilePathsArr(modDocArr.Length - 1) As String
         For i = 0 To modDocArr.Length - 1
             If modDocArr(i) Is Nothing Then Continue For
-            getFilePathsArr(i) = modDocArr(i).GetPathName()
+            Try
+                getFilePathsArr(i - j) = modDocArr(i).GetPathName()
+            Catch
+                j += 1
+            End Try
         Next
+        If j > 0 Then
+            If i = j Then Return Nothing
+            ReDim Preserve getFilePathsArr(UBound(getFilePathsArr) - j)
+        End If
+
         Return (getFilePathsArr)
     End Function
 
