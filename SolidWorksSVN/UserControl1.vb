@@ -602,6 +602,7 @@ Public Class UserControl1
         If Not IsNothing(rootNode.Tag) Then
             If TypeOf rootNode.Tag Is Component2 Then
                 comp = rootNode.Tag
+                If Not ensureResolvedComponent(comp) Then Return Nothing
                 getModDocAttachedToNode = comp.GetModelDoc2
             ElseIf TypeOf rootNode.Tag Is ModelDoc2 Then
 
@@ -735,12 +736,12 @@ Public Class UserControl1
             'tempObj = swSelMgr.GetSelectedObject6(i, -1)
             'System.Diagnostics.Debug.Print(GetType(tempObj))
 
-            If Not swComp Is Nothing Then
+            If Not ensureResolvedComponent(swComp) Then Continue For
+
                 modDocArr(UBound(modDocArr)) = swComp.GetModelDoc2
                 ReDim Preserve modDocArr(UBound(modDocArr) + 1)
                 'swSelCompArr(UBound(swSelCompArr)) = swComp
                 'ReDim Preserve swSelCompArr(UBound(swSelCompArr) + 1)
-            End If
         Next i
 
         If IsNothing(modDocArr(0)) Then

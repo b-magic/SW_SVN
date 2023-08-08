@@ -713,6 +713,31 @@ Public Module svnModule
         Return False ' code shouldn't get here...
 
     End Function
+    Public Function ensureResolvedComponent(ByRef swcomp As Component2) As Boolean
+        Dim suppChangeError As swSuppressionError_e
+        Dim lightSuppressState As swComponentSuppressionState_e
+        'Dim outputState As swComponentSuppressionState_e
+
+        If swcomp Is Nothing Then Return False
+
+        lightSuppressState = swcomp.GetSuppression2
+
+        If lightSuppressState = swComponentSuppressionState_e.swComponentSuppressed Or
+            lightSuppressState = swComponentSuppressionState_e.swComponentLightweight Or
+            lightSuppressState = swComponentSuppressionState_e.swComponentFullyLightweight Then
+
+            suppChangeError = swcomp.SetSuppression2(swComponentSuppressionState_e.swComponentResolved)
+
+            If suppChangeError = swSuppressionError_e.swSuppressionChangeOk Then
+                Return True
+            Else
+                Return False
+            End If
+        Else
+            Return True
+        End If
+
+    End Function
     Public Function sGetDescription(modDoc As ModelDoc2) As String
         'https://help.solidworks.com/2023/english/api/sldworksapi/Get_Custom_Properties_of_Referenced_Part_Example_VBNET.htm
         Dim swModelDocExt As ModelDocExtension
