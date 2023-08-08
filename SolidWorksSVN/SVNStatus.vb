@@ -515,7 +515,7 @@ Public Class SVNStatus
             Catch
             End Try
 
-            If fp(i).lock6 = "K" Then
+            If (fp(i).lock6 = "K") And (Not IsNothing(newOutputFilteredUnlocked)) Then
                 'Search through the unlocked ones from the new svnstatus
                 'there's no point searching through the locked ones from the new svn status
                 For j = 0 To UBound(newOutputFilteredUnlocked.fp)
@@ -524,7 +524,7 @@ Public Class SVNStatus
                         Exit For
                     End If
                 Next
-            Else
+            ElseIf Not IsNothing(newOutputFilteredUnlocked) Then
                 'Old was unlocked; search through the new locked... 
                 For j = 0 To UBound(newOutputFilteredLocked.fp)
                     If fp(i).filename = newOutputFilteredLocked.fp(j).filename Then
