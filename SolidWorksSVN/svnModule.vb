@@ -573,7 +573,7 @@ Public Module svnModule
         commitDocs(modDocArr)
 
     End Sub
-    Public Sub getLocksOfDocs(ByRef modDocArr() As ModelDoc2)
+    Public Sub getLocksOfDocs(ByRef modDocArr() As ModelDoc2, Optional bBreakLocks As Boolean = False)
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
 
@@ -587,6 +587,7 @@ Public Module svnModule
         Dim bSuccess As Boolean = False
         Dim sCatMessage As String = ""
         Dim sCatMessageLocked As String = ""
+        Dim sFilter As String
 
         status = getFileSVNStatus(bCheckServer:=True, modDocArr)
         If IsNothing(status) Then Exit Sub
@@ -600,11 +601,15 @@ Public Module svnModule
 
         'End If
 
+        If bBreakLocks Then
+            sFilter = "*K"
+        Else
+            sFilter = "K"
+        End If
 
+        sDocPathsToCheckout = status.sFilterUpToDate9(sFilter, bFilterNot:=True)
 
-        sDocPathsToCheckout = status.sFilterUpToDate9("*", bFilterNot:=True)
-
-        sCatMessage = catWithNewLine(status.sFilterUpToDate9("*"))
+        sCatMessage = catWithNewLine(status.sFilterUpToDate9(sFilter))
 
         If sCatMessage <> "" Then
             iSwApp.SendMsgToUser("Local copy is out of date. Update from Vault and try again." & vbCrLf & sCatMessage)

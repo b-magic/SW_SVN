@@ -579,7 +579,7 @@ Public Class UserControl1
                                    "attempt to check in their copies, a conflict can occur. Always communicate " &
                                    "your intention to break someone's lock with that user.",
                                     swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbOkCancel) Then
-                unlockDocs({modDoc})
+                getLocksOfDocs({modDoc}, bBreakLocks:=True)
             End If
         End Sub
         Sub getLockActiveDocEventHandler(sender As Object, e As EventArgs)
