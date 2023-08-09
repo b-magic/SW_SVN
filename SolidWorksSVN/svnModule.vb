@@ -113,6 +113,7 @@ Public Module svnModule
 
         If bCheckServer Then
             'Have to just check the whole file path, because otherwise, svn sends a separate server request for ech individual path sent
+            'if you  format it, like ""C:/file1" "C:/file2"" (including the quotes, starting with double start and end) then it will only send one server request, however, the server has trouble finding the file names... 
             arguments = "status -uv --non-interactive """ & myUserControl.localRepoPath.Text.TrimEnd("\\") & """" 'sFilePathCat 
         Else
             arguments = "status -v --non-interactive " & formatFilePathArrForProc(sModDocPathArr, sDelimiter:=""" """) & """" 'sFilePathCat 

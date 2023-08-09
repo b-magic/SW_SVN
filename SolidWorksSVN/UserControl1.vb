@@ -25,8 +25,7 @@ Public Class UserControl1
     Public allOpenDocs As ModelDoc2()
     Public allTreeViews As TreeView() = {New TreeView}
 
-    Private Sub UserControl1_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) _
-           Handles MyBase.Load
+    Private Sub UserControl1_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
 
         Dim docMenu As ContextMenuStrip
         Dim myrefreshItem, myCollapseItem As ToolStripMenuItem
@@ -116,11 +115,16 @@ Public Class UserControl1
         updateStatusStrip()
     End Sub
     Private Sub dropDownGetLatestAllOpenFiles_Click(sender As Object, e As EventArgs) Handles dropDownGetLatestAllOpenFiles.Click
-        myGetLatestOrRevert(getAllOpenDocs(bMustBeVisible:=False),, bVerbose:=True)
+        Dim modDocArr() As ModelDoc2 = getAllOpenDocs(bMustBeVisible:=False)
+
+        saveAllOpenFiles(bShowError:=True)
+
+        myGetLatestOrRevert(modDocArr,, bVerbose:=True)
         'myGetLatestOpenOnly()
         updateStatusStrip()
     End Sub
     Private Sub dropDownGetLatestAll_Click(sender As Object, e As EventArgs) Handles dropDownGetLatestAll.Click
+        saveAllOpenFiles(bShowError:=True)
         myGetLatestOrRevert(,, bVerbose:=True)
         updateStatusStrip()
         'myGetLatestAllRepo()

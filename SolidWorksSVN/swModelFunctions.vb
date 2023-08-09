@@ -67,6 +67,38 @@ Module swModelFunctions
         Return modDocOutput
     End Function
 
+    Public Sub saveAllOpenFiles(Optional bShowError As Boolean = False)
+
+        Dim swFrame As SolidWorks.Interop.sldworks.Frame = iSwApp.Frame()
+        Dim oModelWindows As Object = swFrame.ModelWindows
+        'Dim modDoc As SolidWorks.Interop.sldworks.ModelDoc2
+
+        Dim i As Integer
+        Dim numSaved As Integer = 0
+        Dim numFailed As Integer = 0
+
+        Dim errors As Integer
+        Dim warnings As Integer
+
+        Dim modDocArr As ModelDoc2() = getAllOpenDocs(bMustBeVisible:=False)
+
+        For i = 0 To UBound(modDocArr)
+
+            If modDocArr(i) Is Nothing Then Continue For
+
+            If modDocArr(i).GetSaveFlag() And (Not modDocArr(i).IsOpenedReadOnly) Then
+                If False = modDocArr(i).Save3(0, errors, warnings) Then
+                    Debug.Print("Save error: " & modDocArr(i).GetTitle & " Error:" & errors & " Warning:" & warnings)
+                    numFailed += numFailed
+                Else
+                    numSaved += numSaved
+                End If
+            End If
+        Next
+
+        swFrame.SetStatusBarText(numSaved & " Files Saved. & " & numFailed & " Files Failed to Save.")
+
+    End Sub
     Public Sub save3AndShowErrorMessages(ByRef modDocArr() As ModelDoc2)
         Dim bSuccess As Boolean
         Dim swErrors As Long
