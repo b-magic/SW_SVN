@@ -205,8 +205,6 @@ Public Class SwAddin
         'myTaskPaneHost.ContextMenu = New ContextMenu
         myTaskPaneHost.myInitialize(iSwApp)
 
-        If iSwApp.GetDocumentCount() = 0 Then
-
     End Sub
 
     Public Sub RemoveTaskPane()

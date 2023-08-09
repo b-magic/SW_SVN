@@ -515,25 +515,27 @@ Public Class SVNStatus
             Catch
             End Try
 
-            If (fp(i).lock6 = "K") And (Not IsNothing(newOutputFilteredUnlocked.fp)) Then
-                'Search through the unlocked ones from the new svnstatus
-                'there's no point searching through the locked ones from the new svn status
-                For j = 0 To UBound(newOutputFilteredUnlocked.fp)
-                    If fp(i).filename = newOutputFilteredUnlocked.fp(j).filename Then
-                        fp(i).lock6 = newOutputFilteredUnlocked.fp(j).lock6
-                        Exit For
-                    End If
-                Next
-            ElseIf Not IsNothing(newOutputFilteredLocked.fp) Then
-                'Old was unlocked; search through the new locked... 
-                'If Not IsNothing(newOutputFilteredUnlocked.fp) Then
-                For j = 0 To UBound(newOutputFilteredLocked.fp)
+            If (fp(i).lock6 = "K") And (Not IsNothing(newOutputFilteredUnlocked)) Then
+                If Not IsNothing(newOutputFilteredUnlocked.fp) Then
+                    'Search through the unlocked ones from the new svnstatus
+                    'there's no point searching through the locked ones from the new svn status
+                    For j = 0 To UBound(newOutputFilteredUnlocked.fp)
+                        If fp(i).filename = newOutputFilteredUnlocked.fp(j).filename Then
+                            fp(i).lock6 = newOutputFilteredUnlocked.fp(j).lock6
+                            Exit For
+                        End If
+                    Next
+                End If
+            ElseIf Not IsNothing(newOutputFilteredLocked) Then
+                    'Old was unlocked; search through the new locked... 
+                    If Not IsNothing(newOutputFilteredLocked.fp) Then
+                    For j = 0 To UBound(newOutputFilteredLocked.fp)
                         If fp(i).filename = newOutputFilteredLocked.fp(j).filename Then
                             fp(i).lock6 = newOutputFilteredLocked.fp(j).lock6
                             Exit For
                         End If
                     Next
-                'End If
+                End If
             End If
         Next
         Return True
