@@ -36,6 +36,8 @@ Module swModelFunctions
 
         Dim modDoc As ModelDoc2 = iSwApp.GetFirstDocument
         Dim iNumDocsOpen As Integer = iSwApp.GetDocumentCount()
+        If iNumDocsOpen = 0 Then Return Nothing
+
         Dim modDocOutput(iNumDocsOpen - 1) As ModelDoc2
         Dim sPath(iNumDocsOpen - 1) As String
         Dim i As Integer

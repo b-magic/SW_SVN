@@ -48,7 +48,15 @@ Public Class UserControl1
         svnModuleInitialize(iSwApp, Me, statusOfAllOpenModels)
 
         localRepoPath.Text = My.Settings.localRepoPath
-        refreshAddIn(bsaveLocalRepoPathSettings:=False)
+
+        If iSwApp.GetDocumentCount = 0 Then
+            If verifyLocalRepoPath(bInteractive:=True, bCheckLocalFolder:=True, bCheckServer:=False) Then
+                runTortoiseProcexeWithMonitor("/command:update /path:" & My.Settings.localRepoPath & " /closeonend:3")
+            End If
+        Else
+            refreshAddIn(bsaveLocalRepoPathSettings:=False)
+        End If
+
     End Sub
     Friend Sub beforeClose()
         saveLocalRepoPathSettings()
