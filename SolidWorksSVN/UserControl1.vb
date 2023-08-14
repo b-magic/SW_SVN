@@ -50,10 +50,13 @@ Public Class UserControl1
         localRepoPath.Text = My.Settings.localRepoPath
 
         If iSwApp.GetDocumentCount = 0 Then
+
             If verifyLocalRepoPath(bInteractive:=True, bCheckLocalFolder:=True, bCheckServer:=False) Then
-                runTortoiseProcexeWithMonitor("/command:update /path:" & My.Settings.localRepoPath & " /closeonend:3")
+                If iSwApp.SendMsgToUser2("Would you like to get latest from the SVN Vault?", swMessageBoxIcon_e.swMbQuestion, swMessageBoxBtn_e.swMbYesNo) = swMessageBoxResult_e.swMbHitYes Then
+                    runTortoiseProcexeWithMonitor("/command:update /path:" & My.Settings.localRepoPath & " /closeonend:3")
+                End If
             End If
-        Else
+            Else
             refreshAddIn(bsaveLocalRepoPathSettings:=False)
         End If
 
@@ -727,6 +730,17 @@ Public Class UserControl1
 
         rootNode.ContextMenuStrip = docMenu
     End Sub
+    Public Sub TestMethod()
+        'MsgBox("The strings in the flavorEnum are:")
+        Dim i As String
+        Dim j As Integer = 0
+        For Each i In [Enum].GetNames(GetType(swSelectType_e))
+
+            Debug.Print(j & " - " & i)
+            j += 1
+        Next
+    End Sub
+
     Public Function GetSelectedModDocList(iSwApp As SolidWorks.Interop.sldworks.SldWorks) As SolidWorks.Interop.sldworks.ModelDoc2() 'SolidWorks.Interop.sldworks.Component2()
 
         'Returns the active doc if nothing is selected
@@ -736,10 +750,12 @@ Public Class UserControl1
         Dim swComp As SolidWorks.Interop.sldworks.Component2
         Dim i As Long
         'Dim tempObj As Object
-
+        'swSelectType_e.swSelSHEETS
         Dim activeModDoc As ModelDoc2 = iSwApp.ActiveDoc
         Dim swSelMgr As SolidWorks.Interop.sldworks.SelectionMgr = activeModDoc.SelectionManager
         Dim nSelCount As Long = swSelMgr.GetSelectedObjectCount2(-1)
+        Dim seltyp As swSelectType_e
+        Dim myNames As String() = [Enum].GetNames(GetType(swSelectType_e))
 
         'ReDim swSelCompArr(0)
         ReDim modDocArr(0)
@@ -747,7 +763,8 @@ Public Class UserControl1
             swComp = swSelMgr.GetSelectedObjectsComponent4(i, -1)
             'tempObj = swSelMgr.GetSelectedObject6(i, -1)
             'System.Diagnostics.Debug.Print(GetType(tempObj))
-
+            seltyp = swSelMgr.GetSelectedObjectType3(i, -1)
+            'Debug.Print(seltyp & " - " & myNames(seltyp)) 'swSelANNOTATIONTABLES swSelCOMPONENTS
             If Not ensureResolvedComponent(swComp) Then Continue For
 
             modDocArr(UBound(modDocArr)) = swComp.GetModelDoc2
