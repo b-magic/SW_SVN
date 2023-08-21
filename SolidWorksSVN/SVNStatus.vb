@@ -544,8 +544,21 @@ Public Class SVNStatus
     End Function
     Function updateFromSvnServer(Optional bRefreshAllTreeViews As Boolean = False) As Boolean
         'iSwApp.EnableBackgroundProcessing = True
+        Dim allOpenDocs As ModelDoc2() = getAllOpenDocs(bMustBeVisible:=False)
+        Dim output As SVNStatus
 
-        Dim output As SVNStatus = getFileSVNStatus(bCheckServer:=True, getAllOpenDocs(bMustBeVisible:=False))
+        If verifyCommandArgumentLength("12345678901234567890123456789012345678901234567890" &
+                                    formatFilePathArrForProc(getFilePathsFromModDocArr(allOpenDocs), sDelimiter:=""" """)) Then 'Added 50 extra characters as safety to make up for arguments/commands other than just the filenames
+
+            output = getFileSVNStatus(bCheckServer:=True, allOpenDocs)
+
+        Else
+            'Too many open docs to request each individually from the server. We will run into issue with the argument being too long. Instead just request all of the files. 
+            output = getFileSVNStatus(bCheckServer:=True,)
+            'TODO: filter the output to just open files? Might speed things up?
+        End If
+
+
         'Dim bProcessingTemp As Boolean = iSwApp.EnableBackgroundProcessing
 
         If IsNothing(output) Then

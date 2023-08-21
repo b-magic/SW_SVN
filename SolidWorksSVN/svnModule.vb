@@ -75,7 +75,7 @@ Public Module svnModule
         'Pass sFilePath = Create from the file path
         'Pass modDocArr = create from the modDocArr
         'Pass Neither = create for entire repo
-
+        'formatFilePathArrForProc(getFilePathsFromModDocArr(modDocArr), sDelimiter:=""" """)
         Dim modDocTemp As ModelDoc2
         Dim sOutputLines() As String
         Dim sOutputErrorLines() As String
@@ -269,6 +269,20 @@ Public Module svnModule
         End If
 
     End Function
+    Function verifyCommandArgumentLength(input As String, Optional bVerbose As Boolean = False) As Boolean
+        If input Is Nothing Then Return False
+        If input.Length > (32768 - 1) Then
+            iSwApp.SendMsgToUser2("Error: Too many arguments sent from the Add-In to TortoiseSVN, " +
+                                  "likely caused by doing an action to too many components." +
+                                  "You can do the action using TortoiseSVN in Windows Explorer," +
+                                  "then back in the Add-in hit the Refresh command.",
+                                    swMessageBoxIcon_e.swMbStop, swMessageBoxBtn_e.swMbOk)
+            Return False 'Avoids error. https://stackoverflow.com/questions/9115279/commandline-argument-parameter-limitation
+        Else
+            Return True
+        End If
+
+    End Function
     Function runSvnProcess(filename As String, arguments As String) As rawProcessReturn
 
         Dim iWaitTime As Integer = 10000 'milliseconds to wait for the SVN process to finish
@@ -294,14 +308,8 @@ Public Module svnModule
 
         'iSwApp.SendMsgToUser(filename & vbCrLf & arguments)
 
-        If arguments.Length > (32768 - 1) Then
-            iSwApp.SendMsgToUser2("Error: Too many arguments sent from the Add-In to TortoiseSVN, " +
-                                  "likely caused by doing an action to too many components." +
-                                  "You can do the action using TortoiseSVN in Windows Explorer," +
-                                  "then back in the Add-in hit the Refresh command.",
-                                    swMessageBoxIcon_e.swMbStop, swMessageBoxBtn_e.swMbOk)
-            Return Nothing 'Avoids error. https://stackoverflow.com/questions/9115279/commandline-argument-parameter-limitation
-        End If
+        If arguments Is Nothing Then Return Nothing
+        If Not verifyCommandArgumentLength(arguments) Then Return Nothing
 
         oSVNProcess.Start()
 
