@@ -84,7 +84,7 @@ Public Module svnModule
         Dim sFilePathCat As String = ""
         Dim sFilePathTemp As String
         Dim iLineStep As Integer = 1
-        Dim sModDocPathArr() As String = getFilePathsFromModDocArr(modDocArr)
+        Dim sModDocPathArr() As String = Nothing
         Dim sFileStartIndex As String
         Dim sCatMessage As String = ""
         Dim arguments As String
@@ -110,14 +110,18 @@ Public Module svnModule
         'SVNstartInfo.Arguments = "status " & If(bCheckServer, "-u ", "") & "-v --non-interactive E:\SolidworksBackup\svn " 'sFilePathCat 
 
         If Not verifyLocalRepoPath(, bCheckLocalFolder:=True, bCheckServer = False) Then Return Nothing 'Don't check server because we will in runSVNProcess
+        If Not IsNothing(modDocArr) Then sModDocPathArr = getFilePathsFromModDocArr(modDocArr)
 
-        If bCheckServer Then
+        If bCheckServer Or (IsNothing(modDocArr)) Then
             'Have to just check the whole file path, because otherwise, svn sends a separate server request for ech individual path sent
             'if you  format it, like ""C:/file1" "C:/file2"" (including the quotes, starting with double start and end) then it will only send one server request, however, the server has trouble finding the file names... 
-            arguments = "status -uv --non-interactive """ & myUserControl.localRepoPath.Text.TrimEnd("\\") & """" 'sFilePathCat 
+            arguments = "status -v" & If(bCheckServer, "u", "") & " --non-interactive """ & myUserControl.localRepoPath.Text.TrimEnd("\\") & """" 'sFilePathCat 
+
         Else
+
             arguments = "status -v --non-interactive " & formatFilePathArrForProc(sModDocPathArr, sDelimiter:=""" """) & """" 'sFilePathCat 
         End If
+
 
         'iSwApp.SendMsgToUser(sSVNPath)
         processOutput = runSvnProcess(sSVNPath, arguments)
@@ -243,7 +247,7 @@ Public Module svnModule
             entireSVNStatus.addOutputLineToSVNStatus(sOutputLines(i), m, sFilePathTemp, modDocTemp, bCheckServer)
             m = m + 1
 
-            If Not IsNothing(modDocArr) Then
+            If Not IsNothing(sModDocPathArr) Then
                 Index = svnAddInUtils.findIndexContains(sModDocPathArr, sFilePathTemp)
                 If Index = -1 Then Continue For
                 svnStatusOfPassedModDoc.addOutputLineToSVNStatus(sOutputLines(i), j, sFilePathTemp, modDocTemp, bCheckServer)

@@ -809,8 +809,4 @@ Public Class UserControl1
             'Drawing.Color.Bisque 'Drawing.Color.FromArgb(255, 77, 77) 'light red
         End Sub
     End Class
-
-    Private Sub TextBox1_TextChanged(sender As Object, e As EventArgs) Handles TextBox1.TextChanged
-
-    End Sub
 End Class

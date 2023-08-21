@@ -27,14 +27,14 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_B4BDE5139C7B4655A21751BF4F0E11B5"
-        "OwnerKey" = "8:_UNDEFINED"
+        "MsmKey" = "8:_AE8FA209EDC06A84F9B07291A3B6CBD1"
+        "OwnerKey" = "8:_C1A6513773194ECFA2AF56DE96F45B79"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_BD8635B980173E7AE4D324888C43B7EC"
-        "OwnerKey" = "8:_C1A6513773194ECFA2AF56DE96F45B79"
+        "MsmKey" = "8:_B4BDE5139C7B4655A21751BF4F0E11B5"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -52,7 +52,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_BD8635B980173E7AE4D324888C43B7EC"
+        "OwnerKey" = "8:_AE8FA209EDC06A84F9B07291A3B6CBD1"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -190,34 +190,14 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B4BDE5139C7B4655A21751BF4F0E11B5"
-            {
-            "SourcePath" = "8:..\\SolidWorksSVN\\icons\\VaultLogo128.ico"
-            "TargetName" = "8:VaultLogo128.ico"
-            "Tag" = "8:"
-            "Folder" = "8:_EE7E9DD25247421E87492B320EF561BD"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_BD8635B980173E7AE4D324888C43B7EC"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_AE8FA209EDC06A84F9B07291A3B6CBD1"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
             "AssemblyAsmDisplayName" = "8:SolidWorksTools, Version=2.0.0.0, Culture=neutral, PublicKeyToken=bd18593873b4686d, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_BD8635B980173E7AE4D324888C43B7EC"
+                    "_AE8FA209EDC06A84F9B07291A3B6CBD1"
                     {
                     "Name" = "8:SolidWorksTools.dll"
                     "Attributes" = "3:512"
@@ -239,6 +219,26 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B4BDE5139C7B4655A21751BF4F0E11B5"
+            {
+            "SourcePath" = "8:..\\SolidWorksSVN\\icons\\VaultLogo128.ico"
+            "TargetName" = "8:VaultLogo128.ico"
+            "Tag" = "8:"
+            "Folder" = "8:_EE7E9DD25247421E87492B320EF561BD"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
         }
@@ -309,11 +309,11 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:SVN_Vault"
         "ProductCode" = "8:{96ECCCBC-E529-43B8-8EA1-BD540F3B9DAE}"
-        "PackageCode" = "8:{7FFBF1D2-4AC0-4127-B1F0-0D59C1423F0C}"
+        "PackageCode" = "8:{114572E0-6FFF-4EC5-AFF2-3D395E2F964E}"
         "UpgradeCode" = "8:{DFE55A88-84D2-4146-8D97-E4179D874B4A}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"
-        "RemovePreviousVersions" = "11:FALSE"
+        "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
         "ProductVersion" = "8:1.0.1"
@@ -822,7 +822,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_C1A6513773194ECFA2AF56DE96F45B79"
             {
-            "SourcePath" = "8:..\\SolidWorksSVN\\obj\\Debug\\SolidWorksSVN.dll"
+            "SourcePath" = "8:..\\SolidWorksSVN\\obj\\Release\\SolidWorksSVN.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_EE7E9DD25247421E87492B320EF561BD"
