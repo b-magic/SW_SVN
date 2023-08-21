@@ -38,6 +38,14 @@ C:\Users\<username>\Documents\Visual Studio 2019\Templates\ProjectTemplates\Visu
 
 http://help.solidworks.com/2019/english/api/sldworksapiprogguide/Overview/SolidWorks_CSharp_and_VB.NET__Project_Templates.htm
 
+##### The referenced component 'Microsoft.VisualBasic' could not be found.
+Ignore this error. Things work fine while its there.
+
+##### Unable to delete file "C:\Users\username\source\repos\SW_SVN\SolidWorksSVN\bin\SolidWorksSVN.dll". Access to the path 'C:\...\bin\SolidWorksSVN.dll' is denied.
+1. Check if Solidworks is Running, and close it
+2. Check if any Solidworks related processes are running in task manager, and force close them
+3. Close and re-open visual studio
+4. Restart computer
 
 ### SVN Server
 There's lots of options to set up an SVN Server. I decided to use an amazon web services server.
