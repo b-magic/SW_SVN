@@ -56,7 +56,7 @@ Public Class UserControl1
                     runTortoiseProcexeWithMonitor("/command:update /path:" & My.Settings.localRepoPath & " /closeonend:3")
                 End If
             End If
-            Else
+        Else
             refreshAddIn(bsaveLocalRepoPathSettings:=False)
         End If
 

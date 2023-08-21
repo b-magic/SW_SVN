@@ -54,7 +54,7 @@ Public Module svnModule
 
     End Sub
     Public Function updateLockStatusPublic(Optional bRefreshAllTreeViews As Boolean = True) As Boolean
-        updateLockStatusPublic = statusOfAllOpenModels.updateLockStatusLocally()
+        updateLockStatusPublic = statusOfAllOpenModels.updateLockStatusLocally(iSwApp)
         If bRefreshAllTreeViews Then myUserControl.refreshAllTreeViewsVariable()
     End Function
     Public Function updateStatusOfAllModelsVariable(Optional bRefreshAllTreeViews As Boolean = False) As Boolean

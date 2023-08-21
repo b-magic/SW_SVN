@@ -483,12 +483,14 @@ Public Class SVNStatus
             End If
         Next
     End Sub
-    Function updateLockStatusLocally() As Boolean
+    Function updateLockStatusLocally(iSwApp As SolidWorks.Interop.sldworks.SldWorks) As Boolean
 
-        Dim newOutput As SVNStatus = getFileSVNStatus(bCheckServer:=False, Me.getModDocArr(), bUpdateStatusOfAllOpenModels:=False)
+        Dim newOutput As SVNStatus = getFileSVNStatus(bCheckServer:=False,, bUpdateStatusOfAllOpenModels:=False)
         Dim newOutputFilteredLocked As SVNStatus
         Dim newOutputFilteredUnlocked As SVNStatus
         Dim i As Integer
+
+        If newOutput Is Nothing Then Return False
 
         Try
             newOutputFilteredLocked = newOutput.statusFilter(sFiltLock6:="K")
@@ -527,8 +529,8 @@ Public Class SVNStatus
                     Next
                 End If
             ElseIf Not IsNothing(newOutputFilteredLocked) Then
-                    'Old was unlocked; search through the new locked... 
-                    If Not IsNothing(newOutputFilteredLocked.fp) Then
+                'Old was unlocked; search through the new locked... 
+                If Not IsNothing(newOutputFilteredLocked.fp) Then
                     For j = 0 To UBound(newOutputFilteredLocked.fp)
                         If fp(i).filename = newOutputFilteredLocked.fp(j).filename Then
                             fp(i).lock6 = newOutputFilteredLocked.fp(j).lock6

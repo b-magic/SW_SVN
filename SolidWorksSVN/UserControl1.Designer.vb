@@ -259,7 +259,7 @@ Partial Class UserControl1
         Me.TextBox1.Name = "TextBox1"
         Me.TextBox1.Size = New System.Drawing.Size(38, 26)
         Me.TextBox1.TabIndex = 22
-        Me.TextBox1.Text = "0.14"
+        Me.TextBox1.Text = "2023.08.21-B"
         '
         'StatusStrip2
         '
