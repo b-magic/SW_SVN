@@ -402,7 +402,7 @@ Public Module svnModule
         If userPickMsg = swMessageBoxResult_e.swMbHitOk Then
             Return True
         Else
-            Return True
+            Return False
         End If
     End Function
 
@@ -513,7 +513,7 @@ Public Module svnModule
 
         'Switch over files to read-only
         'OpenDocPathList = CType(getAllOpenDocs(True, True), String())
-        Dim OpenDocModels() As ModelDoc2 = getAllOpenDocs(bMustBeVisible:=True)
+        'Dim OpenDocModels() As ModelDoc2 = getAllOpenDocs(bMustBeVisible:=True)
 
         'Dim sOpenDocPath() As String = getFilePathsFromModDoiSwApp.SendMsgToUser("Active Document not found") cArr(OpenDocModels)
 
