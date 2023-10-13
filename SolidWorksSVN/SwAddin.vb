@@ -194,11 +194,11 @@ Public Class SwAddin
         'sInstallDirectory
         'sInstallDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)
         'svnModule
-        Dim imageList1() As String = {"C:\Users\benne\source\repos\SolidWorksVB\SolidWorksSVN\icons\VaultLogo20.png",
-            "C:\Users\benne\source\repos\SolidWorksVB\SolidWorksSVN\icons\VaultLogo40.png",
-            "C:\Users\benne\source\repos\SolidWorksVB\SolidWorksSVN\icons\VaultLogo64.png",
-            "C:\Users\benne\source\repos\SolidWorksVB\SolidWorksSVN\icons\VaultLogo96.png",
-            "C:\Users\benne\source\repos\SolidWorksVB\SolidWorksSVN\icons\VaultLogo128.png"}
+        Dim imageList1() As String = {"C:\Users\\source\repos\SolidWorksVB\SolidWorksSVN\icons\VaultLogo20.png",
+            "C:\Users\\source\repos\SolidWorksVB\SolidWorksSVN\icons\VaultLogo40.png",
+            "C:\Users\\source\repos\SolidWorksVB\SolidWorksSVN\icons\VaultLogo64.png",
+            "C:\Users\\source\repos\SolidWorksVB\SolidWorksSVN\icons\VaultLogo96.png",
+            "C:\Users\\source\repos\SolidWorksVB\SolidWorksSVN\icons\VaultLogo128.png"}
 
         myTaskPaneView = iSwApp.CreateTaskpaneView3(imageList1, "SVN Task Pane")
         myTaskPaneHost = myTaskPaneView.AddControl("SVN_AddIn", "")
