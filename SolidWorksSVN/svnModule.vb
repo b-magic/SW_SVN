@@ -3,6 +3,7 @@ Imports SolidWorks.Interop.swconst
 Imports System.Collections.Generic
 Imports System.Configuration
 Imports System.IO
+Imports System.Windows.Forms.VisualStyles.VisualStyleElement
 
 
 Public Module svnModule
@@ -276,12 +277,16 @@ Public Module svnModule
     Function verifyCommandArgumentLength(input As String, Optional bVerbose As Boolean = False) As Boolean
         If input Is Nothing Then Return False
         If input.Length > (32768 - 1) Then
-            iSwApp.SendMsgToUser2("Error: Too many arguments sent from the Add-In to TortoiseSVN, " +
+            If bVerbose = True Then
+                iSwApp.SendMsgToUser2("Error: Too many arguments sent from the Add-In to TortoiseSVN, " +
                                   "likely caused by doing an action to too many components." +
                                   "You can do the action using TortoiseSVN in Windows Explorer," +
                                   "then back in the Add-in hit the Refresh command.",
                                     swMessageBoxIcon_e.swMbStop, swMessageBoxBtn_e.swMbOk)
+            End If
+
             Return False 'Avoids error. https://stackoverflow.com/questions/9115279/commandline-argument-parameter-limitation
+
         Else
             Return True
         End If
@@ -558,6 +563,19 @@ Public Module svnModule
         Dim bSuccessCleanup As Boolean
         Dim allOpenDocs As ModelDoc2() = getAllOpenDocs(bMustBeVisible:=False)
 
+        If Not iSwApp.SendMsgToUser2("Unsaved changes will be discarded. Continue?",
+                                swMessageBoxIcon_e.swMbWarning,
+                                swMessageBoxBtn_e.swMbYesNo) = swMessageBoxResult_e.swMbHitYes Then
+            Exit Sub
+        End If
+
+        iSwApp.SendMsgToUser2("Running cleanup from the Add-in has a poor success rate due to Windows only allowing " &
+                              "a single program to edit a file at once. If this fails, save everything, close SolidWorks, 
+                              and run cleanup from tortoiseSVN in Windows Explorer." & vbCrLf & vbCrLf &
+                              "Need write access to save? In Windows Explorer, Right click > Properties, and un-check Read-Only.",
+                                swMessageBoxIcon_e.swMbWarning,
+                                swMessageBoxBtn_e.swMbOk)
+
         bSuccessStatus = updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True)
 
         If Not verifyLocalRepoPath() Then Exit Sub
@@ -589,7 +607,7 @@ Public Module svnModule
         End If
     End Sub
     Public Sub addtoRepoFunc(ByRef modDocArr() As ModelDoc2)
-        Dim bSuccess As Boolean
+
         If Not verifyLocalRepoPath() Then Exit Sub
         runTortoiseProcexeWithMonitor("/command:add /path:" & formatModDocArrForTortoiseProc(modDocArr) & " /closeonend:3")
         commitDocs(modDocArr)
@@ -795,8 +813,6 @@ Public Module svnModule
         Dim status As SVNStatus
         Dim bSuccess As Boolean
         Dim sw As New Stopwatch
-        Dim mfileList() As ModelDoc2
-
 
         If ((myGetType = getLatestType.both) Or (myGetType = getLatestType.update)) Then
             If Not userAcceptsLossOfChanges(modDocArr, "Update the following Files to latest vault version?") Then Exit Sub
@@ -1009,6 +1025,8 @@ Public Module svnModule
     '    Next
     '    Return returnsGetFileNames
     'End Function
+
+
     Public Function findStatusForFile(ByRef sFileName As String) As SVNStatus
         Dim i As Integer
         Dim bSuccess As Boolean
