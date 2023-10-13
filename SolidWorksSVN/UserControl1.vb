@@ -9,6 +9,7 @@ Imports System.Windows.Forms
 Imports System.Drawing
 Imports System.IO
 Imports System.CodeDom.Compiler
+Imports System.Runtime.InteropServices.ComTypes
 'Imports System.Configuration
 
 <ProgId("SVN_AddIn")>
@@ -141,8 +142,14 @@ Public Class UserControl1
         'myGetLatestAllRepo()
     End Sub
     Private Sub butFindComponent_Click(sender As Object, e As EventArgs) Handles butFindComponent.Click
-        Dim modDocArr As ModelDoc() = GetSelectedModDocList(iSwApp)
+        Dim modDocArr As ModelDoc2()
+        Dim findFileSuccess As Boolean
+        modDocArr = GetSelectedModDocList(iSwApp)
 
+        If modDocArr Is Nothing Then Exit Sub
+        If modDocArr(0) Is Nothing Then Exit Sub
+
+        findFileSuccess = findFileTreeNode(modDocArr(0))
     End Sub
 
     ' ### Refresh
@@ -191,6 +198,24 @@ Public Class UserControl1
     Public Sub externalSetReadWriteFromLockStatus1()
         externalSetReadWriteFromLockStatus()
     End Sub
+    Public Function findFileTreeNode(modDoc As ModelDoc2) As Boolean
+        Dim nodes As TreeNode()
+        Dim fileName As String = System.IO.Path.GetFileName(modDoc.GetPathName)
+        nodes = TreeView1.Nodes.Find(fileName, True)
+
+        ' DOESNT FIND THE FILE FOR WHATEVER REASON
+
+        'Check if at least one node was found
+        If nodes.Length > 0 Then
+            'Set Checked=True for the first found node (index 0)
+            nodes(0).Expand()
+            nodes(0).Checked = True
+        Else
+            iSwApp.SendMsgToUser2("Unable to find file.", swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbOk)
+        End If
+
+    End Function
+
     Public Function refreshAddIn(Optional bsaveLocalRepoPathSettings As Boolean = True) As Boolean
 
         If Not verifyLocalRepoPath(, bCheckLocalFolder:=True, bCheckServer:=False) Then Return False     'Only need to check the local since updateStatusOfAllModelsVariable will check server. 
@@ -638,8 +663,6 @@ Public Class UserControl1
         myCol.initialize()
         Dim status1 As SVNStatus
         Dim modDoc As ModelDoc2
-        Dim comp As Component2
-
         Dim bModelDocAttached As Boolean '= If(IsNothing(rootNode.Tag), False, True) ' True is modelDoc is attached to node
         Dim myContextMenu As myContextMenuClass
 
