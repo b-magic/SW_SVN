@@ -156,6 +156,24 @@ Public Class UserControl1
     Private Sub butRefresh_Click(sender As Object, e As EventArgs) Handles butRefresh.Click
 
         'CLEANUP
+        If iSwApp.GetDocumentCount() = 0 Then
+            'No files are open
+            If Me.onlineCheckBox.Checked Then
+                If verifyLocalRepoPath(, bCheckLocalFolder:=True, bCheckServer:=True) Then
+                    iSwApp.SendMsgToUser2("Couldn't find any open files to refresh the status for, but you are successfully communicating with SVN server. This button doesn't do anything if you don't have files open.",
+                        swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbOk)
+                Else
+                    iSwApp.SendMsgToUser2("Unable to contact a server and verify that your local path is a synced SVN folder.",
+                        swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbOk)
+                End If
+            Else
+                verifyLocalRepoPath(, bCheckLocalFolder:=True, bCheckServer:=False)
+                iSwApp.SendMsgToUser2("Couldn't find any open files to refresh the status for. Your 'online' checkbox is unchecked, so contact to the server was not attempted.",
+                        swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbOk)
+            End If
+            Exit Sub
+        End If
+
         statusOfAllOpenModels = New SVNStatus
         statusOfAllOpenModels.updateFromSvnServer(bRefreshAllTreeViews:=True)
         switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
