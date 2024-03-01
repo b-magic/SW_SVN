@@ -535,7 +535,7 @@ Public Class SwAddin
         myTaskPaneHost.switchTreeViewToCurrentModel()
         myTaskPaneHost.externalSetReadWriteFromLockStatus1()
         'Dim mycontextmenu As New UserControl1.myContextMenuClass(iSwApp.ActiveDoc, iSwApp)
-        'myTaskPaneHost.ContextMenuStrip.Items.AddRange({mycontextmenu.openLabel})
+        'myTaskPaneHost.ContextMenuStripmenu.openLabel})
 
     End Function
 #End Region

@@ -802,7 +802,10 @@ Public Module svnModule
             Return Nothing
         End Try
     End Function
-
+    Public Sub subShowLog(sFilePath As String)
+        Debug.Print(sFilePath)
+        runTortoiseProcexeWithMonitor("/command:log /path:" & sFilePath)
+    End Sub
 
     Sub myGetLatestOrRevert(Optional ByRef modDocArr As ModelDoc2() = Nothing,
                         Optional ByRef myGetType As getLatestType = getLatestType.update,

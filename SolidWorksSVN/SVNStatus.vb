@@ -74,7 +74,7 @@ Public Class SVNStatus
     End Sub
     Sub setReadWriteFromLockStatus()
         Dim i As Integer
-        Dim temp As String
+        'Dim temp As String
         'Dim sw = New Stopwatch()
         'sw.Start()
 

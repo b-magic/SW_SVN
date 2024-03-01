@@ -572,14 +572,15 @@ Public Class UserControl1
         'Dim comp As Component2
         Public collapse As New ToolStripMenuItem("Collapse", My.Resources.VaultLogo128, AddressOf collapseTreeViewHandler)
         Public openLabel As New ToolStripMenuItem("Open", My.Resources.VaultLogo128, AddressOf openEventHandler)
-        Public unlockLabel As New ToolStripMenuItem("Release Lock", My.Resources.ReleaseActive, AddressOf unlockEventHandler)
-        Public unlockWithDependentsLabel As New ToolStripMenuItem("Release Lock With Dependents", My.Resources.ReleaseAll, AddressOf unlockWithDependentsEventHandler)
-        Public commitLabel As New ToolStripMenuItem("Commit", My.Resources.CheckInActive, AddressOf commitEventHandler)
-        Public commitWithDependentsLabel As New ToolStripMenuItem("Commit With Dependents", My.Resources.CheckInAll, AddressOf commitWithDependentsEventHandler)
-        Public getLocksStealLabel As New ToolStripMenuItem("Get Lock (Steal Locks)", My.Resources.CheckOutActive, AddressOf getLockStealLockEventHandler)
-        Public getLockActiveDoc As New ToolStripMenuItem("Get Lock Doc", My.Resources.CheckOutActive, AddressOf getLockActiveDocEventHandler)
-        Public getLockWithDependents As New ToolStripMenuItem("Get Lock With Dependents", My.Resources.CheckOutWithDependents, AddressOf getLocksActiveWithDependentsEventHandler)
+        Public unlockLabel As New ToolStripMenuItem("Release Lock", My.Resources.unlockIconOnly1, AddressOf unlockEventHandler)
+        Public unlockWithDependentsLabel As New ToolStripMenuItem("Release Lock With Dependents", My.Resources.unlockIconOnly1, AddressOf unlockWithDependentsEventHandler)
+        Public commitLabel As New ToolStripMenuItem("Commit", My.Resources.Commit_Icon_Only, AddressOf commitEventHandler)
+        Public commitWithDependentsLabel As New ToolStripMenuItem("Commit With Dependents", My.Resources.Commit_Icon_Only, AddressOf commitWithDependentsEventHandler)
+        Public getLocksStealLabel As New ToolStripMenuItem("Get Lock (Steal Locks)", My.Resources.GetLocksIconOnly, AddressOf getLockStealLockEventHandler)
+        Public getLockActiveDoc As New ToolStripMenuItem("Get Lock", My.Resources.GetLocksIconOnly, AddressOf getLockActiveDocEventHandler)
+        Public getLockWithDependents As New ToolStripMenuItem("Get Lock With Dependents", My.Resources.GetLocksIconOnly, AddressOf getLocksActiveWithDependentsEventHandler)
         Public addToRepo As New ToolStripMenuItem("Add & Initial Commit", My.Resources.VaultLogo128, AddressOf addToRepoEventHandler)
+        Public showLog As New ToolStripMenuItem("View SVN Log", My.Resources.VaultLogo128, AddressOf showLogEventHandler)
         Public Sub New(modDocInput As ModelDoc2, iSwAppInput As SldWorks, parentUserControl As UserControl1)
             modDoc = modDocInput 'compInput.GetModelDoc2
             'comp = compInput
@@ -625,6 +626,9 @@ Public Class UserControl1
 
             addtoRepoFunc(parentUserControl2.GetSelectedModDocList(iSwApp2))
         End Sub
+        Sub showLogEventHandler(sender As Object, e As EventArgs)
+            subShowLog(modDoc.GetPathName)
+        End Sub
     End Class
     ' TODO
 
@@ -656,7 +660,7 @@ Public Class UserControl1
         myCol.initialize()
         Dim status1 As SVNStatus
         Dim modDoc As ModelDoc2
-        Dim comp As Component2
+        'Dim comp As Component2
 
         Dim bModelDocAttached As Boolean '= If(IsNothing(rootNode.Tag), False, True) ' True is modelDoc is attached to node
         Dim myContextMenu As myContextMenuClass
@@ -679,7 +683,7 @@ Public Class UserControl1
 
         If bModelDocAttached Then
             myContextMenu = New myContextMenuClass(modDoc, iSwApp, Me)
-            docMenu.Items.AddRange({myContextMenu.openLabel, myContextMenu.collapse})
+            docMenu.Items.AddRange({myContextMenu.openLabel, myContextMenu.collapse, myContextMenu.showLog})
             'modDoc = rootNode.Tag
         End If
 
@@ -741,7 +745,7 @@ Public Class UserControl1
         Else
             rootNode.BackColor = myCol.unknown
             rootNode.ToolTipText = "Unknown"
-            If bModelDocAttached Then docMenu.Items.AddRange({myContextMenu.openLabel})
+            'If bModelDocAttached Then docMenu.Items.AddRange({myContextMenu.openLabel})
 
         End If
 
