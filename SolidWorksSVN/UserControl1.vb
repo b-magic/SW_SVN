@@ -427,6 +427,7 @@ Public Class UserControl1
         Dim swConfMgr As ConfigurationManager
         Dim swConf As Configuration
         Dim swRootComp As Component2
+        Dim modDocTemp As ModelDoc2
 
         Dim i, j As Integer
         j = 0
@@ -462,8 +463,34 @@ Public Class UserControl1
                 parentNode.Tag = modDocArr(0)
             End If
 
-            If modDocArr(i).GetType <> swDocumentTypes_e.swDocASSEMBLY Then
-                If bUpdateTreeView Then
+            If modDocArr(i).GetType = swDocumentTypes_e.swDocASSEMBLY Then
+                swConfMgr = modDocArr(i).ConfigurationManager
+                swConf = swConfMgr.ActiveConfiguration
+                swRootComp = swConf.GetRootComponent3(True)
+
+                TraverseComponent(swRootComp, modelDocList, 1, parentNode)
+                j += 1
+            ElseIf modDocArr(i).GetType = swDocumentTypes_e.swDocDRAWING Then
+
+                modelDocList.Add(modDocArr(i)) 'Add drawing
+                j += 1
+                'Try to find part/asy for drawing
+
+                modDocTemp = iSwApp.GetOpenDocumentByName(System.IO.Path.ChangeExtension(modDocArr(i).GetPathName(), ".sldprt"))
+                If Not (modDocTemp Is Nothing) Then
+                    modelDocList.Add(modDocTemp)
+                    j += 1
+                Else
+                    'couldn't find part. try again as assembly
+                    modDocTemp = iSwApp.GetOpenDocumentByName(System.IO.Path.ChangeExtension(modDocArr(i).GetPathName(), ".sldasm"))
+                    If Not (modDocTemp Is Nothing) Then
+                        modelDocList.Add(modDocTemp)
+                        j += 1
+                    End If
+                End If
+            Else 'Part file
+                    'Should be a part file... not sure what else there is
+                    If bUpdateTreeView Then
                     setNodeColorFromStatus(parentNode)
                     allTreeViews(allTreeViewsIndexToUpdate).Nodes.Add(parentNode)
                 End If
@@ -471,13 +498,8 @@ Public Class UserControl1
                 j += 1
                 'iswApp.SendMsgToUser("Error: Model is not an assembly.")
                 'Throw New System.Exception("modDoc is not an Assembly")
-            Else
-                swConfMgr = modDocArr(i).ConfigurationManager
-                swConf = swConfMgr.ActiveConfiguration
-                swRootComp = swConf.GetRootComponent3(True)
 
-                TraverseComponent(swRootComp, modelDocList, 1, parentNode)
-                j += 1
+
             End If
         Next
 
