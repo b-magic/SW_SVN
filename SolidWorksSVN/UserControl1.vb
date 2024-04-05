@@ -798,26 +798,37 @@ Public Class UserControl1
         'Dim swSelCompArr() As SolidWorks.Interop.sldworks.Component2
         Dim modDocArr() As SolidWorks.Interop.sldworks.ModelDoc2
         Dim swComp As SolidWorks.Interop.sldworks.Component2
+        Dim obSelected As Object
         Dim i As Long
         'Dim tempObj As Object
         'swSelectType_e.swSelSHEETS
         Dim activeModDoc As ModelDoc2 = iSwApp.ActiveDoc
         Dim swSelMgr As SolidWorks.Interop.sldworks.SelectionMgr = activeModDoc.SelectionManager
         Dim nSelCount As Long = swSelMgr.GetSelectedObjectCount2(-1)
-        Dim seltyp As swSelectType_e
+
         Dim myNames As String() = [Enum].GetNames(GetType(swSelectType_e))
 
         'ReDim swSelCompArr(0)
         ReDim modDocArr(0)
         For i = 1 To nSelCount
             swComp = swSelMgr.GetSelectedObjectsComponent4(i, -1)
-            'tempObj = swSelMgr.GetSelectedObject6(i, -1)
-            'System.Diagnostics.Debug.Print(GetType(tempObj))
-            seltyp = swSelMgr.GetSelectedObjectType3(i, -1)
-            'Debug.Print(seltyp & " - " & myNames(seltyp)) 'swSelANNOTATIONTABLES swSelCOMPONENTS
-            If Not ensureResolvedComponent(swComp) Then Continue For
 
-            modDocArr(UBound(modDocArr)) = swComp.GetModelDoc2
+            If ensureResolvedComponent(swComp) Then
+                modDocArr(UBound(modDocArr)) = swComp.GetModelDoc2
+            Else
+
+                'unable to resolve component... maybe they had the top level selected? 
+                obSelected = swSelMgr.GetSelectedObject6(i, -1)
+
+                If obSelected.getPathName = activeModDoc.GetPathName Then 'check if they selected the top level
+                    'They selected the top level... this was the only way I could pull it off
+                    modDocArr(UBound(modDocArr)) = activeModDoc
+                Else
+                    'couldn't get the component... not sure what they selected
+                    Continue For
+                End If
+            End If
+
             ReDim Preserve modDocArr(UBound(modDocArr) + 1)
             'swSelCompArr(UBound(swSelCompArr)) = swComp
             'ReDim Preserve swSelCompArr(UBound(swSelCompArr) + 1)
@@ -830,14 +841,8 @@ Public Class UserControl1
 
         'Debug.Assert UBound(swSelCompArr) > 0
         'ReDim Preserve swSelCompArr(UBound(swSelCompArr) - 1)
-        If inclParentAssemblyCheckBox.Checked Then
-            modDocArr(UBound(modDocArr)) = activeModDoc
-            inclParentAssemblyCheckBox.Checked = False
-        Else
-            ReDim Preserve modDocArr(UBound(modDocArr) - 1)
-        End If
 
-
+        ReDim Preserve modDocArr(UBound(modDocArr) - 1)
 
         Return modDocArr
 

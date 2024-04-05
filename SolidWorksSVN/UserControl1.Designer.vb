@@ -28,7 +28,6 @@ Partial Class UserControl1
         Me.butPickFolder = New System.Windows.Forms.Button()
         Me.butRefresh = New System.Windows.Forms.Button()
         Me.butCleanup = New System.Windows.Forms.Button()
-        Me.inclParentAssemblyCheckBox = New System.Windows.Forms.CheckBox()
         Me.TextBox1 = New System.Windows.Forms.TextBox()
         Me.butFindComponent = New System.Windows.Forms.Button()
         Me.BottomToolStripPanel = New System.Windows.Forms.ToolStripPanel()
@@ -56,11 +55,11 @@ Partial Class UserControl1
         Me.TreeView1.Anchor = CType((((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Bottom) _
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.TreeView1.Location = New System.Drawing.Point(4, 635)
+        Me.TreeView1.Location = New System.Drawing.Point(4, 621)
         Me.TreeView1.MinimumSize = New System.Drawing.Size(478, 194)
         Me.TreeView1.Name = "TreeView1"
         Me.TreeView1.ShowNodeToolTips = True
-        Me.TreeView1.Size = New System.Drawing.Size(535, 553)
+        Me.TreeView1.Size = New System.Drawing.Size(535, 577)
         Me.TreeView1.TabIndex = 10
         '
         'onlineCheckBox
@@ -97,7 +96,7 @@ Partial Class UserControl1
         '
         Me.butRefresh.Cursor = System.Windows.Forms.Cursors.Hand
         Me.butRefresh.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.butRefresh.Location = New System.Drawing.Point(4, 585)
+        Me.butRefresh.Location = New System.Drawing.Point(4, 571)
         Me.butRefresh.Name = "butRefresh"
         Me.butRefresh.Size = New System.Drawing.Size(136, 44)
         Me.butRefresh.TabIndex = 17
@@ -117,16 +116,6 @@ Partial Class UserControl1
         Me.butCleanup.Text = "SVN Clean Up"
         Me.butCleanup.UseVisualStyleBackColor = False
         '
-        'inclParentAssemblyCheckBox
-        '
-        Me.inclParentAssemblyCheckBox.AutoSize = True
-        Me.inclParentAssemblyCheckBox.Location = New System.Drawing.Point(4, 555)
-        Me.inclParentAssemblyCheckBox.Name = "inclParentAssemblyCheckBox"
-        Me.inclParentAssemblyCheckBox.Size = New System.Drawing.Size(210, 24)
-        Me.inclParentAssemblyCheckBox.TabIndex = 21
-        Me.inclParentAssemblyCheckBox.Text = "Include Parent Assembly"
-        Me.inclParentAssemblyCheckBox.UseVisualStyleBackColor = True
-        '
         'TextBox1
         '
         Me.TextBox1.Location = New System.Drawing.Point(501, 220)
@@ -139,7 +128,7 @@ Partial Class UserControl1
         '
         Me.butFindComponent.Enabled = False
         Me.butFindComponent.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.butFindComponent.Location = New System.Drawing.Point(146, 585)
+        Me.butFindComponent.Location = New System.Drawing.Point(146, 571)
         Me.butFindComponent.Name = "butFindComponent"
         Me.butFindComponent.Size = New System.Drawing.Size(89, 44)
         Me.butFindComponent.TabIndex = 23
@@ -310,7 +299,6 @@ Partial Class UserControl1
         Me.Controls.Add(Me.ToolStrip1)
         Me.Controls.Add(Me.butFindComponent)
         Me.Controls.Add(Me.TextBox1)
-        Me.Controls.Add(Me.inclParentAssemblyCheckBox)
         Me.Controls.Add(Me.butRefresh)
         Me.Controls.Add(Me.butPickFolder)
         Me.Controls.Add(Me.localRepoPath)
@@ -332,7 +320,6 @@ Partial Class UserControl1
     Friend WithEvents localRepoPath As Windows.Forms.TextBox
     Friend WithEvents butPickFolder As Windows.Forms.Button
     Friend WithEvents butRefresh As Windows.Forms.Button
-    Friend WithEvents inclParentAssemblyCheckBox As CheckBox
     Friend WithEvents TextBox1 As TextBox
     Friend WithEvents butFindComponent As Button
     Friend WithEvents ToolStrip1 As ToolStrip
