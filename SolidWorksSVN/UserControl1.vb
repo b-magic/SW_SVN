@@ -297,32 +297,32 @@ Public Class UserControl1
 
     Public Sub updateStatusStrip()
 
-        Exit Sub 'disabling for speed
+        'Exit Sub 'disabling for speed
 
-        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
-        If modDoc Is Nothing Then Exit Sub
+        'Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
+        'If modDoc Is Nothing Then Exit Sub
 
-        Dim myCol As myColours = New myColours()
-        Dim status As SVNStatus = findStatusForFile(modDoc.GetPathName)
-        If IsNothing(status) Then Exit Sub
+        'Dim myCol As myColours = New myColours()
+        'Dim status As SVNStatus = findStatusForFile(modDoc.GetPathName)
+        'If IsNothing(status) Then Exit Sub
 
-        myCol.initialize()
-        If IsNothing(status) Then
-            StatusStrip2.Text = ""
-            StatusStrip2.BackColor = myCol.unknown
-        ElseIf status.fp(0).addDelChg1 = "?" Then
-            StatusStrip2.Text = "File is not saved on the Vault"
-            StatusStrip2.BackColor = myCol.notOnVault
-        ElseIf status.fp(0).lock6 = "K" Then
-            StatusStrip2.Text = "Locked by you"
-            StatusStrip2.BackColor = myCol.lockedByYou
-        ElseIf status.fp(0).lock6 = "O" Then
-            StatusStrip2.Text = "Locked By someone Else"
-            StatusStrip2.BackColor = myCol.lockedBySomeoneElse
-        ElseIf status.fp(0).lock6 = " " Then
-            StatusStrip2.Text = "Available"
-            StatusStrip2.BackColor = myCol.available
-        End If
+        'myCol.initialize()
+        'If IsNothing(status) Then
+        '    StatusStrip2.Text = ""
+        '    StatusStrip2.BackColor = myCol.unknown
+        'ElseIf status.fp(0).addDelChg1 = "?" Then
+        '    StatusStrip2.Text = "File is not saved on the Vault"
+        '    StatusStrip2.BackColor = myCol.notOnVault
+        'ElseIf status.fp(0).lock6 = "K" Then
+        '    StatusStrip2.Text = "Locked by you"
+        '    StatusStrip2.BackColor = myCol.lockedByYou
+        'ElseIf status.fp(0).lock6 = "O" Then
+        '    StatusStrip2.Text = "Locked By someone Else"
+        '    StatusStrip2.BackColor = myCol.lockedBySomeoneElse
+        'ElseIf status.fp(0).lock6 = " " Then
+        '    StatusStrip2.Text = "Available"
+        '    StatusStrip2.BackColor = myCol.available
+        'End If
     End Sub
 
     Sub NoCallbackSub()
@@ -416,7 +416,8 @@ Public Class UserControl1
 
     Public Function getComponentsOfAssemblyOptionalUpdateTree(
                                     ByRef modDocArr() As ModelDoc2,
-                                    Optional ByVal allTreeViewsIndexToUpdate As Integer = Nothing) As ModelDoc2()
+                                    Optional ByVal allTreeViewsIndexToUpdate As Integer = Nothing,
+                                    Optional ByVal bUniqueOnly As Boolean = True) As ModelDoc2()
 
         ' Checkin and checkout needs the modDocArray. The others just want filepaths. 
 
@@ -468,7 +469,7 @@ Public Class UserControl1
                 swConf = swConfMgr.ActiveConfiguration
                 swRootComp = swConf.GetRootComponent3(True)
 
-                TraverseComponent(swRootComp, modelDocList, 1, parentNode)
+                TraverseComponent(swRootComp, modelDocList, 1, parentNode, bUniqueOnly)
                 j += 1
             ElseIf modDocArr(i).GetType = swDocumentTypes_e.swDocDRAWING Then
 
@@ -489,8 +490,8 @@ Public Class UserControl1
                     End If
                 End If
             Else 'Part file
-                    'Should be a part file... not sure what else there is
-                    If bUpdateTreeView Then
+                'Should be a part file... not sure what else there is
+                If bUpdateTreeView Then
                     setNodeColorFromStatus(parentNode)
                     allTreeViews(allTreeViewsIndexToUpdate).Nodes.Add(parentNode)
                 End If
@@ -521,7 +522,8 @@ Public Class UserControl1
                          ByRef swComp As Component2,
                          ByRef mdComponentList As List(Of ModelDoc2),
                          ByVal nLevel As Long,
-                         Optional ByRef rootNode As TreeNode = Nothing)
+                         Optional ByRef rootNode As TreeNode = Nothing,
+                         Optional ByVal bUniqueOnly As Boolean = True)
 
         'https://help.solidworks.com/2016/English/api/sldworksapi/Traverse_Assembly_at_Component_and_Feature_Levels_Using_Recursion_Example_VBNET.htm
         Dim bUC As Boolean = If(rootNode Is Nothing, False, True)
@@ -536,8 +538,10 @@ Public Class UserControl1
         Dim modDocParent As ModelDoc2 = swComp.GetModelDoc2
         Dim sParentFileName As String = System.IO.Path.GetFileName(modDocParent.GetPathName)
         Dim tempStatus As SVNStatus = New SVNStatus()
+        Dim slComponentList As List(Of String) = New List(Of String)
 
         mdComponentList.Add(modDocParent)
+        slComponentList.Add(modDocParent.GetTitle)
 
         If bUC Then
             parentNode = New TreeNode(sParentFileName) '& " " & sGetDescription(modDocParent)
@@ -557,7 +561,8 @@ Public Class UserControl1
             If IsNothing(modDocChild) Then Continue For
             If modDocChild.GetType <> swDocumentTypes_e.swDocASSEMBLY Then
                 'Is part file
-                If mdComponentList.Contains(modDocChild) Then Continue For 'avoid duplicates
+                If mdComponentList.Contains(modDocChild) Then Continue For 'avoid duplicates <- I don't know if this actually works...
+                If slComponentList.Contains(modDocChild.GetTitle) And (bUniqueOnly) Then Continue For 'avoid duplicates
 
                 If bUC Then
                     sChildFileName = System.IO.Path.GetFileName(modDocChild.GetPathName)
@@ -568,9 +573,10 @@ Public Class UserControl1
                 End If
 
                 mdComponentList.Add(modDocChild)
+                slComponentList.Add(modDocChild.GetTitle)
             ElseIf modDocChild.GetType = swDocumentTypes_e.swDocASSEMBLY Then
                 'Is assembly
-                TraverseComponent(swChildComp, mdComponentList, nLevel + 1, parentNode)
+                TraverseComponent(swChildComp, mdComponentList, nLevel + 1, parentNode, bUniqueOnly)
             Else
                 Exit Sub
             End If
@@ -853,4 +859,8 @@ Public Class UserControl1
             'Drawing.Color.Bisque 'Drawing.Color.FromArgb(255, 77, 77) 'light red
         End Sub
     End Class
+
+    'Private Sub ToolStripContainer1_ContentPanel_Load(sender As Object, e As EventArgs) Handles ToolStripContainer1.ContentPanel.Load
+
+    'End Sub
 End Class
