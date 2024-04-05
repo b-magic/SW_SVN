@@ -3,7 +3,15 @@
 This project is not endorsed by, affiliated with, maintained, authorized, or sponsored by SolidWorks or Dassault Systems. All product and company names are the registered trademarks of their original owners. The use of any trade name or trademark is for identification and reference purposes only and does not imply any association with the trademark holder of their product brand.
 
 ## Getting Set Up - End User
+### What is SVN?
+SVN = Subversion. The OG version control system. Written by software developers for collaborating on software development. It is very similar to git, but git by default stores the entire history of the repository (yes even files you think you deleted) locally on every users computer, which is fine for text files that are source code. SVN meanwhile has a central server that stores history and provides some useful collaboration features. The most useful feature for CAD users is the ability to 'lock' out files, which prevents others from editing them at the same time as you and overwriting each other. 
 
+### How this all works
+* There's a central server that stores all the CAD files and their history. 
+* Everyone "checks out" a local copy of the latest version. All local files are 'read-only' by default.
+* Want to edit a file? Take the 'lock', which 1) checks with the server that you have the latest version, then 2) tells the server no one else is allowed to get write-access. 
+* Finished your changes? "Commit" your changes to the server. You can keep your lock to continue working, or release your lock so the next person can lock & edit it.
+* Don't like your changes? You can release your lock and revert your copy to the latest on the server. 
 
 ## Getting Set up - Developing The Project
 
