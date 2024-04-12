@@ -15,13 +15,31 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_7F78CF9E7F7443FBADD11422204AB28A"
+        "MsmKey" = "8:_15CD86C54DE44DEBA934A8869F0FEF56"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_8587F06655DA4FC8BC76A9F758CCF5D9"
+        "MsmKey" = "8:_2F354EDA97CB4D0C9167EF2728BCC218"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_529319D202A3427FAC5EC3947ECBF65E"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_93CD2864F9C043A48CFADBDB17924640"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_9A42031C444A4858A9F2E260600D1809"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -40,6 +58,12 @@
         "Entry"
         {
         "MsmKey" = "8:_C1A6513773194ECFA2AF56DE96F45B79"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F60075F523E043EE9DAD7EEFF6E9282C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -150,9 +174,69 @@
         }
         "File"
         {
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7F78CF9E7F7443FBADD11422204AB28A"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_15CD86C54DE44DEBA934A8869F0FEF56"
             {
-            "SourcePath" = "8:C:\\Program Files\\TortoiseSVN\\bin\\TortoiseProc.exe"
+            "SourcePath" = "8:..\\Third Party Files\\svn.exe"
+            "TargetName" = "8:svn.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_ADC62D268ADE4B19A211A4B9C6CF44A6"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2F354EDA97CB4D0C9167EF2728BCC218"
+            {
+            "SourcePath" = "8:..\\Third Party Files\\config"
+            "TargetName" = "8:config"
+            "Tag" = "8:"
+            "Folder" = "8:_40825BFBFF3548A792B9977B8B0C6FA0"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_529319D202A3427FAC5EC3947ECBF65E"
+            {
+            "SourcePath" = "8:..\\Third Party Files\\TortoiseProc.exe"
+            "TargetName" = "8:TortoiseProc.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_EE7E9DD25247421E87492B320EF561BD"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_93CD2864F9C043A48CFADBDB17924640"
+            {
+            "SourcePath" = "8:..\\Third Party Files\\TortoiseProc.exe"
             "TargetName" = "8:TortoiseProc.exe"
             "Tag" = "8:"
             "Folder" = "8:_ADC62D268ADE4B19A211A4B9C6CF44A6"
@@ -170,12 +254,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8587F06655DA4FC8BC76A9F758CCF5D9"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9A42031C444A4858A9F2E260600D1809"
             {
-            "SourcePath" = "8:C:\\Program Files\\TortoiseSVN\\bin\\svn.exe"
-            "TargetName" = "8:svn.exe"
+            "SourcePath" = "8:..\\Third Party Files\\config"
+            "TargetName" = "8:config"
             "Tag" = "8:"
-            "Folder" = "8:_ADC62D268ADE4B19A211A4B9C6CF44A6"
+            "Folder" = "8:_EE7E9DD25247421E87492B320EF561BD"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -241,12 +325,65 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F60075F523E043EE9DAD7EEFF6E9282C"
+            {
+            "SourcePath" = "8:..\\Third Party Files\\svn.exe"
+            "TargetName" = "8:svn.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_EE7E9DD25247421E87492B320EF561BD"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
         }
         "FileType"
         {
         }
         "Folder"
         {
+            "{1525181F-901A-416C-8A58-119130FE478E}:_56B4FC713DA84E6FA809EB6AB7A22BC4"
+            {
+            "Name" = "8:#1915"
+            "AlwaysCreate" = "11:FALSE"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Property" = "8:AppDataFolder"
+                "Folders"
+                {
+                    "{9EF0B969-E518-4E46-987F-47570745A589}:_06E8104541C24559B2E6E1EE1A998FA5"
+                    {
+                    "Name" = "8:Roaming"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_5C894C773A764B4C8F74EF2496B720D1"
+                        "Folders"
+                        {
+                            "{9EF0B969-E518-4E46-987F-47570745A589}:_40825BFBFF3548A792B9977B8B0C6FA0"
+                            {
+                            "Name" = "8:Subversion"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_45CA725E6CEA418AB7B0D1EC0A06657F"
+                                "Folders"
+                                {
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             "{1525181F-901A-416C-8A58-119130FE478E}:_6106A79F4D6640BF8CFEFD0C5663E985"
             {
             "Name" = "8:#1916"
@@ -822,7 +959,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_C1A6513773194ECFA2AF56DE96F45B79"
             {
-            "SourcePath" = "8:..\\SolidWorksSVN\\obj\\Release\\SolidWorksSVN.dll"
+            "SourcePath" = "8:..\\SolidWorksSVN\\obj\\Debug\\SolidWorksSVN.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_EE7E9DD25247421E87492B320EF561BD"

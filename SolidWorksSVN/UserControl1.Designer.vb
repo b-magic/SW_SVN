@@ -56,10 +56,10 @@ Partial Class UserControl1
             Or System.Windows.Forms.AnchorStyles.Left) _
             Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.TreeView1.Location = New System.Drawing.Point(4, 621)
-        Me.TreeView1.MinimumSize = New System.Drawing.Size(478, 194)
+        Me.TreeView1.MinimumSize = New System.Drawing.Size(250, 194)
         Me.TreeView1.Name = "TreeView1"
         Me.TreeView1.ShowNodeToolTips = True
-        Me.TreeView1.Size = New System.Drawing.Size(535, 577)
+        Me.TreeView1.Size = New System.Drawing.Size(538, 577)
         Me.TreeView1.TabIndex = 10
         '
         'onlineCheckBox
@@ -78,7 +78,7 @@ Partial Class UserControl1
         '
         Me.localRepoPath.Location = New System.Drawing.Point(4, 3)
         Me.localRepoPath.Name = "localRepoPath"
-        Me.localRepoPath.Size = New System.Drawing.Size(506, 26)
+        Me.localRepoPath.Size = New System.Drawing.Size(538, 26)
         Me.localRepoPath.TabIndex = 15
         Me.localRepoPath.Text = "Enter Path to Local Repository"
         '
@@ -118,9 +118,9 @@ Partial Class UserControl1
         '
         'TextBox1
         '
-        Me.TextBox1.Location = New System.Drawing.Point(501, 220)
+        Me.TextBox1.Location = New System.Drawing.Point(305, 86)
         Me.TextBox1.Name = "TextBox1"
-        Me.TextBox1.Size = New System.Drawing.Size(38, 26)
+        Me.TextBox1.Size = New System.Drawing.Size(97, 26)
         Me.TextBox1.TabIndex = 22
         Me.TextBox1.Text = "2024.04.04-A"
         '
@@ -307,7 +307,7 @@ Partial Class UserControl1
         Me.Controls.Add(Me.TreeView1)
         Me.Margin = New System.Windows.Forms.Padding(4)
         Me.Name = "UserControl1"
-        Me.Size = New System.Drawing.Size(542, 1200)
+        Me.Size = New System.Drawing.Size(545, 1200)
         Me.ToolStrip1.ResumeLayout(False)
         Me.ToolStrip1.PerformLayout()
         Me.ResumeLayout(False)
