@@ -241,9 +241,9 @@ Public Class UserControl1
 
         ''iSwApp.SetUserPreferenceStringValue(swUserPreferenceStringValue_e.swFileLocationsDocuments, "C:\Users\benne\Documents\SVN\fsae9\CAD\Subfolder")
 
-        updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True)
-        switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
-
+        If updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True) Then
+            switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
+        End If
         saveLocalRepoPathSettings()
     End Function
 

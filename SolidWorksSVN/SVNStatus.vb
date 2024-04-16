@@ -547,6 +547,7 @@ Public Class SVNStatus
         Dim allOpenDocs As ModelDoc2() = getAllOpenDocs(bMustBeVisible:=False)
         Dim output As SVNStatus
 
+        If allOpenDocs Is Nothing Then Return False
         If verifyCommandArgumentLength("12345678901234567890123456789012345678901234567890" &
                                     formatFilePathArrForProc(getFilePathsFromModDocArr(allOpenDocs), sDelimiter:=""" """)) Then 'Added 50 extra characters as safety to make up for arguments/commands other than just the filenames
 

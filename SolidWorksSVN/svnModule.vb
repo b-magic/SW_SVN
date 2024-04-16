@@ -63,7 +63,7 @@ Public Module svnModule
 
         bWhatToReturn = statusOfAllOpenModels.updateFromSvnServer(bRefreshAllTreeViews)
 
-        If bRefreshAllTreeViews Then
+        If bRefreshAllTreeViews And bWhatToReturn Then
             myUserControl.refreshAllTreeViewsVariable()
         End If
         Return bWhatToReturn
