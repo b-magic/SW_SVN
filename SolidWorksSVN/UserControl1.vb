@@ -795,7 +795,7 @@ Public Class UserControl1
 
         'Returns the active doc if nothing is selected
 
-        'Dim swSelCompArr() As SolidWorks.Interop.sldworks.Component2
+        Dim swSelCompArr() As SolidWorks.Interop.sldworks.Component2
         Dim modDocArr() As SolidWorks.Interop.sldworks.ModelDoc2
         Dim swComp As SolidWorks.Interop.sldworks.Component2
         Dim obSelected As Object
@@ -808,17 +808,24 @@ Public Class UserControl1
 
         Dim myNames As String() = [Enum].GetNames(GetType(swSelectType_e))
 
-        'ReDim swSelCompArr(0)
+        ReDim swSelCompArr(nSelCount - 1)
         ReDim modDocArr(0)
-        For i = 1 To nSelCount
-            swComp = swSelMgr.GetSelectedObjectsComponent4(i, -1)
 
+        For i = 1 To nSelCount
+            ' need to grab all the components first before doing lightweight->resolve, otherwise the selection manager return 'nothing' for lightweight
+            swSelCompArr(i - 1) = swSelMgr.GetSelectedObjectsComponent4(i, -1)
+        Next
+
+        For i = 1 To nSelCount
+
+            swComp = swSelCompArr(i - 1)
             If ensureResolvedComponent(swComp) Then
                 modDocArr(UBound(modDocArr)) = swComp.GetModelDoc2
             Else
 
                 'unable to resolve component... maybe they had the top level selected? 
                 obSelected = swSelMgr.GetSelectedObject6(i, -1)
+                If obSelected Is Nothing Then Continue For
 
                 If obSelected.getPathName = activeModDoc.GetPathName Then 'check if they selected the top level
                     'They selected the top level... this was the only way I could pull it off
