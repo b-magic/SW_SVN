@@ -122,7 +122,7 @@ Partial Class UserControl1
         Me.TextBox1.Name = "TextBox1"
         Me.TextBox1.Size = New System.Drawing.Size(97, 26)
         Me.TextBox1.TabIndex = 22
-        Me.TextBox1.Text = "2024.04.16-A"
+        Me.TextBox1.Text = "2024.04.16-B"
         '
         'butFindComponent
         '
