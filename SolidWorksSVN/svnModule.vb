@@ -869,7 +869,7 @@ Public Module svnModule
 
 
         Dim indexOfFilestoRevert As Integer() = status.indexFilterGetLatestType(getLatestType.revert, bIgnoreUpdate:=False)
-        status.releaseFileSystemAccessToRevertOrUpdateModels(indexOfFilestoRevert) 'This should be setting bReconnect to 
+        status.releaseFileSystemAccessToRevertOrUpdateModels(iSwApp, indexOfFilestoRevert) 'This should be setting bReconnect to 
         sFileList = status.sFilterGetLatestType(getLatestType.revert, bIgnoreUpdate:=False)
         If (Not sFileList Is Nothing) And ((myGetType = getLatestType.revert) Or (myGetType = getLatestType.both)) Then
             bSuccess = runTortoiseProcexeWithMonitor("/command:revert /path:" &
@@ -878,7 +878,7 @@ Public Module svnModule
         End If
 
         Dim indexOfFilestoUpdate As Integer() = status.indexFilterGetLatestType(getLatestType.update, bIgnoreUpdate:=False)
-        status.releaseFileSystemAccessToRevertOrUpdateModels(indexOfFilestoUpdate)
+        status.releaseFileSystemAccessToRevertOrUpdateModels(iSwApp, indexOfFilestoUpdate)
         sFileList = status.sFilterGetLatestType(getLatestType.update, bIgnoreUpdate:=False)
         If (Not sFileList Is Nothing) And ((myGetType = getLatestType.update) Or (myGetType = getLatestType.both)) Then
             bSuccess = runTortoiseProcexeWithMonitor("/command:update /path:" & formatFilePathArrForProc(sFileList) & " /closeonend:3")
@@ -887,8 +887,8 @@ Public Module svnModule
 
         'What happens if user cancels any items in tortoise window??? Or if tortoiseSVN fails, such as needing clean up
 
-        status.reattachDocsToFileSystem(indexOfFilestoRevert)
-        status.reattachDocsToFileSystem(indexOfFilestoUpdate)
+        status.reattachDocsToFileSystem(indexOfFilestoRevert, iSwApp)
+        status.reattachDocsToFileSystem(indexOfFilestoUpdate, iSwApp)
 
         If updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True) Then
             myUserControl.switchTreeViewToCurrentModel(bRetryWithRefresh:=False)

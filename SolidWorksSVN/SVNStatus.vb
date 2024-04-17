@@ -416,7 +416,7 @@ Public Class SVNStatus
         If j = 0 Then Return Nothing
         Return sPath
     End Function
-    Sub releaseFileSystemAccessToRevertOrUpdateModels(Optional index As Integer() = Nothing)
+    Sub releaseFileSystemAccessToRevertOrUpdateModels(iSwApp As SolidWorks.Interop.sldworks.SldWorks, Optional index As Integer() = Nothing)
         'Even if files are read-only, they are still "in-use" by Solidworks, so the files cannot be
         ' overwritten by SVN. We have to dettach each file, overwrite with SVN, then reattach.
         Dim i As Integer
@@ -439,7 +439,11 @@ Public Class SVNStatus
                 ' ForceReleaseLocks is releasing SolidWorks's system lock on the file
                 ' Which prevents other programs (like SVN) from overwriting the file
                 ' This allows the file to be overwritten by the New version
-                If fp(index(i)).modDoc.GetType <> swDocumentTypes_e.swDocDRAWING Then
+                If fp(index(i)).modDoc.GetType = swDocumentTypes_e.swDocDRAWING Then
+                    'forcereleaselocks isn't a thing for drawings. Need to close and reopen it. 
+                    iSwApp.CloseDoc(fp(index(i)).modDoc.GetTitle)
+                    fp(index(i)).modDoc = Nothing
+                Else
                     'The method doesn't work for Drawings
                     fp(index(i)).modDoc.ForceReleaseLocks() 'Forces solidworks to release it's lock on the file, not to be confused with SVN lock.
                     fp(index(i)).bReconnect = True
@@ -451,9 +455,10 @@ Public Class SVNStatus
             End If
         Next
     End Sub
-    Sub reattachDocsToFileSystem(index As Integer())
+    Sub reattachDocsToFileSystem(index As Integer(), iSwApp As SolidWorks.Interop.sldworks.SldWorks)
         'Pass -1 to set index as all
         Dim reloadOrReplaceResult As swComponentReloadError_e
+        Dim swErrors, swWarnings As Integer
 
         If index Is Nothing Then Exit Sub
 
@@ -466,7 +471,17 @@ Public Class SVNStatus
         End If
 
         For i = 0 To UBound(index)
-            If fp(index(i)).modDoc Is Nothing Then Continue For
+            If fp(index(i)).modDoc Is Nothing Then
+                If Strings.InStr(System.IO.Path.GetExtension(fp(index(i)).filename), ".slddrw", CompareMethod.Text) <> 0 Then
+                    'not able to detach a drawing from the file system. Had to close and reopen. 
+                    fp(index(i)).modDoc = iSwApp.OpenDoc6(
+                        fp(index(i)).filename,
+                        swDocumentTypes_e.swDocDRAWING,
+                        swOpenDocOptions_e.swOpenDocOptions_LoadModel,
+                        "", swErrors, swWarnings)
+                End If
+                Continue For
+            End If
             Try
                 fp(index(i)).modDoc.IsOpenedReadOnly()
             Catch ex As Exception
