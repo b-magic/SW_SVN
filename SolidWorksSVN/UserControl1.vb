@@ -576,7 +576,13 @@ Public Class UserControl1
                 slComponentList.Add(modDocChild.GetTitle)
             ElseIf modDocChild.GetType = swDocumentTypes_e.swDocASSEMBLY Then
                 'Is assembly
+                If mdComponentList.Contains(modDocChild) Then Continue For 'avoid duplicates <- I don't know if this actually works...
+                If slComponentList.Contains(modDocChild.GetTitle) And (bUniqueOnly) Then Continue For 'avoid duplicates
+
                 TraverseComponent(swChildComp, mdComponentList, nLevel + 1, parentNode, bUniqueOnly)
+
+                mdComponentList.Add(modDocChild)
+                slComponentList.Add(modDocChild.GetTitle)
             Else
                 Exit Sub
             End If
