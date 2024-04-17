@@ -428,6 +428,7 @@ Public Module svnModule
         Dim Status As SVNStatus
 
         If Not userAcceptsLossOfChanges(modDocArr, "Release Locks, and revert changes to vault version?") Then Exit Sub
+        saveAllOpenFiles(bShowError:=True)
 
         If IsNothing(modDocArr) Then
             If Not verifyLocalRepoPath() Then Exit Sub
