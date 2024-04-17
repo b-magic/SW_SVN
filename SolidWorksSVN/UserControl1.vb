@@ -817,6 +817,11 @@ Public Class UserControl1
         ReDim swSelCompArr(nSelCount - 1)
         ReDim modDocArr(0)
 
+        If Not ((activeModDoc.GetType = swDocumentTypes_e.swDocPART) Or (activeModDoc.GetType = swDocumentTypes_e.swDocASSEMBLY)) Then
+            'prevent selection manager (used later) from fatal errors on other files types
+            Return {activeModDoc}
+        End If
+
         For i = 1 To nSelCount
             ' need to grab all the components first before doing lightweight->resolve, otherwise the selection manager return 'nothing' for lightweight
             swSelCompArr(i - 1) = swSelMgr.GetSelectedObjectsComponent4(i, -1)
