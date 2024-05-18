@@ -808,6 +808,7 @@ Public Class UserControl1
         Dim i As Long
         'Dim tempObj As Object
         'swSelectType_e.swSelSHEETS
+        Dim sTempPathName As String
         Dim activeModDoc As ModelDoc2 = iSwApp.ActiveDoc
         Dim swSelMgr As SolidWorks.Interop.sldworks.SelectionMgr = activeModDoc.SelectionManager
         Dim nSelCount As Long = swSelMgr.GetSelectedObjectCount2(-1)
@@ -838,13 +839,19 @@ Public Class UserControl1
                 obSelected = swSelMgr.GetSelectedObject6(i, -1)
                 If obSelected Is Nothing Then Continue For
 
-                If obSelected.getPathName = activeModDoc.GetPathName Then 'check if they selected the top level
-                    'They selected the top level... this was the only way I could pull it off
-                    modDocArr(UBound(modDocArr)) = activeModDoc
-                Else
-                    'couldn't get the component... not sure what they selected
+                Try
+                    If obSelected.getPathName = activeModDoc.GetPathName Then 'check if they selected the top level
+                        'They selected the top level... this was the only way I could pull it off
+                        modDocArr(UBound(modDocArr)) = activeModDoc
+                    Else
+                        'couldn't get the component... not sure what they selected
+                        Continue For
+                    End If
+                Catch ex As Exception
                     Continue For
-                End If
+                End Try
+
+
             End If
 
             ReDim Preserve modDocArr(UBound(modDocArr) + 1)
