@@ -165,7 +165,7 @@ Public Module svnModule
                       "Would you like to switch to offline? " & vbCrLf & vbCrLf & "Error Message Below" &
                       catWithNewLine(sOutputErrorLines),
                       swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbYesNo) = swMessageBoxResult_e.swMbHitYes Then
-                        myUserControl.onlineCheckBox.Checked = False
+                        switchToOffline()
                     End If
                     Return Nothing
                 ElseIf sOutputErrorLines(i).Contains("W155007:") Then
@@ -366,7 +366,7 @@ Public Module svnModule
                                   "Would you like to give it more time?",
                                   swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbYesNo) = swMessageBoxResult_e.swMbHitYes Then
                 iSwApp.SendMsgToUser("Switching to offline mode")
-                myUserControl.onlineCheckBox.Checked = False
+                switchToOffline()
                 System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.Default
                 Return Nothing
             Else
@@ -705,7 +705,7 @@ Public Module svnModule
                     End If
                 ElseIf response = swMessageBoxResult_e.swMbHitNo Then
                     iSwApp.SendMsgToUser2("Switching to offline.", swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbOk)
-                    myUserControl.onlineCheckBox.Checked = False
+                    switchToOffline()
                     Return False
                 End If
             End If
@@ -742,6 +742,7 @@ Public Module svnModule
                 End If
             ElseIf response = swMessageBoxResult_e.swMbHitNo Then
                 iSwApp.SendMsgToUser2("Switching to offline.", swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbOk)
+                switchToOffline()
                 Return False
             Else
                 Return False
@@ -996,6 +997,27 @@ Public Module svnModule
 
         Return True
     End Function
+
+    Sub switchToOffline()
+        myUserControl.onlineCheckBox.Checked = False
+
+        clearMyTree("Offline. Click Checkbox at top of add-in to go online.")
+
+    End Sub
+
+    Public Sub clearMyTree(Optional ByVal message As String = "No Status Available for Any Open Files")
+
+        myUserControl.allTreeViews = Nothing
+
+        Dim msgTreeNode As TreeNode
+        msgTreeNode = New TreeNode(message)
+
+        myUserControl.TreeView1.Nodes.Clear()
+        myUserControl.TreeView1.Nodes.Insert(0, msgTreeNode)
+        myUserControl.TreeView1.Show()
+
+    End Sub
+
     Public Function sGetFileNames(status As SVNStatus) As String()
         If status Is Nothing Then Return Nothing
         Dim returnsGetFileNames(UBound(status.fp)) As String

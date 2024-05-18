@@ -351,7 +351,8 @@ Public Class UserControl1
         If modDoc Is Nothing Then Exit Sub
 
         Dim treeNodeIndex As Integer = findStoredTreeView(modDoc.GetPathName, bRetryWithRefresh)
-        If IsNothing(treeNodeIndex) Then Exit Sub
+        If IsNothing(treeNodeIndex) Or IsNothing(allTreeViews) Then Exit Sub
+        If Not onlineCheckBox.Checked Then Exit Sub
 
         Dim treeNodeTemp As TreeNode = allTreeViews(treeNodeIndex).Nodes(0)
 

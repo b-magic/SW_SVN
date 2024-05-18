@@ -22,6 +22,7 @@ Partial Class UserControl1
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
+        Dim TreeNode1 As System.Windows.Forms.TreeNode = New System.Windows.Forms.TreeNode("Open a File to See its Status")
         Me.TreeView1 = New System.Windows.Forms.TreeView()
         Me.onlineCheckBox = New System.Windows.Forms.CheckBox()
         Me.localRepoPath = New System.Windows.Forms.TextBox()
@@ -58,6 +59,9 @@ Partial Class UserControl1
         Me.TreeView1.Location = New System.Drawing.Point(4, 621)
         Me.TreeView1.MinimumSize = New System.Drawing.Size(250, 194)
         Me.TreeView1.Name = "TreeView1"
+        TreeNode1.Name = "Node0"
+        TreeNode1.Text = "Open a File to See its Status"
+        Me.TreeView1.Nodes.AddRange(New System.Windows.Forms.TreeNode() {TreeNode1})
         Me.TreeView1.ShowNodeToolTips = True
         Me.TreeView1.Size = New System.Drawing.Size(538, 577)
         Me.TreeView1.TabIndex = 10
