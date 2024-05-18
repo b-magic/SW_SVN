@@ -26,5 +26,17 @@
         Next
         Return -1
     End Function
+    Public Sub DeleteTreeViewAt(ByVal index As Integer, ByRef prLst As TreeView())
+        Dim i As Integer
+
+        ' Move all element back one position
+        For i = index + 1 To UBound(prLst)
+            prLst(i - 1) = prLst(i)
+        Next
+
+        ' Shrink the array by one, removing the last one
+        ReDim Preserve prLst(UBound(prLst) - 1)
+    End Sub
+
 
 End Module

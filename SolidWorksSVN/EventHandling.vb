@@ -145,7 +145,9 @@ Public Class AssemblyEventHandler
         AddHandler iAssembly.ComponentStateChangeNotify2, AddressOf Me.AssemblyDoc_ComponentStateChangeNotify2
         AddHandler iAssembly.ComponentVisualPropertiesChangeNotify, AddressOf Me.AssemblyDoc_ComponentVisiblePropertiesChangeNotify
         AddHandler iAssembly.ComponentDisplayStateChangeNotify, AddressOf Me.AssemblyDoc_ComponentDisplayStateChangeNotify
+
         'AddHandler iSwApp.ActiveModelDocChangeNotify, AddressOf Me.AssemblyDoc_ActiveModelDocChangeNotify
+        'AddHandler iSwApp.FileCloseNotify, AddressOf Me.DSldWorksEvents_FileCloseNotifyEventHandler
 
         ConnectModelViews()
     End Function
@@ -157,7 +159,9 @@ Public Class AssemblyEventHandler
         RemoveHandler iAssembly.ComponentStateChangeNotify2, AddressOf Me.AssemblyDoc_ComponentStateChangeNotify2
         RemoveHandler iAssembly.ComponentVisualPropertiesChangeNotify, AddressOf Me.AssemblyDoc_ComponentVisiblePropertiesChangeNotify
         RemoveHandler iAssembly.ComponentDisplayStateChangeNotify, AddressOf Me.AssemblyDoc_ComponentDisplayStateChangeNotify
+
         'RemoveHandler iSwApp.ActiveModelDocChangeNotify, AddressOf Me.AssemblyDoc_ActiveModelDocChangeNotify
+        'RemoveHandler iSwApp.FileCloseNotify, AddressOf Me.DSldWorksEvents_FileCloseNotifyEventHandler
 
         DisconnectModelViews()
 
@@ -226,6 +230,23 @@ Public Class AssemblyEventHandler
 
     End Function
 
+    'Public Function DSldWorksEvents_FileCloseNotifyEventHandler(ByVal FileName As System.String, ByVal reason As System.Int32) As Integer
+
+    '    Dim UC1 As UserControl1 = swAddin.myTaskPaneHost
+    '    iSwApp.SendMsgToUser2("File closed", swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbOk)
+
+    '    If iSwApp.ActiveDoc = Nothing Then
+    '        UC1.allTreeViews = Nothing
+    '        UC1.TreeView1.Nodes.Clear()
+    '    Else
+    '        'Try
+    '        '    svnAddInUtils.DeleteTreeViewAt(UC1.findStoredTreeView(FileName), UC1.allTreeViews)
+    '        'Catch
+    '        'End Try
+    '    End If
+
+    '    'allTreeViews(findStoredTreeView(modDoc.GetPathName, bRetryWithRefresh)).Nodes(0)
+    'End Function
 
     Public Function AssemblyDoc_ComponentDisplayStateChangeNotify(ByVal swObject As Object) As Integer
 

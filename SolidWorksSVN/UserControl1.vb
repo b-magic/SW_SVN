@@ -23,7 +23,10 @@ Public Class UserControl1
 
     Public statusOfAllOpenModels As SVNStatus = New SVNStatus
     Public allOpenDocs As ModelDoc2()
+
+    'Dim modelDocList As New List(Of ModelDoc2)()
     Public allTreeViews As TreeView() = {New TreeView}
+    'Public allTreeViews As New List(Of TreeView())
 
     Private Sub UserControl1_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
 
@@ -347,8 +350,10 @@ Public Class UserControl1
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()
         If modDoc Is Nothing Then Exit Sub
 
-        Dim treeNodeTemp As TreeNode = findStoredTreeView(modDoc.GetPathName, bRetryWithRefresh)
-        If IsNothing(treeNodeTemp) Then Exit Sub
+        Dim treeNodeIndex As Integer = findStoredTreeView(modDoc.GetPathName, bRetryWithRefresh)
+        If IsNothing(treeNodeIndex) Then Exit Sub
+
+        Dim treeNodeTemp As TreeNode = allTreeViews(treeNodeIndex).Nodes(0)
 
         Dim clonedNode As TreeNode = CType(treeNodeTemp.Clone(), TreeNode)
 
@@ -359,7 +364,7 @@ Public Class UserControl1
         TreeView1.Show()
 
     End Sub
-    Function findStoredTreeView(pathName As String, Optional bRetryWithRefresh As Boolean = True) As TreeNode
+    Function findStoredTreeView(pathName As String, Optional bRetryWithRefresh As Boolean = True) As Integer
         Dim i As Integer
         Dim bSuccess As Boolean
         'Dim bFound As Boolean = False
@@ -381,7 +386,7 @@ Public Class UserControl1
         For i = 0 To UBound(allTreeViews)
             If allTreeViews(i).Nodes.Count = 0 Then Continue For
             If (Strings.InStr(allTreeViews(i).Nodes(0).Text, System.IO.Path.GetFileName(pathName), CompareMethod.Text) <> 0) Then
-                Return allTreeViews(i).Nodes(0)
+                Return i
             End If
         Next
 
@@ -392,7 +397,7 @@ Public Class UserControl1
         For i = 0 To UBound(allTreeViews)
             If allTreeViews(i).Nodes.Count > 0 Then
                 If (Strings.InStr(allTreeViews(i).Nodes(0).Text, System.IO.Path.GetFileName(pathName), CompareMethod.Text) <> 0) Then
-                    Return allTreeViews(i).Nodes(0)
+                    Return i
                 End If
             End If
         Next
@@ -808,7 +813,6 @@ Public Class UserControl1
         Dim i As Long
         'Dim tempObj As Object
         'swSelectType_e.swSelSHEETS
-        Dim sTempPathName As String
         Dim activeModDoc As ModelDoc2 = iSwApp.ActiveDoc
         Dim swSelMgr As SolidWorks.Interop.sldworks.SelectionMgr = activeModDoc.SelectionManager
         Dim nSelCount As Long = swSelMgr.GetSelectedObjectCount2(-1)
