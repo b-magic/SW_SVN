@@ -8,7 +8,7 @@ SVN = Subversion. The OG version control system. Written by software developers 
 
 ### How this all works
 * There's a central server that stores all the CAD files and their history. 
-* Everyone "checks out" a local copy of the latest version. All local files are 'read-only' by default.
+* Everyone "checks out" a local copy of the repository from the server. All local files are 'read-only' by default.
 * Want to edit a file? Take the 'lock', which 1) checks with the server that you have the latest version, then 2) tells the server no one else is allowed to get write-access. 
 * Finished your changes? "Commit" your changes to the server. You can keep your lock to continue working, or release your lock so the next person can lock & edit it.
 * Don't like your changes? You can release your lock and revert your copy to the latest on the server. 
@@ -60,6 +60,7 @@ There's lots of options to set up an SVN Server. I decided to use an amazon web 
 #### Amazon Web Server
 I've created an image, which is not currently available to the public though.
 
+** These instructions are obsolete now. Sorry! **
 You'll want to navigate to elastic computing (EC2), and create a new free instance. 
 1. Use free-tier ubuntu
 2. Make sure you also get elastic storage.
