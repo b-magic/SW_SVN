@@ -806,7 +806,8 @@ Public Module svnModule
     End Function
     Public Sub subShowLog(sFilePath As String)
         Debug.Print(sFilePath)
-        runTortoiseProcexeWithMonitor("/command:log /path:" & sFilePath)
+        iSwApp.SendMsgToUser("Log is for VIEWING ONLY. Revert/Save Version/etc with Solidworks open will ")
+        runTortoiseProcexeWithMonitor("/command:log /path:""" & sFilePath & """")
     End Sub
 
     Sub myGetLatestOrRevert(Optional ByRef modDocArr As ModelDoc2() = Nothing,

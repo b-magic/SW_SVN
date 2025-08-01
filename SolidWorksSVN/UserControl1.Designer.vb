@@ -22,14 +22,13 @@ Partial Class UserControl1
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
-        Dim TreeNode1 As System.Windows.Forms.TreeNode = New System.Windows.Forms.TreeNode("Open a File to See its Status")
+        Dim TreeNode2 As System.Windows.Forms.TreeNode = New System.Windows.Forms.TreeNode("Open a File to See its Status")
         Me.TreeView1 = New System.Windows.Forms.TreeView()
         Me.onlineCheckBox = New System.Windows.Forms.CheckBox()
         Me.localRepoPath = New System.Windows.Forms.TextBox()
         Me.butPickFolder = New System.Windows.Forms.Button()
         Me.butRefresh = New System.Windows.Forms.Button()
         Me.butCleanup = New System.Windows.Forms.Button()
-        Me.TextBox1 = New System.Windows.Forms.TextBox()
         Me.butFindComponent = New System.Windows.Forms.Button()
         Me.BottomToolStripPanel = New System.Windows.Forms.ToolStripPanel()
         Me.TopToolStripPanel = New System.Windows.Forms.ToolStripPanel()
@@ -48,6 +47,9 @@ Partial Class UserControl1
         Me.dropDownGetLatestAllOpenFiles = New System.Windows.Forms.ToolStripMenuItem()
         Me.dropDownGetLatestAll = New System.Windows.Forms.ToolStripMenuItem()
         Me.ContentPanel = New System.Windows.Forms.ToolStripContentPanel()
+        Me.ContextMenu1 = New System.Windows.Forms.ContextMenu()
+        Me.ContextMenu2 = New System.Windows.Forms.ContextMenu()
+        Me.Label1 = New System.Windows.Forms.Label()
         Me.ToolStrip1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -59,11 +61,11 @@ Partial Class UserControl1
         Me.TreeView1.Location = New System.Drawing.Point(4, 621)
         Me.TreeView1.MinimumSize = New System.Drawing.Size(250, 194)
         Me.TreeView1.Name = "TreeView1"
-        TreeNode1.Name = "Node0"
-        TreeNode1.Text = "Open a File to See its Status"
-        Me.TreeView1.Nodes.AddRange(New System.Windows.Forms.TreeNode() {TreeNode1})
+        TreeNode2.Name = "Node0"
+        TreeNode2.Text = "Open a File to See its Status"
+        Me.TreeView1.Nodes.AddRange(New System.Windows.Forms.TreeNode() {TreeNode2})
         Me.TreeView1.ShowNodeToolTips = True
-        Me.TreeView1.Size = New System.Drawing.Size(538, 577)
+        Me.TreeView1.Size = New System.Drawing.Size(538, 329)
         Me.TreeView1.TabIndex = 10
         '
         'onlineCheckBox
@@ -119,14 +121,7 @@ Partial Class UserControl1
         Me.butCleanup.TabIndex = 12
         Me.butCleanup.Text = "SVN Clean Up"
         Me.butCleanup.UseVisualStyleBackColor = False
-        '
-        'TextBox1
-        '
-        Me.TextBox1.Location = New System.Drawing.Point(305, 86)
-        Me.TextBox1.Name = "TextBox1"
-        Me.TextBox1.Size = New System.Drawing.Size(97, 26)
-        Me.TextBox1.TabIndex = 22
-        Me.TextBox1.Text = "2024.04.16-B"
+        Me.butCleanup.Visible = False
         '
         'butFindComponent
         '
@@ -293,6 +288,15 @@ Partial Class UserControl1
         '
         Me.ContentPanel.Size = New System.Drawing.Size(250, 525)
         '
+        'Label1
+        '
+        Me.Label1.AutoSize = True
+        Me.Label1.Location = New System.Drawing.Point(251, 112)
+        Me.Label1.Name = "Label1"
+        Me.Label1.Size = New System.Drawing.Size(151, 20)
+        Me.Label1.TabIndex = 24
+        Me.Label1.Text = "Version: 2025.08.01"
+        '
         'UserControl1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(144.0!, 144.0!)
@@ -300,9 +304,9 @@ Partial Class UserControl1
         Me.AutoScroll = True
         Me.AutoSize = True
         Me.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
+        Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.ToolStrip1)
         Me.Controls.Add(Me.butFindComponent)
-        Me.Controls.Add(Me.TextBox1)
         Me.Controls.Add(Me.butRefresh)
         Me.Controls.Add(Me.butPickFolder)
         Me.Controls.Add(Me.localRepoPath)
@@ -311,7 +315,7 @@ Partial Class UserControl1
         Me.Controls.Add(Me.TreeView1)
         Me.Margin = New System.Windows.Forms.Padding(4)
         Me.Name = "UserControl1"
-        Me.Size = New System.Drawing.Size(545, 1200)
+        Me.Size = New System.Drawing.Size(545, 952)
         Me.ToolStrip1.ResumeLayout(False)
         Me.ToolStrip1.PerformLayout()
         Me.ResumeLayout(False)
@@ -324,7 +328,6 @@ Partial Class UserControl1
     Friend WithEvents localRepoPath As Windows.Forms.TextBox
     Friend WithEvents butPickFolder As Windows.Forms.Button
     Friend WithEvents butRefresh As Windows.Forms.Button
-    Friend WithEvents TextBox1 As TextBox
     Friend WithEvents butFindComponent As Button
     Friend WithEvents ToolStrip1 As ToolStrip
     Friend WithEvents ToolStripDropDownButGetLocks As ToolStripSplitButton
@@ -343,4 +346,7 @@ Partial Class UserControl1
     Friend WithEvents RightToolStripPanel As ToolStripPanel
     Friend WithEvents LeftToolStripPanel As ToolStripPanel
     Friend WithEvents ContentPanel As ToolStripContentPanel
+    Friend WithEvents ContextMenu1 As ContextMenu
+    Friend WithEvents ContextMenu2 As ContextMenu
+    Friend WithEvents Label1 As Label
 End Class

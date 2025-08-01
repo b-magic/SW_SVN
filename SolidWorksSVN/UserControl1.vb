@@ -895,6 +895,10 @@ Public Class UserControl1
         End Sub
     End Class
 
+    Private Sub Label1_Click(sender As Object, e As EventArgs) Handles Label1.Click
+
+    End Sub
+
     'Private Sub ToolStripContainer1_ContentPanel_Load(sender As Object, e As EventArgs) Handles ToolStripContainer1.ContentPanel.Load
 
     'End Sub
