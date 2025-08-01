@@ -385,6 +385,70 @@ Public Module svnModule
         unlockDocs(myUserControl.getComponentsOfAssemblyOptionalUpdateTree(myUserControl.GetSelectedModDocList(iSwApp)))
 
     End Sub
+    Sub myReleaseDoc(modDoc As ModelDoc2)
+        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
+        Dim modelType As Integer = modDoc.GetType()
+        Dim componentAndDrawingModDoc() As ModelDoc2
+        Dim errors As Integer = 0
+        Dim warnings As Integer = 0
+        Dim componentDoc As ModelDoc2
+
+        componentAndDrawingModDoc = getMatchingComponentAndDrawing(modDoc, iSwApp)
+
+        If componentAndDrawingModDoc(0) Is Nothing Then iSwApp.SendMsgToUser("Component not found") : Exit Sub
+        If componentAndDrawingModDoc(1) Is Nothing Then iSwApp.SendMsgToUser("Drawing not found") : Exit Sub
+        If Not ensureUserHasLocks(componentAndDrawingModDoc) Then iSwApp.SendMsgToUser("Error. Couldn't get locks on component & drawing. Exiting") : Exit Sub
+
+        ' Determine revision value
+        Dim existingRevision As String = GetCustomProperty(componentAndDrawingModDoc(0), "Revision")
+        Dim inputRevision As String = InputBox("Enter Revision:", "Revision", existingRevision)
+        If String.IsNullOrWhiteSpace(inputRevision) Then Exit Sub
+
+        ' Set custom properties
+        SetCustomProperty(componentAndDrawingModDoc(0), "Revision", inputRevision)
+        SetCustomProperty(componentAndDrawingModDoc(0), "State", "Released")
+
+        componentAndDrawingModDoc(0).Rebuild(swRebuildOptions_e.swRebuildAll)
+        componentAndDrawingModDoc(1).Rebuild(swRebuildOptions_e.swRebuildAll)
+
+        ' Call external method
+        commitDocs(componentAndDrawingModDoc, sCommitMessage:="#RELEASED# Revision: " & inputRevision & " <- Don't delete. Your Comments -> ")
+        If Not checkNoLocks(componentAndDrawingModDoc) Then iSwApp.SendMsgToUser("Error. User still has locks. Exiting") : Exit Sub
+
+        ' Save as STEP
+        iSwApp.ActivateDoc3(componentAndDrawingModDoc(0).GetTitle(), True, swRebuildOnActivation_e.swRebuildActiveDoc, 0)
+        componentAndDrawingModDoc(0).ClearSelection2(True)
+        Dim modelPath As String = componentAndDrawingModDoc(0).GetPathName()
+        Dim baseName As String = System.IO.Path.GetFileNameWithoutExtension(modelPath)
+        Dim directory As String = System.IO.Path.GetDirectoryName(modelPath)
+        Dim stepPath As String = System.IO.Path.Combine(directory, baseName & inputRevision & ".step")
+
+        componentDoc = iSwApp.ActiveDoc
+        Dim bSuccess As Boolean = componentDoc.Extension.SaveAs3(stepPath,
+                                       swSaveAsVersion_e.swSaveAsCurrentVersion,
+                                       swSaveAsOptions_e.swSaveAsOptions_Copy + swSaveAsOptions_e.swSaveAsOptions_AvoidRebuildOnSave,
+                                       Nothing, Nothing, errors, warnings)
+        If Not bSuccess Then
+            iSwApp.SendMsgToUser2("Error: " & errors & vbCrLf & "Warnings: " & warnings & vbCrLf & "Lookup: swFileSaveError_e or swFileSaveWarning_e", swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbOk)
+        End If
+
+        ' Save drawing as PDF
+        iSwApp.ActivateDoc3(componentAndDrawingModDoc(0).GetTitle(), True, swRebuildOnActivation_e.swRebuildActiveDoc, 0)
+        If componentAndDrawingModDoc(1) IsNot Nothing Then
+            Dim drawingPath As String = componentAndDrawingModDoc(1).GetPathName()
+            Dim drawingBaseName As String = System.IO.Path.GetFileNameWithoutExtension(drawingPath)
+            Dim drawingDirectory As String = System.IO.Path.GetDirectoryName(drawingPath)
+            Dim pdfPath As String = System.IO.Path.Combine(drawingDirectory, drawingBaseName & inputRevision & ".pdf")
+            bSuccess = componentAndDrawingModDoc(1).Extension.SaveAs3(pdfPath,
+                                    swSaveAsVersion_e.swSaveAsCurrentVersion,
+                                    swSaveAsOptions_e.swSaveAsOptions_Copy,
+                                    Nothing, Nothing, errors, warnings)
+            If Not bSuccess Then
+                iSwApp.SendMsgToUser2("Error: " & errors & vbCrLf & "Warnings: " & warnings & vbCrLf & "Lookup: swFileSaveError_e or swFileSaveWarning_e", swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbOk)
+            End If
+        End If
+        iSwApp.SendMsgToUser2("Release Complete! Committed, and Generated STEP/PDF.", swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbOk)
+    End Sub
     Function stringArrToSingleStringWithNewLines(inputStrings() As String, Optional bTrimFileNames As Boolean = False, Optional iLimit As Integer = 99999) As String
         Dim myReturnString As String = ""
         Dim i As Integer
@@ -462,7 +526,7 @@ Public Module svnModule
         myGetLatestOrRevert(modDocArr, getLatestType.revert)
 
     End Sub
-    Sub commitDocs(ByRef modDocArr() As ModelDoc2)
+    Sub commitDocs(ByRef modDocArr() As ModelDoc2, Optional sCommitMessage As String = "")
         Dim bSuccess As Boolean = False
         Dim sErrorFiles As String = ""
         Dim i As Integer
@@ -504,7 +568,7 @@ Public Module svnModule
 
         bSuccess = runTortoiseProcexeWithMonitor("/command:commit /path:" &
                                                  formatFilePathArrForProc(
-                                                    getFilePathsFromModDocArr(modDocArr)) & " /closeonend:3")
+                                                    getFilePathsFromModDocArr(modDocArr)) & " /logmsg:""" & sCommitMessage & """" & " /closeonend:3")
         If Not bSuccess Then iSwApp.SendMsgToUser("Tortoise App Failed.") : Exit Sub
 
         bSuccess = updateLockStatusPublic(bRefreshAllTreeViews:=True)
@@ -806,7 +870,7 @@ Public Module svnModule
     End Function
     Public Sub subShowLog(sFilePath As String)
         Debug.Print(sFilePath)
-        iSwApp.SendMsgToUser("Log is for VIEWING ONLY. Revert/Save Version/etc with Solidworks open will ")
+        iSwApp.SendMsgToUser("Log is for VIEWING ONLY. Revert/SaveVersion/etc with SolidWorks open is will lockup svn. To use those features, close SolidWorks, and use TortoiseSVN in Windows Explorer.")
         runTortoiseProcexeWithMonitor("/command:log /path:""" & sFilePath & """")
     End Sub
 

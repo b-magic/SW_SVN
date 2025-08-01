@@ -55,7 +55,7 @@ Public Class UserControl1
         If iSwApp.GetDocumentCount = 0 Then
 
             If verifyLocalRepoPath(bInteractive:=True, bCheckLocalFolder:=True, bCheckServer:=False) Then
-                If iSwApp.SendMsgToUser2("Would you like to get latest from the SVN Vault?", swMessageBoxIcon_e.swMbQuestion, swMessageBoxBtn_e.swMbYesNo) = swMessageBoxResult_e.swMbHitYes Then
+                If iSwApp.SendMsgToUser2("Would you like to get latest CAD files from the SVN Server? (SVN Update)", swMessageBoxIcon_e.swMbQuestion, swMessageBoxBtn_e.swMbYesNo) = swMessageBoxResult_e.swMbHitYes Then
                     runTortoiseProcexeWithMonitor("/command:update /path:" & My.Settings.localRepoPath & " /closeonend:3")
                 End If
             End If
@@ -185,10 +185,16 @@ Public Class UserControl1
 
         refreshAddIn()
     End Sub
+    Private Sub butRelease_Click(sender As Object, e As EventArgs) Handles butRelease.Click
+        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
+        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Error: Active Document not found") : Exit Sub
+        myReleaseDoc(modDoc)
+    End Sub
 
     ' ### Clean Up
     Private Sub butCleanup_Click(sender As Object, e As EventArgs) Handles butCleanup.Click
-        myCleanupAndRelease()
+        iSwApp.SendMsgToUser("This unfortunately can't be run with SolidWorks Files open. Close all open files, then in Windows Explorer, right click > TortoiseSVN > Cleanup")
+        'myCleanupAndRelease()
     End Sub
 
     ' ### Folder
@@ -898,7 +904,6 @@ Public Class UserControl1
     Private Sub Label1_Click(sender As Object, e As EventArgs) Handles Label1.Click
 
     End Sub
-
     'Private Sub ToolStripContainer1_ContentPanel_Load(sender As Object, e As EventArgs) Handles ToolStripContainer1.ContentPanel.Load
 
     'End Sub
