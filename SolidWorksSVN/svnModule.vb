@@ -870,7 +870,7 @@ Public Module svnModule
     End Function
     Public Sub subShowLog(sFilePath As String)
         Debug.Print(sFilePath)
-        iSwApp.SendMsgToUser("Log is for VIEWING ONLY. Revert/SaveVersion/etc with SolidWorks open is will lockup svn. To use those features, close SolidWorks, and use TortoiseSVN in Windows Explorer.")
+        iSwApp.SendMsgToUser("Log is for VIEWING ONLY!" & vbCrLf & vbCrLf & "Advanced features inside the Log window that overwrite files (Revert, etc) will lockup svn. To use those advanced features, close SolidWorks, and use TortoiseSVN > Show Log in Windows Explorer.")
         runTortoiseProcexeWithMonitor("/command:log /path:""" & sFilePath & """")
     End Sub
 
