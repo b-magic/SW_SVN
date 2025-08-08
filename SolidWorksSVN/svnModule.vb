@@ -392,62 +392,87 @@ Public Module svnModule
         Dim errors As Integer = 0
         Dim warnings As Integer = 0
         Dim componentDoc As ModelDoc2
+        Dim bSuccess1, bSuccess2 As Boolean
+        bSuccess1 = False
+        bSuccess2 = False
+        Dim inputRevision As String = ""
 
         componentAndDrawingModDoc = getMatchingComponentAndDrawing(modDoc, iSwApp)
 
-        If componentAndDrawingModDoc(0) Is Nothing Then iSwApp.SendMsgToUser("Component not found") : Exit Sub
-        If componentAndDrawingModDoc(1) Is Nothing Then iSwApp.SendMsgToUser("Drawing not found") : Exit Sub
-        If Not ensureUserHasLocks(componentAndDrawingModDoc) Then iSwApp.SendMsgToUser("Error. Couldn't get locks on component & drawing. Exiting") : Exit Sub
+        If componentAndDrawingModDoc(0) Is Nothing Then
+            If componentAndDrawingModDoc(1) Is Nothing Then iSwApp.SendMsgToUser2("Error. Couldn't detect component and drawing. Exiting", swMessageBoxIcon_e.swMbStop, swMessageBoxBtn_e.swMbOk) : Exit Sub
+            If Not (iSwApp.SendMsgToUser2("Part/Assembly not found. Do you want to continue releasing Drawing without its Part/Assembly?", swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbYesNoCancel) = swMessageBoxResult_e.swMbHitYes) Then Exit Sub
+            If Not ensureUserHasLocks({componentAndDrawingModDoc(1)}) Then iSwApp.SendMsgToUser("Error. Couldn't get locks. Exiting") : Exit Sub
 
-        ' Determine revision value
-        Dim existingRevision As String = GetCustomProperty(componentAndDrawingModDoc(0), "Revision")
-        Dim inputRevision As String = InputBox("Enter Revision:", "Revision", existingRevision)
-        If String.IsNullOrWhiteSpace(inputRevision) Then Exit Sub
-
-        ' Set custom properties
-        SetCustomProperty(componentAndDrawingModDoc(0), "Revision", inputRevision)
-        SetCustomProperty(componentAndDrawingModDoc(0), "State", "Released")
-
-        componentAndDrawingModDoc(0).Rebuild(swRebuildOptions_e.swRebuildAll)
-        componentAndDrawingModDoc(1).Rebuild(swRebuildOptions_e.swRebuildAll)
-
-        ' Call external method
-        commitDocs(componentAndDrawingModDoc, sCommitMessage:="#RELEASED# Revision: " & inputRevision & " <- Don't delete. Your Comments -> ")
-        If Not checkNoLocks(componentAndDrawingModDoc) Then iSwApp.SendMsgToUser("Error. User still has locks. Exiting") : Exit Sub
-
-        ' Save as STEP
-        iSwApp.ActivateDoc3(componentAndDrawingModDoc(0).GetTitle(), True, swRebuildOnActivation_e.swRebuildActiveDoc, 0)
-        componentAndDrawingModDoc(0).ClearSelection2(True)
-        Dim modelPath As String = componentAndDrawingModDoc(0).GetPathName()
-        Dim baseName As String = System.IO.Path.GetFileNameWithoutExtension(modelPath)
-        Dim directory As String = System.IO.Path.GetDirectoryName(modelPath)
-        Dim stepPath As String = System.IO.Path.Combine(directory, baseName & inputRevision & ".step")
-
-        componentDoc = iSwApp.ActiveDoc
-        Dim bSuccess As Boolean = componentDoc.Extension.SaveAs3(stepPath,
-                                       swSaveAsVersion_e.swSaveAsCurrentVersion,
-                                       swSaveAsOptions_e.swSaveAsOptions_Copy + swSaveAsOptions_e.swSaveAsOptions_AvoidRebuildOnSave,
-                                       Nothing, Nothing, errors, warnings)
-        If Not bSuccess Then
-            iSwApp.SendMsgToUser2("Error: " & errors & vbCrLf & "Warnings: " & warnings & vbCrLf & "Lookup: swFileSaveError_e or swFileSaveWarning_e", swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbOk)
+        ElseIf componentAndDrawingModDoc(1) Is Nothing Then
+            If Not (iSwApp.SendMsgToUser2("Drawing not found. Do you want to continue releasing Component without its Drawing?", swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbYesNoCancel) = swMessageBoxResult_e.swMbHitYes) Then Exit Sub
+            If Not ensureUserHasLocks({componentAndDrawingModDoc(0)}) Then iSwApp.SendMsgToUser("Error. Couldn't get locks. Exiting") : Exit Sub
+        Else
+            If Not ensureUserHasLocks(componentAndDrawingModDoc) Then iSwApp.SendMsgToUser("Error. Couldn't get locks. Exiting") : Exit Sub
         End If
 
-        ' Save drawing as PDF
-        iSwApp.ActivateDoc3(componentAndDrawingModDoc(0).GetTitle(), True, swRebuildOnActivation_e.swRebuildActiveDoc, 0)
-        If componentAndDrawingModDoc(1) IsNot Nothing Then
-            Dim drawingPath As String = componentAndDrawingModDoc(1).GetPathName()
-            Dim drawingBaseName As String = System.IO.Path.GetFileNameWithoutExtension(drawingPath)
-            Dim drawingDirectory As String = System.IO.Path.GetDirectoryName(drawingPath)
-            Dim pdfPath As String = System.IO.Path.Combine(drawingDirectory, drawingBaseName & inputRevision & ".pdf")
-            bSuccess = componentAndDrawingModDoc(1).Extension.SaveAs3(pdfPath,
-                                    swSaveAsVersion_e.swSaveAsCurrentVersion,
-                                    swSaveAsOptions_e.swSaveAsOptions_Copy,
-                                    Nothing, Nothing, errors, warnings)
-            If Not bSuccess Then
+        If Not (componentAndDrawingModDoc(0) Is Nothing) Then
+            'UPDATE PART / ASY
+
+            Dim existingRevision As String = GetCustomProperty(componentAndDrawingModDoc(0), "Revision")
+            inputRevision = InputBox("Enter Revision:", "Revision", existingRevision)
+            If String.IsNullOrWhiteSpace(inputRevision) Then Exit Sub
+
+            ' Set custom properties
+            SetCustomProperty(componentAndDrawingModDoc(0), "Revision", inputRevision)
+            'SetCustomProperty(componentAndDrawingModDoc(0), "State", "Released")
+
+            componentAndDrawingModDoc(0).Rebuild(swRebuildOptions_e.swRebuildAll)
+            componentAndDrawingModDoc(1).Rebuild(swRebuildOptions_e.swRebuildAll)
+
+            ' Call external method
+            commitDocs(componentAndDrawingModDoc, sCommitMessage:="#RELEASED# Revision: " & inputRevision & " <- Don't delete. Your Comments -> ")
+            If Not checkNoLocks(componentAndDrawingModDoc) Then iSwApp.SendMsgToUser("Error. User still has locks. Exiting") : Exit Sub
+
+            ' Save as STEP
+            iSwApp.ActivateDoc3(componentAndDrawingModDoc(0).GetTitle(), True, swRebuildOnActivation_e.swRebuildActiveDoc, 0)
+            componentAndDrawingModDoc(0).ClearSelection2(True)
+            Dim modelPath As String = componentAndDrawingModDoc(0).GetPathName()
+            Dim baseName As String = System.IO.Path.GetFileNameWithoutExtension(modelPath)
+            Dim directory As String = System.IO.Path.GetDirectoryName(modelPath)
+            Dim stepPath As String = System.IO.Path.Combine(directory, baseName & inputRevision & ".step")
+
+            componentDoc = iSwApp.ActiveDoc
+            bSuccess1 = componentDoc.Extension.SaveAs3(stepPath,
+                                           swSaveAsVersion_e.swSaveAsCurrentVersion,
+                                           swSaveAsOptions_e.swSaveAsOptions_Copy + swSaveAsOptions_e.swSaveAsOptions_AvoidRebuildOnSave,
+                                           Nothing, Nothing, errors, warnings)
+            If Not bSuccess1 Then
                 iSwApp.SendMsgToUser2("Error: " & errors & vbCrLf & "Warnings: " & warnings & vbCrLf & "Lookup: swFileSaveError_e or swFileSaveWarning_e", swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbOk)
             End If
         End If
-        iSwApp.SendMsgToUser2("Release Complete! Committed, and Generated STEP/PDF.", swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbOk)
+        If Not (componentAndDrawingModDoc(0) Is Nothing) Then
+            ' Save drawing as PDF
+            If inputRevision = "" Then InputBox("Enter Revision:", "Revision", "")
+            iSwApp.ActivateDoc3(componentAndDrawingModDoc(0).GetTitle(), True, swRebuildOnActivation_e.swRebuildActiveDoc, 0)
+            If componentAndDrawingModDoc(1) IsNot Nothing Then
+                Dim drawingPath As String = componentAndDrawingModDoc(1).GetPathName()
+                Dim drawingBaseName As String = System.IO.Path.GetFileNameWithoutExtension(drawingPath)
+                Dim drawingDirectory As String = System.IO.Path.GetDirectoryName(drawingPath)
+                Dim pdfPath As String = System.IO.Path.Combine(drawingDirectory, drawingBaseName & inputRevision & ".pdf")
+                bSuccess2 = componentAndDrawingModDoc(1).Extension.SaveAs3(pdfPath,
+                                    swSaveAsVersion_e.swSaveAsCurrentVersion,
+                                    swSaveAsOptions_e.swSaveAsOptions_Copy,
+                                    Nothing, Nothing, errors, warnings)
+                If Not bSuccess2 Then
+                    iSwApp.SendMsgToUser2("Error: " & errors & vbCrLf & "Warnings: " & warnings & vbCrLf & "Lookup: swFileSaveError_e or swFileSaveWarning_e", swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbOk)
+                End If
+            End If
+        End If
+        If bSuccess1 Then
+            If bSuccess2 Then
+                iSwApp.SendMsgToUser2("Release Complete! Committed, and STEP and PDF created.", swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbOk)
+            Else
+                iSwApp.SendMsgToUser2("Release Complete! Committed, and STEP created.", swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbOk)
+            End If
+        ElseIf bSuccess2 Then
+            iSwApp.SendMsgToUser2("Release Complete! Committed, and PDF created.", swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbOk)
+        End If
     End Sub
     Function stringArrToSingleStringWithNewLines(inputStrings() As String, Optional bTrimFileNames As Boolean = False, Optional iLimit As Integer = 99999) As String
         Dim myReturnString As String = ""

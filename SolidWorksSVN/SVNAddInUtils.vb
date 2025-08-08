@@ -1,5 +1,6 @@
 ﻿Imports System.Collections.Generic
 Imports System.IO
+Imports System.Linq
 Imports SolidWorks.Interop.sldworks
 Imports SolidWorks.Interop.swconst
 
@@ -65,15 +66,17 @@ Public Module svnAddInUtils
 
     Public Function ensureUserHasLocks(modDocArr() As ModelDoc2, Optional recursion As Integer = 0) As Boolean
         Dim mySVNStatus = getFileSVNStatus(bCheckServer:=False, modDocArr)
-        Dim userHasLock(modDocArr.Length - 1) As Boolean
+        Dim modDocArr_noNothing() As ModelDoc2 = RemoveNullsFromArray(modDocArr)
+
+        Dim userHasLock(modDocArr_noNothing.Length - 1) As Boolean
         Dim modsNeedingLocks As New List(Of ModelDoc2)
 
-        For i As Integer = 0 To modDocArr.Length - 1
+        For i As Integer = 0 To modDocArr_noNothing.Length - 1
             If mySVNStatus.fp(i).lock6 = "K" Then
                 userHasLock(i) = True
             Else
                 userHasLock(i) = False
-                modsNeedingLocks.Add(modDocArr(i))
+                modsNeedingLocks.Add(modDocArr_noNothing(i))
             End If
         Next
 
@@ -84,12 +87,17 @@ Public Module svnAddInUtils
             'Didn't have all the locks, but First time, so try to get them. 
             getLocksOfDocs(modsNeedingLocks.ToArray())
             ' Check again!
-            Return ensureUserHasLocks(modDocArr, recursion:=1)
+            Return ensureUserHasLocks(modDocArr_noNothing, recursion:=1)
         Else
             ' don't have all the locks, and have already tried once to get them. 
             Return False
         End If
     End Function
+    Public Function RemoveNullsFromArray(Of T)(inputArray() As T) As T()
+        If inputArray Is Nothing Then Return New T() {}
+        Return inputArray.Where(Function(x) x IsNot Nothing).ToArray()
+    End Function
+
     Public Function checkNoLocks(modDocArr() As ModelDoc2) As Boolean
         Dim mySVNStatus = getFileSVNStatus(bCheckServer:=False, modDocArr)
         Dim userHasLock(modDocArr.Length - 1) As Boolean
