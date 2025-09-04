@@ -51,6 +51,7 @@ Partial Class UserControl1
         Me.ContextMenu2 = New System.Windows.Forms.ContextMenu()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.butRelease = New System.Windows.Forms.Button()
+        Me.butUpRevEdit = New System.Windows.Forms.Button()
         Me.ToolStrip1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -127,7 +128,7 @@ Partial Class UserControl1
         '
         Me.butFindComponent.Enabled = False
         Me.butFindComponent.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.butFindComponent.Location = New System.Drawing.Point(270, 571)
+        Me.butFindComponent.Location = New System.Drawing.Point(394, 571)
         Me.butFindComponent.Name = "butFindComponent"
         Me.butFindComponent.Size = New System.Drawing.Size(89, 44)
         Me.butFindComponent.TabIndex = 23
@@ -295,7 +296,7 @@ Partial Class UserControl1
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(151, 20)
         Me.Label1.TabIndex = 24
-        Me.Label1.Text = "Version: 2025.08.01"
+        Me.Label1.Text = "Version: 2025.09.03"
         '
         'butRelease
         '
@@ -307,6 +308,16 @@ Partial Class UserControl1
         Me.butRelease.Text = "Release File"
         Me.butRelease.UseVisualStyleBackColor = True
         '
+        'butUpRevEdit
+        '
+        Me.butUpRevEdit.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
+        Me.butUpRevEdit.Location = New System.Drawing.Point(270, 571)
+        Me.butUpRevEdit.Name = "butUpRevEdit"
+        Me.butUpRevEdit.Size = New System.Drawing.Size(118, 44)
+        Me.butUpRevEdit.TabIndex = 26
+        Me.butUpRevEdit.Text = "UpRev Edit"
+        Me.butUpRevEdit.UseVisualStyleBackColor = True
+        '
         'UserControl1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(144.0!, 144.0!)
@@ -314,6 +325,7 @@ Partial Class UserControl1
         Me.AutoScroll = True
         Me.AutoSize = True
         Me.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
+        Me.Controls.Add(Me.butUpRevEdit)
         Me.Controls.Add(Me.butRelease)
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.ToolStrip1)
@@ -361,4 +373,5 @@ Partial Class UserControl1
     Friend WithEvents ContextMenu2 As ContextMenu
     Friend WithEvents Label1 As Label
     Friend WithEvents butRelease As Button
+    Friend WithEvents butUpRevEdit As Button
 End Class

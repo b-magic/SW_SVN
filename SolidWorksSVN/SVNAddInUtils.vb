@@ -1,6 +1,7 @@
 ﻿Imports System.Collections.Generic
 Imports System.IO
 Imports System.Linq
+Imports System.Windows.Forms
 Imports SolidWorks.Interop.sldworks
 Imports SolidWorks.Interop.swconst
 
@@ -43,10 +44,10 @@ Public Module svnAddInUtils
         ' Shrink the array by one, removing the last one
         ReDim Preserve prLst(UBound(prLst) - 1)
     End Sub
-    Public Function GetCustomProperty(doc As ModelDoc2, propName As String) As String
+    Public Function GetSolidworksCustomProperty(doc As ModelDoc2, propName As String) As String
         Dim valOut As String = ""
         Dim resolvedVal As String = ""
-        Dim wasResolved As Boolean
+        'Dim wasResolved As Boolean
         Dim found As Boolean
 
         Dim custMgr As CustomPropertyManager = doc.Extension.CustomPropertyManager("")
@@ -59,38 +60,51 @@ Public Module svnAddInUtils
         End If
     End Function
 
-    Public Sub SetCustomProperty(doc As ModelDoc2, propName As String, propValue As String)
+    Public Sub SetSolidworksCustomProperty(doc As ModelDoc2, propName As String, propValue As String)
         Dim custMgr As CustomPropertyManager = doc.Extension.CustomPropertyManager("")
         custMgr.Add3(propName, swCustomInfoType_e.swCustomInfoText, propValue, swCustomPropertyAddOption_e.swCustomPropertyReplaceValue)
     End Sub
 
-    Public Function ensureUserHasLocks(modDocArr() As ModelDoc2, Optional recursion As Integer = 0) As Boolean
-        Dim mySVNStatus = getFileSVNStatus(bCheckServer:=False, modDocArr)
-        Dim modDocArr_noNothing() As ModelDoc2 = RemoveNullsFromArray(modDocArr)
+    Public Function ensureUserHasLocks(modDocArr() As ModelDoc2, Optional bRetry As Boolean = True) As Boolean()
+        ' TODO: 1. Fix functions that expect single boolean output. 2. move the ensure not nothing of each element of the array to parent functions
+        Dim j As Integer = 0
 
-        Dim userHasLock(modDocArr_noNothing.Length - 1) As Boolean
+        For j = 0 To UBound(modDocArr)
+
+        Next
+
+        Dim mySVNStatus = getFileSVNStatus(bCheckServer:=False, modDocArr)
+        'Dim modDocArr_noNothing() As ModelDoc2 = RemoveNullsFromArray(modDocArr)
+
+        Dim userHasLock(modDocArr.Length - 1) As Boolean
         Dim modsNeedingLocks As New List(Of ModelDoc2)
 
-        For i As Integer = 0 To modDocArr_noNothing.Length - 1
+        For i As Integer = 0 To modDocArr.Length - 1
+            If modDocArr(i) Is Nothing Then
+                userHasLock(i) = Nothing
+                Continue For
+            End If
+
             If mySVNStatus.fp(i).lock6 = "K" Then
                 userHasLock(i) = True
             Else
                 userHasLock(i) = False
-                modsNeedingLocks.Add(modDocArr_noNothing(i))
+                modsNeedingLocks.Add(modDocArr(i))
             End If
         Next
 
         If modsNeedingLocks.Count = 0 Then
             ' User has all the locks!
-            Return True
-        ElseIf recursion = 0 Then
+            Return userHasLock
+        ElseIf bRetry Then
             'Didn't have all the locks, but First time, so try to get them. 
+            ' #TODO Would be better to use runSvnByArgs instead of using tortoise
             getLocksOfDocs(modsNeedingLocks.ToArray())
             ' Check again!
-            Return ensureUserHasLocks(modDocArr_noNothing, recursion:=1)
+            Return ensureUserHasLocks(modDocArr, bRetry:=False)
         Else
             ' don't have all the locks, and have already tried once to get them. 
-            Return False
+            Return userHasLock
         End If
     End Function
     Public Function RemoveNullsFromArray(Of T)(inputArray() As T) As T()
@@ -111,6 +125,19 @@ Public Module svnAddInUtils
         Return True
 
     End Function
+    Public Function getMatchingDrawingForArray(modDocArr As ModelDoc2(), iSwApp As SldWorks) As ModelDoc2()
+        Dim outputList As New List(Of ModelDoc2)(modDocArr)
+
+        For Each modDoc In modDocArr
+            Dim result As ModelDoc2() = getMatchingComponentAndDrawing(modDoc, iSwApp)
+            If result.Length >= 2 AndAlso result(1) IsNot Nothing Then
+                outputList.Add(result(1))
+            End If
+        Next
+
+        Return outputList.ToArray()
+    End Function
+
     Public Function getMatchingComponentAndDrawing(modDoc As ModelDoc2, iSwApp As SldWorks) As ModelDoc2()
         Dim modDocPath As String = modDoc.GetPathName()
         If String.IsNullOrWhiteSpace(modDocPath) Then Return Nothing
@@ -157,4 +184,67 @@ Public Module svnAddInUtils
         End If
         Return result   'Important: Part/Assemble is always in position 0. Drawing always in position 1. 
     End Function
+    Public Function FilterModelDocs(modDocArr As ModelDoc2()) As ModelDoc2()
+        ' Create and show the form
+        Dim filterForm As New ModelDocFilterForm(modDocArr)
+        If filterForm.ShowDialog() = DialogResult.OK Then
+            Return filterForm.FilteredDocs
+        Else
+            Return modDocArr ' Return original if user cancels
+        End If
+    End Function
+
+    Public Class ModelDocFilterForm
+        Inherits Form
+
+        Private checkedListBox As New CheckedListBox()
+        Private okButton As New Button()
+        Private docList As New List(Of ModelDoc2)
+
+        Private _filteredDocs As ModelDoc2()
+
+        Public ReadOnly Property FilteredDocs As ModelDoc2()
+            Get
+                Return _filteredDocs
+            End Get
+        End Property
+
+        Public Sub New(modDocArr As ModelDoc2())
+            Me.Text = "Select Files"
+            Me.Size = New Drawing.Size(500, 400)
+            Me.StartPosition = FormStartPosition.CenterScreen
+
+            checkedListBox.Dock = DockStyle.Fill
+            checkedListBox.CheckOnClick = True
+
+            For Each doc As ModelDoc2 In modDocArr
+                Dim fileName As String = IO.Path.GetFileName(doc.GetPathName())
+                checkedListBox.Items.Add(fileName, True)
+                docList.Add(doc)
+            Next
+
+            okButton.Text = "OK"
+            okButton.Dock = DockStyle.Bottom
+            AddHandler okButton.Click, AddressOf OkButton_Click
+
+            Me.Controls.Add(checkedListBox)
+            Me.Controls.Add(okButton)
+        End Sub
+
+        Private Sub OkButton_Click(sender As Object, e As EventArgs)
+            Dim selectedDocs As New List(Of ModelDoc2)
+
+            For i As Integer = 0 To checkedListBox.Items.Count - 1
+                If checkedListBox.GetItemChecked(i) Then
+                    selectedDocs.Add(docList(i))
+                End If
+            Next
+
+            _filteredDocs = selectedDocs.ToArray()
+            Me.DialogResult = DialogResult.OK
+            Me.Close()
+        End Sub
+    End Class
+
+
 End Module

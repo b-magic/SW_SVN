@@ -3,6 +3,7 @@ Imports SolidWorks.Interop.swconst
 Imports System.Collections.Generic
 Imports System.Configuration
 Imports System.IO
+Imports System.Linq
 Imports System.Windows.Forms.VisualStyles.VisualStyleElement
 
 
@@ -385,85 +386,121 @@ Public Module svnModule
         unlockDocs(myUserControl.getComponentsOfAssemblyOptionalUpdateTree(myUserControl.GetSelectedModDocList(iSwApp)))
 
     End Sub
+    Public Function myUpRevEdit(modDocArr() As ModelDoc2) As Boolean
+        Dim modDocPath As String
+        Dim extension As String
+        Dim existingRevision, inputRevision As String
+        Dim bGotLockArr As Boolean()
+        Dim i As Integer = 0
+        Dim sFails As String = ""
+
+        modDocArr = FilterModelDocs(modDocArr)
+        getLocksOfDocs(modDocArr, bUseTortoise:=False, sMessage:="#UP REV EDIT#")
+
+        bGotLockArr = ensureUserHasLocks(modDocArr, bRetry:=False)
+
+        For Each modDoc In modDocArr
+            If IsNothing(bGotLockArr(i)) Then Continue For
+            If bGotLockArr(i) Then
+                svnPropset(getFilePathsFromModDocArr({modDoc}), "addin:release_state", "edit")
+
+                modDocPath = modDoc.GetPathName()
+                If String.IsNullOrWhiteSpace(modDocPath) Then Continue For
+                extension = Path.GetExtension(modDocPath).ToUpperInvariant()
+                If extension = ".SLDPRT" OrElse extension = ".SLDASM" Then
+                    existingRevision = GetSolidworksCustomProperty(modDoc, "Revision")
+                    inputRevision = InputBox("Enter Revision:", "Revision", existingRevision)
+                    SetSolidworksCustomProperty(modDoc, "Revision", inputRevision)
+                End If
+            Else
+                sFails &= Path.GetFileName(modDoc.GetPathName()) & vbCrLf
+            End If
+            i += 1
+        Next
+
+        updateLockStatusPublic(bRefreshAllTreeViews:=True)
+        myUserControl.switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
+        statusOfAllOpenModels.setReadWriteFromLockStatus()
+
+        If Not bGotLockArr.All(Function(b) b) Then
+            iSwApp.SendMsgToUser("Unable to Get locks on following Files: " & vbCrLf & sFails)
+            Return False
+        End If
+
+        Return True
+    End Function
     Sub myReleaseDoc(modDoc As ModelDoc2)
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
         Dim modelType As Integer = modDoc.GetType()
         Dim componentAndDrawingModDoc() As ModelDoc2
-        Dim errors As Integer = 0
-        Dim warnings As Integer = 0
-        Dim componentDoc As ModelDoc2
-        Dim bSuccess1, bSuccess2 As Boolean
-        bSuccess1 = False
-        bSuccess2 = False
         Dim inputRevision As String = ""
+        Dim bSuccess1 As Boolean
+        Dim bSuccess2 As Boolean
 
         componentAndDrawingModDoc = getMatchingComponentAndDrawing(modDoc, iSwApp)
 
         If componentAndDrawingModDoc(0) Is Nothing Then
             If componentAndDrawingModDoc(1) Is Nothing Then iSwApp.SendMsgToUser2("Error. Couldn't detect component and drawing. Exiting", swMessageBoxIcon_e.swMbStop, swMessageBoxBtn_e.swMbOk) : Exit Sub
             If Not (iSwApp.SendMsgToUser2("Part/Assembly not found. Do you want to continue releasing Drawing without its Part/Assembly?", swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbYesNoCancel) = swMessageBoxResult_e.swMbHitYes) Then Exit Sub
-            If Not ensureUserHasLocks({componentAndDrawingModDoc(1)}) Then iSwApp.SendMsgToUser("Error. Couldn't get locks. Exiting") : Exit Sub
+            If Not ensureUserHasLocks({componentAndDrawingModDoc(1)}).All(Function(b) b) Then iSwApp.SendMsgToUser("Error. Couldn't get locks. Exiting") : Exit Sub
 
         ElseIf componentAndDrawingModDoc(1) Is Nothing Then
             If Not (iSwApp.SendMsgToUser2("Drawing not found. Do you want to continue releasing Component without its Drawing?", swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbYesNoCancel) = swMessageBoxResult_e.swMbHitYes) Then Exit Sub
-            If Not ensureUserHasLocks({componentAndDrawingModDoc(0)}) Then iSwApp.SendMsgToUser("Error. Couldn't get locks. Exiting") : Exit Sub
+            If Not ensureUserHasLocks({componentAndDrawingModDoc(0)}).All(Function(b) b) Then iSwApp.SendMsgToUser("Error. Couldn't get locks. Exiting") : Exit Sub
         Else
-            If Not ensureUserHasLocks(componentAndDrawingModDoc) Then iSwApp.SendMsgToUser("Error. Couldn't get locks. Exiting") : Exit Sub
+            If Not ensureUserHasLocks(componentAndDrawingModDoc).All(Function(b) b) Then iSwApp.SendMsgToUser("Error. Couldn't get locks. Exiting") : Exit Sub
         End If
 
-        If Not (componentAndDrawingModDoc(0) Is Nothing) Then
+        If componentAndDrawingModDoc(0) IsNot Nothing Then
             'UPDATE PART / ASY
 
-            Dim existingRevision As String = GetCustomProperty(componentAndDrawingModDoc(0), "Revision")
+            Dim existingRevision As String = GetSolidworksCustomProperty(componentAndDrawingModDoc(0), "Revision")
             inputRevision = InputBox("Enter Revision:", "Revision", existingRevision)
             If String.IsNullOrWhiteSpace(inputRevision) Then Exit Sub
 
             ' Set custom properties
-            SetCustomProperty(componentAndDrawingModDoc(0), "Revision", inputRevision)
-            'SetCustomProperty(componentAndDrawingModDoc(0), "State", "Released")
+            SetSolidworksCustomProperty(componentAndDrawingModDoc(0), "Revision", inputRevision)
+            'SetSolidworksCustomProperty(componentAndDrawingModDoc(0), "State", "Released")
 
+            svnPropset(getFilePathsFromModDocArr({componentAndDrawingModDoc(0)}), "addin:release_state", "RELEASED")
             componentAndDrawingModDoc(0).Rebuild(swRebuildOptions_e.swRebuildAll)
+
+        End If
+
+        If inputRevision = "" Then InputBox("Enter Revision:", "Revision", "")
+
+        If componentAndDrawingModDoc(1) IsNot Nothing Then
+            svnPropset(getFilePathsFromModDocArr({componentAndDrawingModDoc(1)}), "addin:release_state", "RELEASED")
             componentAndDrawingModDoc(1).Rebuild(swRebuildOptions_e.swRebuildAll)
+        End If
 
-            ' Call external method
-            commitDocs(componentAndDrawingModDoc, sCommitMessage:="#RELEASED# Revision: " & inputRevision & " <- Don't delete. Your Comments -> ")
-            If Not checkNoLocks(componentAndDrawingModDoc) Then iSwApp.SendMsgToUser("Error. User still has locks. Exiting") : Exit Sub
-
-            ' Save as STEP
-            iSwApp.ActivateDoc3(componentAndDrawingModDoc(0).GetTitle(), True, swRebuildOnActivation_e.swRebuildActiveDoc, 0)
-            componentAndDrawingModDoc(0).ClearSelection2(True)
-            Dim modelPath As String = componentAndDrawingModDoc(0).GetPathName()
-            Dim baseName As String = System.IO.Path.GetFileNameWithoutExtension(modelPath)
-            Dim directory As String = System.IO.Path.GetDirectoryName(modelPath)
-            Dim stepPath As String = System.IO.Path.Combine(directory, baseName & inputRevision & ".step")
-
-            componentDoc = iSwApp.ActiveDoc
-            bSuccess1 = componentDoc.Extension.SaveAs3(stepPath,
-                                           swSaveAsVersion_e.swSaveAsCurrentVersion,
-                                           swSaveAsOptions_e.swSaveAsOptions_Copy + swSaveAsOptions_e.swSaveAsOptions_AvoidRebuildOnSave,
-                                           Nothing, Nothing, errors, warnings)
-            If Not bSuccess1 Then
-                iSwApp.SendMsgToUser2("Error: " & errors & vbCrLf & "Warnings: " & warnings & vbCrLf & "Lookup: swFileSaveError_e or swFileSaveWarning_e", swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbOk)
+        If componentAndDrawingModDoc(0) IsNot Nothing Then
+            If svnCommitDocs(getFilePathsFromModDocArr({componentAndDrawingModDoc(0)}), sCommitMessage:="#RELEASED# Revision: " & inputRevision) Then
+                bSuccess1 = createStep(componentAndDrawingModDoc(0), inputRevision)
+            Else
+                'commit failed, so rollback the propset back to edit
+                svnPropset(getFilePathsFromModDocArr({componentAndDrawingModDoc(0)}), "addin:release_state", "EDIT")
+                bSuccess1 = False
+                iSwApp.SendMsgToUser2("Failed to Commit " & componentAndDrawingModDoc(0).GetTitle, swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbOk)
             End If
         End If
-        If Not (componentAndDrawingModDoc(0) Is Nothing) Then
-            ' Save drawing as PDF
-            If inputRevision = "" Then InputBox("Enter Revision:", "Revision", "")
-            iSwApp.ActivateDoc3(componentAndDrawingModDoc(0).GetTitle(), True, swRebuildOnActivation_e.swRebuildActiveDoc, 0)
-            If componentAndDrawingModDoc(1) IsNot Nothing Then
-                Dim drawingPath As String = componentAndDrawingModDoc(1).GetPathName()
-                Dim drawingBaseName As String = System.IO.Path.GetFileNameWithoutExtension(drawingPath)
-                Dim drawingDirectory As String = System.IO.Path.GetDirectoryName(drawingPath)
-                Dim pdfPath As String = System.IO.Path.Combine(drawingDirectory, drawingBaseName & inputRevision & ".pdf")
-                bSuccess2 = componentAndDrawingModDoc(1).Extension.SaveAs3(pdfPath,
-                                    swSaveAsVersion_e.swSaveAsCurrentVersion,
-                                    swSaveAsOptions_e.swSaveAsOptions_Copy,
-                                    Nothing, Nothing, errors, warnings)
-                If Not bSuccess2 Then
-                    iSwApp.SendMsgToUser2("Error: " & errors & vbCrLf & "Warnings: " & warnings & vbCrLf & "Lookup: swFileSaveError_e or swFileSaveWarning_e", swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbOk)
-                End If
+
+        If componentAndDrawingModDoc(1) IsNot Nothing Then
+            If svnCommitDocs(getFilePathsFromModDocArr({componentAndDrawingModDoc(1)}), sCommitMessage:="#RELEASED# Revision: " & inputRevision) Then
+                bSuccess2 = createPDF(componentAndDrawingModDoc(1))
+            Else
+                'commit failed, so rollback the propset back to edit
+                svnPropset(getFilePathsFromModDocArr({componentAndDrawingModDoc(1)}), "addin:release_state", "EDIT")
+                bSuccess2 = False
+                iSwApp.SendMsgToUser2("Failed to Commit " & componentAndDrawingModDoc(1).GetTitle, swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbOk)
             End If
         End If
+
+        updateLockStatusPublic(bRefreshAllTreeViews:=True)
+        myUserControl.switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
+        statusOfAllOpenModels.setReadWriteFromLockStatus()
+
+        'Message User
         If bSuccess1 Then
             If bSuccess2 Then
                 iSwApp.SendMsgToUser2("Release Complete! Committed, and STEP and PDF created.", swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbOk)
@@ -472,8 +509,54 @@ Public Module svnModule
             End If
         ElseIf bSuccess2 Then
             iSwApp.SendMsgToUser2("Release Complete! Committed, and PDF created.", swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbOk)
+        Else
+            iSwApp.SendMsgToUser2("Release Failed.", swMessageBoxIcon_e.swMbStop, swMessageBoxBtn_e.swMbOk)
         End If
     End Sub
+    Function createPDF(modDoc As ModelDoc2, Optional sInputRevision As String = "") As Boolean
+        ' Save drawing as PDF
+        Dim bSuccess As Boolean = False
+        Dim errors As Integer = 0
+        Dim warnings As Integer = 0
+        Dim drawingPath As String = modDoc.GetPathName()
+        Dim drawingBaseName As String = System.IO.Path.GetFileNameWithoutExtension(drawingPath)
+        Dim drawingDirectory As String = System.IO.Path.GetDirectoryName(drawingPath)
+        Dim pdfPath As String = System.IO.Path.Combine(drawingDirectory, drawingBaseName & sInputRevision & ".pdf")
+
+        iSwApp.ActivateDoc3(modDoc.GetTitle(), True, swRebuildOnActivation_e.swRebuildActiveDoc, 0)
+        bSuccess = modDoc.Extension.SaveAs3(pdfPath,
+                                swSaveAsVersion_e.swSaveAsCurrentVersion,
+                                swSaveAsOptions_e.swSaveAsOptions_Copy,
+                                Nothing, Nothing, errors, warnings)
+        If Not bSuccess Then
+            iSwApp.SendMsgToUser2("Error: " & errors & vbCrLf & "Warnings: " & warnings & vbCrLf & "Lookup: swFileSaveError_e or swFileSaveWarning_e", swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbOk)
+        End If
+        Return bSuccess
+    End Function
+    Function createStep(modDoc As ModelDoc2, Optional sInputRevision As String = "") As Boolean
+        ' Save as STEP
+
+        Dim modelPath As String = modDoc.GetPathName()
+        Dim baseName As String = System.IO.Path.GetFileNameWithoutExtension(modelPath)
+        Dim directory As String = System.IO.Path.GetDirectoryName(modelPath)
+        Dim stepPath As String = System.IO.Path.Combine(directory, baseName & sInputRevision & ".step")
+        Dim componentDoc As ModelDoc2
+        Dim bSuccess As Boolean = False
+        Dim errors As Integer = 0
+        Dim warnings As Integer = 0
+
+        iSwApp.ActivateDoc3(modDoc.GetTitle(), True, swRebuildOnActivation_e.swRebuildActiveDoc, 0)
+        modDoc.ClearSelection2(True)
+        componentDoc = iSwApp.ActiveDoc
+        bSuccess = componentDoc.Extension.SaveAs3(stepPath,
+                                       swSaveAsVersion_e.swSaveAsCurrentVersion,
+                                       swSaveAsOptions_e.swSaveAsOptions_Copy + swSaveAsOptions_e.swSaveAsOptions_AvoidRebuildOnSave,
+                                       Nothing, Nothing, errors, warnings)
+        If Not bSuccess Then
+            iSwApp.SendMsgToUser2("Error: " & errors & vbCrLf & "Warnings: " & warnings & vbCrLf & "Lookup: swFileSaveError_e or swFileSaveWarning_e", swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbOk)
+        End If
+        Return bSuccess
+    End Function
     Function stringArrToSingleStringWithNewLines(inputStrings() As String, Optional bTrimFileNames As Boolean = False, Optional iLimit As Integer = 99999) As String
         Dim myReturnString As String = ""
         Dim i As Integer
@@ -551,7 +634,7 @@ Public Module svnModule
         myGetLatestOrRevert(modDocArr, getLatestType.revert)
 
     End Sub
-    Sub commitDocs(ByRef modDocArr() As ModelDoc2, Optional sCommitMessage As String = "")
+    Sub tortCommitDocs(ByRef modDocArr() As ModelDoc2, Optional sCommitMessage As String = "")
         Dim bSuccess As Boolean = False
         Dim sErrorFiles As String = ""
         Dim i As Integer
@@ -588,7 +671,7 @@ Public Module svnModule
                                  "If you believe you have the file locked, you can try File > Reload")
             Exit Sub 'All Files were removed
         End If
-
+        svnPropset(getFilePathsFromModDocArr(modDocArr), "addin:release_state", "edit")
         save3AndShowErrorMessages(modDocArr)
 
         bSuccess = runTortoiseProcexeWithMonitor("/command:commit /path:" &
@@ -700,10 +783,10 @@ Public Module svnModule
 
         If Not verifyLocalRepoPath() Then Exit Sub
         runTortoiseProcexeWithMonitor("/command:add /path:" & formatModDocArrForTortoiseProc(modDocArr) & " /closeonend:3")
-        commitDocs(modDocArr)
+        tortCommitDocs(modDocArr)
 
     End Sub
-    Public Sub getLocksOfDocs(ByRef modDocArr() As ModelDoc2, Optional bBreakLocks As Boolean = False)
+    Public Sub getLocksOfDocs(ByRef modDocArr() As ModelDoc2, Optional bBreakLocks As Boolean = False, Optional bUseTortoise As Boolean = True, Optional sMessage As String = "")
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
 
@@ -750,10 +833,14 @@ Public Module svnModule
             iSwApp.SendMsgToUser("No Files available to be locked.")
             Exit Sub
         End If
-        bSuccess = runTortoiseProcexeWithMonitor("/command:lock /path:" & formatFilePathArrForProc(sDocPathsToCheckout) & " /closeonend:3")
-        If Not bSuccess Then iSwApp.SendMsgToUser("Tortoise Process Locking Failed.") : Exit Sub
-        'status = getFileSVNStatus(bCheckServer:=False, modDocArr)
-
+        If bUseTortoise Then
+            bSuccess = runTortoiseProcexeWithMonitor("/command:lock /path:" & formatFilePathArrForProc(sDocPathsToCheckout) & " /closeonend:3")
+            If Not bSuccess Then iSwApp.SendMsgToUser("Locking Failed.") : Exit Sub
+            svnPropset(sDocPathsToCheckout, "addin:release_state", "edit")
+            'status = getFileSVNStatus(bCheckServer:=False, modDocArr)
+        Else
+            runSvnByArgs(getFilePathsFromModDocArr(modDocArr), "lock", "-m", """" & sMessage & """", bEach:=False)
+        End If
         bSuccess = updateLockStatusPublic(bRefreshAllTreeViews:=True)
         If Not bSuccess Then Exit Sub
         myUserControl.switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
@@ -844,6 +931,129 @@ Public Module svnModule
         Return False ' code shouldn't get here...
 
     End Function
+    Public Function runSvnByArgs(sModDocPathArr() As String, sArg1 As String, Optional sArg2 As String = "", Optional sArg3 As String = "", Optional bEach As Boolean = True) As rawProcessReturn()
+
+        'sModDocPathArr()  = getFilePathsFromModDocArr(modDocArr)
+        Dim arguments As String
+        Dim processOutputArr(0) As rawProcessReturn
+        If bEach Then ReDim processOutputArr(UBound(sModDocPathArr))
+        Dim sFullPath As String = ""
+        Dim iErr As Integer = 0
+        Dim i As Integer = 0
+
+        If IsNothing(sModDocPathArr) Then Return Nothing
+
+        ' Pad spaces to separate arguments
+        sArg1 &= " "
+        If Not sArg2 = "" Then sArg2 &= " "
+        If Not sArg3 = "" Then sArg3 &= " "
+        arguments = sArg1 & sArg2 & sArg3
+
+        If bEach Then
+            For Each sPath As String In sModDocPathArr
+                sPath = """" & sPath & """"
+                processOutputArr(i) = runSvnProcess(sSVNPath, arguments & sPath)
+                i += 1
+            Next
+        Else
+            For Each sPath As String In sModDocPathArr
+                sFullPath = sFullPath & """" & sPath & """ "
+            Next
+            processOutputArr(0) = runSvnProcess(sSVNPath, arguments & sFullPath)
+
+        End If
+        Return processOutputArr
+
+        'for each processOutputArr in processOutputArr
+        '    sOutputLines = processOutputArr.output.Split(ControlChars.CrLf.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
+        '    sOutputErrorLines = processOutputArr.outputError.Split(ControlChars.CrLf.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
+        ''Error Checking
+        'If iErr > 10 Then Return Nothing 'Prevents user getting stuck with too many error messages
+        'If (sOutputErrorLines Is Nothing) Or (sOutputLines Is Nothing) Then
+        '    iSwApp.SendMsgToUser("Error: SVN propget (get property) output is nothing!")
+        'End If
+
+        'If sOutputErrorLines.Length <> 0 Then
+        '    'We got some errors if length > 0
+        '    'For i = 0 To UBound(sOutputErrorLines)
+        '    '    If sOutputErrorLines(i).Contains("E215004") Then
+        '    '        'Log in Failed!
+        '    '    End If
+        '    'Next
+        '    iErr = iErr + 1
+        '    iSwApp.SendMsgToUser("Error: " & sOutputErrorLines(0))
+        'End If
+
+    End Function
+    Public Function svnCommitDocs(sModDocPathArr() As String, sCommitMessage As String) As Boolean
+        Dim processOutputArr() As rawProcessReturn
+        Dim sOutputLines() As String
+        Dim sOutputErrorLines() As String
+        Dim iErr As Integer = 0
+        Dim bSuccess As Boolean = True
+
+        processOutputArr = runSvnByArgs(sModDocPathArr, "commit", "-m", """" & sCommitMessage & """", bEach:=False)
+
+        For Each processOutput In processOutputArr
+            sOutputLines = processOutput.output.Split(ControlChars.CrLf.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
+            sOutputErrorLines = processOutput.outputError.Split(ControlChars.CrLf.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
+            'Error Checking
+            '            If iErr > 10 Then Return Nothing 'Prevents user getting stuck with too many error messages
+            If (sOutputErrorLines Is Nothing) Or (sOutputLines Is Nothing) Then
+                iSwApp.SendMsgToUser("Error: SVN commit output is nothing!")
+                bSuccess = False
+
+            ElseIf sOutputErrorLines.Length <> 0 Then
+                'We got some errors if length > 0
+                'For i = 0 To UBound(sOutputErrorLines)
+                '    If sOutputErrorLines(i).Contains("E215004") Then
+                '        'Log in Failed!
+                '    End If
+                'Next
+                If iErr < 10 Then 'limits
+                    iSwApp.SendMsgToUser("Error: " & String.Join(vbCrLf, sOutputErrorLines))
+                    iErr += 1
+                End If
+                bSuccess = False
+            End If
+        Next
+        Return bSuccess
+    End Function
+    Public Function svnPropset(sModDocPathArr() As String, sPropertyName As String, sPropertyValue As String) As Boolean
+        Dim processOutputArr() As rawProcessReturn
+        Dim sOutputLines() As String
+        Dim sOutputErrorLines() As String
+        Dim iErr As Integer = 0
+        Dim bSuccess As Boolean = True
+
+        processOutputArr = runSvnByArgs(sModDocPathArr, "propset", sPropertyName, sPropertyValue, bEach:=True)
+
+        For Each processOutput In processOutputArr
+            sOutputLines = processOutput.output.Split(ControlChars.CrLf.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
+            sOutputErrorLines = processOutput.outputError.Split(ControlChars.CrLf.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
+            'Error Checking
+            '            If iErr > 10 Then Return Nothing 'Prevents user getting stuck with too many error messages
+            If (sOutputErrorLines Is Nothing) Or (sOutputLines Is Nothing) Then
+                iSwApp.SendMsgToUser("Error: SVN propget output is nothing!")
+                bSuccess = False
+
+            ElseIf sOutputErrorLines.Length <> 0 Then
+                'We got some errors if length > 0
+                'For i = 0 To UBound(sOutputErrorLines)
+                '    If sOutputErrorLines(i).Contains("E215004") Then
+                '        'Log in Failed!
+                '    End If
+                'Next
+                If iErr < 10 Then 'limits
+                    iSwApp.SendMsgToUser("Error: " & String.Join(vbCrLf, sOutputErrorLines))
+                    iErr += 1
+                End If
+                bSuccess = False
+            End If
+        Next
+        Return bSuccess
+    End Function
+
     Public Function ensureResolvedComponent(ByRef swcomp As Component2) As Boolean
         Dim suppChangeError As swSuppressionError_e
         Dim lightSuppressState As swComponentSuppressionState_e

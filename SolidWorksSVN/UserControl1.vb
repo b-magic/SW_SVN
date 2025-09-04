@@ -91,11 +91,11 @@ Public Class UserControl1
     Private Sub ToolStripDropDownButCommit_ButtonClick(sender As Object, e As EventArgs) Handles ToolStripDropDownButCommit.ButtonClick
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Error: Active Document not found") : Exit Sub
-        commitDocs(GetSelectedModDocList(iSwApp))
+        tortCommitDocs(GetSelectedModDocList(iSwApp))
         updateStatusStrip()
     End Sub
     Private Sub dropDownCommitWithDependents_Click(sender As Object, e As EventArgs) Handles dropDownCommitWithDependents.Click
-        commitDocs(getComponentsOfAssemblyOptionalUpdateTree(GetSelectedModDocList(iSwApp)))
+        tortCommitDocs(getComponentsOfAssemblyOptionalUpdateTree(GetSelectedModDocList(iSwApp)))
         updateStatusStrip()
     End Sub
     Private Sub dropDownCommitAll_Click(sender As Object, e As EventArgs) Handles dropDownCommitAll.Click
@@ -189,6 +189,11 @@ Public Class UserControl1
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Error: Active Document not found") : Exit Sub
         myReleaseDoc(modDoc)
+    End Sub
+    Private Sub butUpRevEdit_Click(sender As Object, e As EventArgs) Handles butUpRevEdit.Click
+        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
+        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Error: Active Document not found") : Exit Sub
+        myUpRevEdit(getMatchingDrawingForArray(GetSelectedModDocList(iSwApp), iSwApp))
     End Sub
 
     ' ### Clean Up
@@ -646,11 +651,11 @@ Public Class UserControl1
             myUnlockWithDependents(modDoc)
         End Sub
         Sub commitEventHandler(sender As Object, e As EventArgs)
-            commitDocs({modDoc})
+            tortCommitDocs({modDoc})
         End Sub
         Public Sub commitWithDependentsEventHandler(sender As Object, e As EventArgs)
             modDocArr = parentUserControl2.GetSelectedModDocList(iSwApp2)
-            commitDocs(parentUserControl2.getComponentsOfAssemblyOptionalUpdateTree(modDocArr))
+            tortCommitDocs(parentUserControl2.getComponentsOfAssemblyOptionalUpdateTree(modDocArr))
         End Sub
         Sub getLockStealLockEventHandler(sender As Object, e As EventArgs)
             If swMessageBoxResult_e.swMbHitOk =
@@ -890,12 +895,14 @@ Public Class UserControl1
         Public unknown As Drawing.Color
         Public outOfDate As Drawing.Color
         Public notOnVault As Drawing.Color
+        Public released As Drawing.Color
         Public Sub initialize()
             lockedByYou = Drawing.Color.FromArgb(159, 223, 159) 'Drawing.Color.Aquamarine
-            lockedBySomeoneElse = Drawing.Color.FromArgb(174, 183, 207) 'Drawing.Color.Khaki
+            lockedBySomeoneElse = Drawing.Color.FromArgb(255, 255, 153)
             available = Drawing.Color.White
             unknown = Drawing.Color.LightGray
             outOfDate = Drawing.Color.FromArgb(255, 129, 123)
+            released = Drawing.Color.FromArgb(174, 183, 207) 'Drawing.Color.Khaki 
             notOnVault = unknown
             'Drawing.Color.Bisque 'Drawing.Color.FromArgb(255, 77, 77) 'light red
         End Sub

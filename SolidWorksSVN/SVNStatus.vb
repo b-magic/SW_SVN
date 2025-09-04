@@ -31,6 +31,7 @@ Public Class SVNStatus
         Public tree7 As String
         'col 8 is blank
         Public upToDate9 As String
+        Public released As String
         Public iTemp As Byte
     End Structure
     'Structure statusError
