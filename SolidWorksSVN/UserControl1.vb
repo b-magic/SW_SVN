@@ -186,14 +186,26 @@ Public Class UserControl1
         refreshAddIn()
     End Sub
     Private Sub butRelease_Click(sender As Object, e As EventArgs) Handles butRelease.Click
+        Dim modDocArr() As ModelDoc2 = GetSelectedModDocList(iSwApp)
+
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
-        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Error: Active Document not found") : Exit Sub
+
+        If UBound(modDocArr) > 0 Then
+            If iSwApp.SendMsgToUser2("Only one component can be released at a time. Would you like to release the assembly " & vbCrLf & modDoc.GetTitle & " ?",
+                        swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbYesNoCancel) <> swMessageBoxResult_e.swMbHitOk Then
+                Exit Sub
+            End If
+        Else
+            modDoc = modDocArr(0)
+        End If
+
+        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Error: Document not found") : Exit Sub
         myReleaseDoc(modDoc)
     End Sub
     Private Sub butUpRevEdit_Click(sender As Object, e As EventArgs) Handles butUpRevEdit.Click
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Error: Active Document not found") : Exit Sub
-        myUpRevEdit(getMatchingDrawingForArray(GetSelectedModDocList(iSwApp), iSwApp))
+        myUpRevEdit(GetSelectedModDocList(iSwApp))
     End Sub
 
     ' ### Clean Up
@@ -490,6 +502,11 @@ Public Class UserControl1
                 j += 1
             ElseIf modDocArr(i).GetType = swDocumentTypes_e.swDocDRAWING Then
 
+                If bUpdateTreeView Then
+                    setNodeColorFromStatus(parentNode)
+                    'allTreeViews(allTreeViewsIndexToUpdate).Nodes.Add(parentNode)
+                End If
+
                 modelDocList.Add(modDocArr(i)) 'Add drawing
                 j += 1
                 'Try to find part/asy for drawing
@@ -623,8 +640,8 @@ Public Class UserControl1
         'Dim comp As Component2
         Public collapse As New ToolStripMenuItem("Collapse", My.Resources.VaultLogo128, AddressOf collapseTreeViewHandler)
         Public openLabel As New ToolStripMenuItem("Open", My.Resources.VaultLogo128, AddressOf openEventHandler)
-        Public unlockLabel As New ToolStripMenuItem("Release Lock", My.Resources.unlockIconOnly1, AddressOf unlockEventHandler)
-        Public unlockWithDependentsLabel As New ToolStripMenuItem("Release Lock With Dependents", My.Resources.unlockIconOnly1, AddressOf unlockWithDependentsEventHandler)
+        Public unlockLabel As New ToolStripMenuItem("Unlock", My.Resources.unlockIconOnly1, AddressOf unlockEventHandler)
+        Public unlockWithDependentsLabel As New ToolStripMenuItem("Unlock With Dependents", My.Resources.unlockIconOnly1, AddressOf unlockWithDependentsEventHandler)
         Public commitLabel As New ToolStripMenuItem("Commit", My.Resources.Commit_Icon_Only, AddressOf commitEventHandler)
         Public commitWithDependentsLabel As New ToolStripMenuItem("Commit With Dependents", My.Resources.Commit_Icon_Only, AddressOf commitWithDependentsEventHandler)
         Public getLocksStealLabel As New ToolStripMenuItem("Get Lock (Steal Locks)", My.Resources.GetLocksIconOnly, AddressOf getLockStealLockEventHandler)
@@ -632,11 +649,19 @@ Public Class UserControl1
         Public getLockWithDependents As New ToolStripMenuItem("Get Lock With Dependents", My.Resources.GetLocksIconOnly, AddressOf getLocksActiveWithDependentsEventHandler)
         Public addToRepo As New ToolStripMenuItem("Add & Initial Commit", My.Resources.VaultLogo128, AddressOf addToRepoEventHandler)
         Public showLog As New ToolStripMenuItem("View SVN Log", My.Resources.VaultLogo128, AddressOf showLogEventHandler)
+        Public upRevEdit As New ToolStripMenuItem("Up Rev to Edit", My.Resources.VaultLogo128, AddressOf upRevEditEventHandler)
+        Public release As New ToolStripMenuItem("Approve & Release", My.Resources.VaultLogo128, AddressOf releaseEventHandler)
         Public Sub New(modDocInput As ModelDoc2, iSwAppInput As SldWorks, parentUserControl As UserControl1)
             modDoc = modDocInput 'compInput.GetModelDoc2
             'comp = compInput
             iSwApp2 = iSwAppInput
             parentUserControl2 = parentUserControl
+        End Sub
+        Sub upRevEditEventHandler(sender As Object, e As EventArgs)
+            myUpRevEdit({modDoc})
+        End Sub
+        Sub releaseEventHandler(sender As Object, e As EventArgs)
+            myReleaseDoc(modDoc)
         End Sub
         Sub collapseTreeViewHandler(sender As Object, e As EventArgs)
             parentUserControl2.TreeView1.CollapseAll()
@@ -732,6 +757,7 @@ Public Class UserControl1
             bModelDocAttached = True
         End If
 
+        myContextMenu = New myContextMenuClass(modDoc, iSwApp, Me) ' This gets overwritten immediately. It's just here to prevent pre-compile warnings
         If bModelDocAttached Then
             myContextMenu = New myContextMenuClass(modDoc, iSwApp, Me)
             docMenu.Items.AddRange({myContextMenu.openLabel, myContextMenu.collapse, myContextMenu.showLog})
@@ -747,6 +773,7 @@ Public Class UserControl1
             rootNode.ToolTipText = "You have the Lock"
 
             If bModelDocAttached Then
+                docMenu.Items.AddRange({myContextMenu.release})
                 If modDoc.GetType = swDocumentTypes_e.swDocASSEMBLY Then
                     docMenu.Items.AddRange(
                         {myContextMenu.commitLabel,
@@ -776,6 +803,12 @@ Public Class UserControl1
                 End If
             End If
             'If bCM Then rootNode.ContextMenuStrip.Items.Add(myContextMenu.getLocksStealLabel)
+        ElseIf status1.fp(0).released = "||RELEASED||" Then
+            rootNode.BackColor = myCol.released
+            rootNode.ToolTipText = "Released"
+            If bModelDocAttached Then
+                docMenu.Items.AddRange({myContextMenu.upRevEdit})
+            End If
         ElseIf status1.fp(0).addDelChg1 = "?" Then
             rootNode.BackColor = myCol.notOnVault
             rootNode.ToolTipText = "File is not saved the to the Vault"

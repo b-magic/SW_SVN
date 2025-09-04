@@ -24,6 +24,29 @@ Public Module svnAddInUtils
         Next
         Return output
     End Function
+    Public Function vLookup(lookupValue As String,
+                             tableArray As String(,),
+                             returnColumn As Integer) As String
+
+        If tableArray Is Nothing Then Return Nothing
+
+        Dim rowCount As Integer = tableArray.GetLength(0)
+        Dim colCount As Integer = tableArray.GetLength(1)
+
+        ' Ensure column indices are within bounds
+        If returnColumn < 0 OrElse returnColumn >= colCount Then Return Nothing
+
+        ' Loop through each row
+        For i As Integer = 0 To rowCount - 1
+            If String.Equals(tableArray(i, 0), lookupValue, StringComparison.OrdinalIgnoreCase) Then
+                Return tableArray(i, returnColumn)
+            End If
+        Next
+
+        ' Not found
+        Return Nothing
+    End Function
+
     Public Function findIndexContains(ByVal sLookInArr() As String, ByVal find As String) As Integer
         Dim i As Integer
         'Dim output As Integer
@@ -69,9 +92,8 @@ Public Module svnAddInUtils
         ' TODO: 1. Fix functions that expect single boolean output. 2. move the ensure not nothing of each element of the array to parent functions
         Dim j As Integer = 0
 
-        For j = 0 To UBound(modDocArr)
-
-        Next
+        '        For j = 0 To UBound(modDocArr)
+        '        Next
 
         Dim mySVNStatus = getFileSVNStatus(bCheckServer:=False, modDocArr)
         'Dim modDocArr_noNothing() As ModelDoc2 = RemoveNullsFromArray(modDocArr)
@@ -127,11 +149,21 @@ Public Module svnAddInUtils
     End Function
     Public Function getMatchingDrawingForArray(modDocArr As ModelDoc2(), iSwApp As SldWorks) As ModelDoc2()
         Dim outputList As New List(Of ModelDoc2)(modDocArr)
+        Dim modDocPath As String
+        Dim extension As String
 
         For Each modDoc In modDocArr
+            modDocPath = modDoc.GetPathName()
+            If String.IsNullOrWhiteSpace(modDocPath) Then Continue For
+            extension = Path.GetExtension(modDocPath).ToUpperInvariant()
+
             Dim result As ModelDoc2() = getMatchingComponentAndDrawing(modDoc, iSwApp)
-            If result.Length >= 2 AndAlso result(1) IsNot Nothing Then
-                outputList.Add(result(1))
+            If result.Length >= 2 Then
+                If (extension = ".SLDDRW") And (result(0) IsNot Nothing) Then 'if the original was a drawing and we found a prt/asy then add it
+                    outputList.Add(result(0))
+                ElseIf ((extension = ".SLDASM") Or (extension = ".SLDPRT")) And (result(1) IsNot Nothing) Then 'if the original was a asy/prt, and we found a drawing, then add it
+                    outputList.Add(result(1))
+                End If
             End If
         Next
 
@@ -190,7 +222,7 @@ Public Module svnAddInUtils
         If filterForm.ShowDialog() = DialogResult.OK Then
             Return filterForm.FilteredDocs
         Else
-            Return modDocArr ' Return original if user cancels
+            Return Nothing ' Return original if user cancels
         End If
     End Function
 

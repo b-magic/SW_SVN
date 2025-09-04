@@ -54,7 +54,8 @@ Public Class SVNStatus
                                  ByRef j As Integer,
                                  ByRef sFilePathTemp As String,
                                  ByRef modDoc As ModelDoc2,
-                                 Optional ByVal bCheckServer As Boolean = False)
+                                 Optional ByVal bCheckServer As Boolean = False,
+                                 Optional ByVal sReleaseProperty As String = "")
         fp(j).filename = sFilePathTemp
         fp(j).modDoc = modDoc
 
@@ -72,6 +73,7 @@ Public Class SVNStatus
             fp(j).upToDate9 = "NoUpdate"
         End If
         fp(j).revertUpdate = getLatestType.none
+        fp(j).released = sReleaseProperty
     End Sub
     Sub setReadWriteFromLockStatus()
         Dim i As Integer
@@ -499,12 +501,15 @@ Public Class SVNStatus
             End If
         Next
     End Sub
-    Function updateLockStatusLocally(iSwApp As SolidWorks.Interop.sldworks.SldWorks) As Boolean
+    Function updateStatusLocally(iSwApp As SolidWorks.Interop.sldworks.SldWorks) As Boolean
+        'Updates locks and release status without contacting server
 
         Dim newOutput As SVNStatus = getFileSVNStatus(bCheckServer:=False,, bUpdateStatusOfAllOpenModels:=False)
         Dim newOutputFilteredLocked As SVNStatus
         Dim newOutputFilteredUnlocked As SVNStatus
         Dim i As Integer
+        Dim sPropArr(,) As String
+        Dim sRelease As String
 
         If newOutput Is Nothing Then Return False
 
@@ -522,7 +527,8 @@ Public Class SVNStatus
             Return False
         End If
 
-        'First pass
+        sPropArr = svnPropget()
+
         For i = 0 To UBound(fp)
 
             Try 'need to do try to prevent 'outside of bounds' error with newOutput.fp(i)
@@ -532,6 +538,11 @@ Public Class SVNStatus
                 End If
             Catch
             End Try
+
+            sRelease = vLookup(fp(i).filename, sPropArr, 1)
+            If Not IsNothing(sRelease) Then
+                fp(i).released = sRelease
+            End If
 
             If (fp(i).lock6 = "K") And (Not IsNothing(newOutputFilteredUnlocked)) Then
                 If Not IsNothing(newOutputFilteredUnlocked.fp) Then

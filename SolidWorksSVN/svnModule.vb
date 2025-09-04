@@ -5,7 +5,7 @@ Imports System.Configuration
 Imports System.IO
 Imports System.Linq
 Imports System.Windows.Forms.VisualStyles.VisualStyleElement
-
+Imports System.Xml
 
 Public Module svnModule
 
@@ -56,7 +56,7 @@ Public Module svnModule
 
     End Sub
     Public Function updateLockStatusPublic(Optional bRefreshAllTreeViews As Boolean = True) As Boolean
-        updateLockStatusPublic = statusOfAllOpenModels.updateLockStatusLocally(iSwApp)
+        updateLockStatusPublic = statusOfAllOpenModels.updateStatusLocally(iSwApp)
         If bRefreshAllTreeViews Then myUserControl.refreshAllTreeViewsVariable()
     End Function
     Public Function updateStatusOfAllModelsVariable(Optional bRefreshAllTreeViews As Boolean = False) As Boolean
@@ -89,9 +89,10 @@ Public Module svnModule
         Dim sModDocPathArr() As String = Nothing
         Dim sFileStartIndex As String
         Dim sCatMessage As String = ""
-        Dim arguments As String
+        Dim statusArguments As String
 
-        Dim processOutput As rawProcessReturn
+        Dim statusProcessOutput As rawProcessReturn
+        Dim sPropArr(,) As String
 
         'Dim iOutputUbound As Integer
         Dim i As Integer = 0
@@ -107,7 +108,7 @@ Public Module svnModule
         Dim svnStatusOfPassedModDoc As SVNStatus = New SVNStatus()
 
         Dim sw As New Stopwatch
-        sw.Start()
+        'sw.Start()
 
         'SVNstartInfo.Arguments = "status " & If(bCheckServer, "-u ", "") & "-v --non-interactive E:\SolidworksBackup\svn " 'sFilePathCat 
 
@@ -117,23 +118,23 @@ Public Module svnModule
         If bCheckServer Or (IsNothing(modDocArr)) Then
             'Have to just check the whole file path, because otherwise, svn sends a separate server request for ech individual path sent
             'if you  format it, like ""C:/file1" "C:/file2"" (including the quotes, starting with double start and end) then it will only send one server request, however, the server has trouble finding the file names... 
-            arguments = "status -v" & If(bCheckServer, "u", "") & " --non-interactive """ & myUserControl.localRepoPath.Text.TrimEnd("\\") & """" 'sFilePathCat 
-
+            statusArguments = "status -v" & If(bCheckServer, "u", "") & " --non-interactive """ & myUserControl.localRepoPath.Text.TrimEnd("\\") & """" 'sFilePathCat 
+            sPropArr = svnPropget("""" & myUserControl.localRepoPath.Text.TrimEnd("\\") & """")
         Else
 
-            arguments = "status -v --non-interactive " & formatFilePathArrForProc(sModDocPathArr, sDelimiter:=""" """) & """" 'sFilePathCat 
+            statusArguments = "status -v --non-interactive " & formatFilePathArrForProc(sModDocPathArr, sDelimiter:=""" """) & """" 'sFilePathCat 
+            sPropArr = svnPropget(formatFilePathArrForProc(sModDocPathArr, sDelimiter:=""" """) & """")
         End If
 
 
         'iSwApp.SendMsgToUser(sSVNPath)
-        processOutput = runSvnProcess(sSVNPath, arguments)
+        statusProcessOutput = runSvnProcess(sSVNPath, statusArguments)
 
-        sOutputLines = processOutput.output.Split(ControlChars.CrLf.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
-        sOutputErrorLines = processOutput.outputError.Split(ControlChars.CrLf.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
+        sOutputLines = statusProcessOutput.output.Split(ControlChars.CrLf.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
+        sOutputErrorLines = statusProcessOutput.outputError.Split(ControlChars.CrLf.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
 
         k = sOutputErrorLines.Length - 1
         'sOutputErrorLines = {""}
-
 
 
         entireSVNStatus = svnStatusOfPassedModDoc ' Be careful! This does not copy. This makes both point to the same memory! We will split/copy them later if theres no errors.
@@ -176,7 +177,7 @@ Public Module svnModule
                         "Error W155007 the path is not associated with a repository. " &
                         "You may need to either checkout the repository to the folder with tortoiseSVN, " &
                         "or save the file inside an existing local repository And try again. "
-                ElseIf processOutput.outputError.Contains("W155007:") Then
+                ElseIf statusProcessOutput.outputError.Contains("W155007:") Then
 
                     response = iSwApp.SendMsgToUser2("The files are not connected to an SVN Repository. " &
                                             "Would you like to select a new folder? " & vbCrLf &
@@ -246,13 +247,13 @@ Public Module svnModule
             modDocTemp = iSwApp.GetOpenDocumentByName(sFilePathTemp)
             If modDocTemp Is Nothing Then Continue For
 
-            entireSVNStatus.addOutputLineToSVNStatus(sOutputLines(i), m, sFilePathTemp, modDocTemp, bCheckServer)
+            entireSVNStatus.addOutputLineToSVNStatus(sOutputLines(i), m, sFilePathTemp, modDocTemp, bCheckServer, vLookup(sFilePathTemp.Replace("\", "/"), sPropArr, 1))
             m = m + 1
 
             If Not IsNothing(sModDocPathArr) Then
                 Index = svnAddInUtils.findIndexContains(sModDocPathArr, sFilePathTemp)
                 If Index = -1 Then Continue For
-                svnStatusOfPassedModDoc.addOutputLineToSVNStatus(sOutputLines(i), j, sFilePathTemp, modDocTemp, bCheckServer)
+                svnStatusOfPassedModDoc.addOutputLineToSVNStatus(sOutputLines(i), j, sFilePathTemp, modDocTemp, bCheckServer, vLookup(sFilePathTemp.Replace("\", "/"), sPropArr, 1))
                 j += 1
             End If
         Next i
@@ -260,8 +261,8 @@ Public Module svnModule
         If j > 0 Then ReDim Preserve svnStatusOfPassedModDoc.fp(j - 1)
         If m > 0 Then ReDim Preserve entireSVNStatus.fp(m - 1)
 
-        sw.Stop()
-        Debug.WriteLine("getFileSVNStatus Time Taken: " + sw.Elapsed.TotalMilliseconds.ToString("#,##0.00 'milliseconds'"))
+        'sw.Stop()
+        'Debug.WriteLine("getFileSVNStatus Time Taken: " + sw.Elapsed.TotalMilliseconds.ToString("#,##0.00 'milliseconds'"))
 
         If bUpdateStatusOfAllOpenModels Then
             statusOfAllOpenModels = entireSVNStatus.Clone
@@ -394,7 +395,9 @@ Public Module svnModule
         Dim i As Integer = 0
         Dim sFails As String = ""
 
-        modDocArr = FilterModelDocs(modDocArr)
+        modDocArr = FilterModelDocs(getMatchingDrawingForArray(modDocArr, iSwApp))
+        If IsNothing(modDocArr) Then Return False
+
         getLocksOfDocs(modDocArr, bUseTortoise:=False, sMessage:="#UP REV EDIT#")
 
         bGotLockArr = ensureUserHasLocks(modDocArr, bRetry:=False)
@@ -402,7 +405,7 @@ Public Module svnModule
         For Each modDoc In modDocArr
             If IsNothing(bGotLockArr(i)) Then Continue For
             If bGotLockArr(i) Then
-                svnPropset(getFilePathsFromModDocArr({modDoc}), "addin:release_state", "edit")
+                svnPropset(getFilePathsFromModDocArr({modDoc}), "addin:release_state", "||EDIT||")
 
                 modDocPath = modDoc.GetPathName()
                 If String.IsNullOrWhiteSpace(modDocPath) Then Continue For
@@ -427,6 +430,7 @@ Public Module svnModule
             Return False
         End If
 
+        iSwApp.SendMsgToUser("Moved files from RELEASED to EDIT state, Set Revision, and Got Locks!")
         Return True
     End Function
     Sub myReleaseDoc(modDoc As ModelDoc2)
@@ -436,6 +440,7 @@ Public Module svnModule
         Dim inputRevision As String = ""
         Dim bSuccess1 As Boolean
         Dim bSuccess2 As Boolean
+        Dim bSuccess3() As Boolean
 
         componentAndDrawingModDoc = getMatchingComponentAndDrawing(modDoc, iSwApp)
 
@@ -448,7 +453,29 @@ Public Module svnModule
             If Not (iSwApp.SendMsgToUser2("Drawing not found. Do you want to continue releasing Component without its Drawing?", swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbYesNoCancel) = swMessageBoxResult_e.swMbHitYes) Then Exit Sub
             If Not ensureUserHasLocks({componentAndDrawingModDoc(0)}).All(Function(b) b) Then iSwApp.SendMsgToUser("Error. Couldn't get locks. Exiting") : Exit Sub
         Else
-            If Not ensureUserHasLocks(componentAndDrawingModDoc).All(Function(b) b) Then iSwApp.SendMsgToUser("Error. Couldn't get locks. Exiting") : Exit Sub
+            bSuccess3 = ensureUserHasLocks(componentAndDrawingModDoc)
+            If bSuccess3(0) Then
+                If bSuccess3(1) Then
+                    'All Good
+                Else
+                    'couldnt get lock for drawing.
+                    If Not (iSwApp.SendMsgToUser2("Couldn't get the lock for the Drawing File. Do you want to continue releasing the Part/Assembly without its Drawing?", swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbYesNoCancel) = swMessageBoxResult_e.swMbHitYes) Then
+                        Exit Sub
+                    Else
+                        componentAndDrawingModDoc(1) = Nothing
+                    End If
+                End If
+            ElseIf bSuccess3(1) Then
+                'couldnt get lock for part/asy, but did get it for drawing
+                If Not (iSwApp.SendMsgToUser2("Couldn't get the lock for the Part/Assembly File. Do you want to continue releasing the Drawing without its Part/Assembly?", swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbYesNoCancel) = swMessageBoxResult_e.swMbHitYes) Then
+                    Exit Sub
+                Else
+                    componentAndDrawingModDoc(0) = Nothing
+                End If
+            Else
+                iSwApp.SendMsgToUser("Error. Couldn't get locks for either part or drawing. Exiting")
+                Exit Sub
+            End If
         End If
 
         If componentAndDrawingModDoc(0) IsNot Nothing Then
@@ -462,7 +489,8 @@ Public Module svnModule
             SetSolidworksCustomProperty(componentAndDrawingModDoc(0), "Revision", inputRevision)
             'SetSolidworksCustomProperty(componentAndDrawingModDoc(0), "State", "Released")
 
-            svnPropset(getFilePathsFromModDocArr({componentAndDrawingModDoc(0)}), "addin:release_state", "RELEASED")
+            svnPropset(getFilePathsFromModDocArr({componentAndDrawingModDoc(0)}), "addin:release_state", "||RELEASED||")
+            svnPropset(getFilePathsFromModDocArr({componentAndDrawingModDoc(0)}), "addin:approved", """" & System.Environment.UserName & " " & DateTime.Now.ToString() & """") 'This also ensures that the file changes, preventing a bug / bad state where svn doesn't actually commit an unchanged file.
             componentAndDrawingModDoc(0).Rebuild(swRebuildOptions_e.swRebuildAll)
 
         End If
@@ -470,7 +498,8 @@ Public Module svnModule
         If inputRevision = "" Then InputBox("Enter Revision:", "Revision", "")
 
         If componentAndDrawingModDoc(1) IsNot Nothing Then
-            svnPropset(getFilePathsFromModDocArr({componentAndDrawingModDoc(1)}), "addin:release_state", "RELEASED")
+            svnPropset(getFilePathsFromModDocArr({componentAndDrawingModDoc(1)}), "addin:release_state", "||RELEASED||")
+            svnPropset(getFilePathsFromModDocArr({componentAndDrawingModDoc(1)}), "addin:approved", """" & System.Environment.UserName & " " & DateTime.Now.ToString() & """") 'This also ensures that the file changes, preventing a bug / bad state where svn doesn't actually commit an unchanged file
             componentAndDrawingModDoc(1).Rebuild(swRebuildOptions_e.swRebuildAll)
         End If
 
@@ -479,7 +508,8 @@ Public Module svnModule
                 bSuccess1 = createStep(componentAndDrawingModDoc(0), inputRevision)
             Else
                 'commit failed, so rollback the propset back to edit
-                svnPropset(getFilePathsFromModDocArr({componentAndDrawingModDoc(0)}), "addin:release_state", "EDIT")
+                svnPropset(getFilePathsFromModDocArr({componentAndDrawingModDoc(0)}), "addin:release_state", "||EDIT||")
+                svnPropset(getFilePathsFromModDocArr({componentAndDrawingModDoc(0)}), "addin:approved", "")
                 bSuccess1 = False
                 iSwApp.SendMsgToUser2("Failed to Commit " & componentAndDrawingModDoc(0).GetTitle, swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbOk)
             End If
@@ -490,7 +520,8 @@ Public Module svnModule
                 bSuccess2 = createPDF(componentAndDrawingModDoc(1))
             Else
                 'commit failed, so rollback the propset back to edit
-                svnPropset(getFilePathsFromModDocArr({componentAndDrawingModDoc(1)}), "addin:release_state", "EDIT")
+                svnPropset(getFilePathsFromModDocArr({componentAndDrawingModDoc(1)}), "addin:release_state", "||EDIT||")
+                svnPropset(getFilePathsFromModDocArr({componentAndDrawingModDoc(1)}), "addin:approved", "")
                 bSuccess2 = False
                 iSwApp.SendMsgToUser2("Failed to Commit " & componentAndDrawingModDoc(1).GetTitle, swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbOk)
             End If
@@ -671,7 +702,7 @@ Public Module svnModule
                                  "If you believe you have the file locked, you can try File > Reload")
             Exit Sub 'All Files were removed
         End If
-        svnPropset(getFilePathsFromModDocArr(modDocArr), "addin:release_state", "edit")
+        svnPropset(getFilePathsFromModDocArr(modDocArr), "addin:release_state", "||EDIT||")
         save3AndShowErrorMessages(modDocArr)
 
         bSuccess = runTortoiseProcexeWithMonitor("/command:commit /path:" &
@@ -836,7 +867,7 @@ Public Module svnModule
         If bUseTortoise Then
             bSuccess = runTortoiseProcexeWithMonitor("/command:lock /path:" & formatFilePathArrForProc(sDocPathsToCheckout) & " /closeonend:3")
             If Not bSuccess Then iSwApp.SendMsgToUser("Locking Failed.") : Exit Sub
-            svnPropset(sDocPathsToCheckout, "addin:release_state", "edit")
+            svnPropset(sDocPathsToCheckout, "addin:release_state", "||EDIT||")
             'status = getFileSVNStatus(bCheckServer:=False, modDocArr)
         Else
             runSvnByArgs(getFilePathsFromModDocArr(modDocArr), "lock", "-m", """" & sMessage & """", bEach:=False)
@@ -1054,6 +1085,51 @@ Public Module svnModule
         Return bSuccess
     End Function
 
+    Public Function svnPropget(Optional sFilename As String = "") As String(,)
+
+        If sFilename = "" Then sFilename = """" & myUserControl.localRepoPath.Text.TrimEnd("\\") & """"
+
+        Dim rawXmlLines As svnModule.rawProcessReturn = runSvnProcess(sSVNPath, "propget addin:release_state -R " & sFilename & " --xml")
+        Dim xmlOutput As String = String.Join(vbCrLf, rawXmlLines.output)
+
+        If rawXmlLines.outputError.Length > 0 Then
+            iSwApp.SendMsgToUser(rawXmlLines.outputError(0))
+            Return Nothing
+        End If
+        If xmlOutput Is Nothing Then Return Nothing
+        If xmlOutput = "" Then Return Nothing
+
+        ' Load the XML into an XmlDocument
+        Dim doc As New XmlDocument()
+        doc.LoadXml(xmlOutput)
+
+        ' Get all <target> nodes
+        Dim targets As XmlNodeList = doc.SelectNodes("/properties/target")
+
+        ' Prepare a list to hold the path/property pairs
+        Dim resultList As New List(Of String())
+
+        ' Loop through each <target>
+        For Each target As XmlNode In targets
+            Dim path As String = target.Attributes("path")?.Value
+            Dim propertyNode As XmlNode = target.SelectSingleNode("property")
+
+            If path IsNot Nothing AndAlso propertyNode IsNot Nothing Then
+                Dim propValue As String = propertyNode.InnerText
+                resultList.Add(New String() {path, propValue})
+            End If
+        Next
+
+        ' Convert the list to a 2D array
+        Dim resultArray(resultList.Count - 1, 1) As String
+        For i As Integer = 0 To resultList.Count - 1
+            resultArray(i, 0) = resultList(i)(0) ' path
+            resultArray(i, 1) = resultList(i)(1) ' property
+        Next
+
+        Return resultArray
+
+    End Function
     Public Function ensureResolvedComponent(ByRef swcomp As Component2) As Boolean
         Dim suppChangeError As swSuppressionError_e
         Dim lightSuppressState As swComponentSuppressionState_e
