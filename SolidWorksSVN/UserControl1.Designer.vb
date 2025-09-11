@@ -22,7 +22,7 @@ Partial Class UserControl1
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
-        Dim TreeNode3 As System.Windows.Forms.TreeNode = New System.Windows.Forms.TreeNode("Open a File to See its Status")
+        Dim TreeNode2 As System.Windows.Forms.TreeNode = New System.Windows.Forms.TreeNode("Open a File to See its Status")
         Me.TreeView1 = New System.Windows.Forms.TreeView()
         Me.onlineCheckBox = New System.Windows.Forms.CheckBox()
         Me.localRepoPath = New System.Windows.Forms.TextBox()
@@ -64,11 +64,11 @@ Partial Class UserControl1
         Me.TreeView1.Location = New System.Drawing.Point(4, 621)
         Me.TreeView1.MinimumSize = New System.Drawing.Size(250, 194)
         Me.TreeView1.Name = "TreeView1"
-        TreeNode3.Name = "Node0"
-        TreeNode3.Text = "Open a File to See its Status"
-        Me.TreeView1.Nodes.AddRange(New System.Windows.Forms.TreeNode() {TreeNode3})
+        TreeNode2.Name = "Node0"
+        TreeNode2.Text = "Open a File to See its Status"
+        Me.TreeView1.Nodes.AddRange(New System.Windows.Forms.TreeNode() {TreeNode2})
         Me.TreeView1.ShowNodeToolTips = True
-        Me.TreeView1.Size = New System.Drawing.Size(538, 329)
+        Me.TreeView1.Size = New System.Drawing.Size(562, 329)
         Me.TreeView1.TabIndex = 10
         '
         'onlineCheckBox
@@ -182,7 +182,7 @@ Partial Class UserControl1
         Me.ToolStrip1.MinimumSize = New System.Drawing.Size(100, 200)
         Me.ToolStrip1.Name = "ToolStrip1"
         Me.ToolStrip1.Padding = New System.Windows.Forms.Padding(4, 5, 4, 0)
-        Me.ToolStrip1.Size = New System.Drawing.Size(181, 460)
+        Me.ToolStrip1.Size = New System.Drawing.Size(181, 432)
         Me.ToolStrip1.Stretch = True
         Me.ToolStrip1.TabIndex = 0
         '
@@ -303,13 +303,13 @@ Partial Class UserControl1
         'ApproveReleaseToolStripMenuItem
         '
         Me.ApproveReleaseToolStripMenuItem.Name = "ApproveReleaseToolStripMenuItem"
-        Me.ApproveReleaseToolStripMenuItem.Size = New System.Drawing.Size(270, 34)
+        Me.ApproveReleaseToolStripMenuItem.Size = New System.Drawing.Size(264, 34)
         Me.ApproveReleaseToolStripMenuItem.Text = "RELEASE and Approve"
         '
         'EditNewRevisionToolStripMenuItem
         '
         Me.EditNewRevisionToolStripMenuItem.Name = "EditNewRevisionToolStripMenuItem"
-        Me.EditNewRevisionToolStripMenuItem.Size = New System.Drawing.Size(270, 34)
+        Me.EditNewRevisionToolStripMenuItem.Size = New System.Drawing.Size(264, 34)
         Me.EditNewRevisionToolStripMenuItem.Text = "EDIT New Revision"
         '
         'ContentPanel
@@ -343,7 +343,7 @@ Partial Class UserControl1
         Me.Controls.Add(Me.TreeView1)
         Me.Margin = New System.Windows.Forms.Padding(4)
         Me.Name = "UserControl1"
-        Me.Size = New System.Drawing.Size(545, 952)
+        Me.Size = New System.Drawing.Size(569, 952)
         Me.ToolStrip1.ResumeLayout(False)
         Me.ToolStrip1.PerformLayout()
         Me.ResumeLayout(False)

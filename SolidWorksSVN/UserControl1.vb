@@ -9,6 +9,8 @@ Imports System.Windows.Forms
 Imports System.Drawing
 Imports System.IO
 Imports System.CodeDom.Compiler
+Imports System.Windows.Forms.Layout
+Imports SolidWorksSVN.SVNStatus
 'Imports System.Configuration
 
 <ProgId("SVN_AddIn")>
@@ -193,7 +195,34 @@ Public Class UserControl1
 
     ' ### Folder
     Private Sub butPickFolder_Click(sender As Object, e As EventArgs) Handles butPickFolder.Click
-        pickFolder()
+        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
+        Dim sSuggestedPath As String
+        Dim eResponse As swMessageBoxResult_e
+
+        If Not (modDoc Is Nothing) Then
+            sSuggestedPath = modDoc.GetPathName
+            Dim currentDir As DirectoryInfo = New FileInfo(sSuggestedPath).Directory
+
+            If (ModifierKeys And Keys.Shift) = Keys.Shift Then
+                sSuggestedPath = currentDir.FullName.TrimEnd("\\")
+            Else
+                sSuggestedPath = findSvnRoot(currentDir.FullName).TrimEnd("\\")
+            End If
+
+            eResponse = iSwApp.SendMsgToUser2("Would you like to use " & vbCrLf & sSuggestedPath, swMessageBoxIcon_e.swMbQuestion, swMessageBoxBtn_e.swMbYesNoCancel)
+
+            If eResponse = swMessageBoxResult_e.swMbHitYes Then
+                sSuggestedPath = sSuggestedPath
+                localRepoPath.Text = sSuggestedPath
+                verifyLocalRepoPath()
+            ElseIf eResponse = swMessageBoxResult_e.swMbHitCancel Then
+                Exit Sub
+            Else
+                pickFolder()
+            End If
+        Else
+            pickFolder()
+        End If
     End Sub
 
     Private Sub boxCheck_Check(sender As Object, e As EventArgs) Handles onlineCheckBox.CheckedChanged

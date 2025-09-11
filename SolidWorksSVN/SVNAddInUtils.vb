@@ -6,6 +6,21 @@ Imports SolidWorks.Interop.sldworks
 Imports SolidWorks.Interop.swconst
 
 Public Module svnAddInUtils
+    Public Function findSvnRoot(filePath As String) As String
+        Dim currentDir As DirectoryInfo = New FileInfo(filePath).Directory
+
+        While currentDir IsNot Nothing
+            Dim svnFolder As DirectoryInfo = New DirectoryInfo(Path.Combine(currentDir.FullName, ".svn"))
+
+            If svnFolder.Exists Then
+                Return currentDir.FullName
+            End If
+
+            currentDir = currentDir.Parent
+        End While
+
+        Return Nothing ' .svn not found in any parent folders
+    End Function
     Public Function createBoolArray(ByRef iUbound As Integer, ByRef value As Boolean) As Boolean()
         Dim i As Integer
         Dim output(iUbound) As Boolean
