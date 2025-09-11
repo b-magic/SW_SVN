@@ -4,6 +4,7 @@ Imports System.Collections.Generic
 Imports System.Configuration
 Imports System.IO
 Imports System.Linq
+Imports System.Runtime.Remoting.Messaging
 Imports System.Windows.Forms.VisualStyles.VisualStyleElement
 Imports System.Xml
 
@@ -152,7 +153,7 @@ Public Module svnModule
             For i = 0 To UBound(sOutputErrorLines)
                 If sOutputErrorLines(i).Contains("E215004") Then
                     'Log in Failed!
-                    If iRecursiveLevel <> 0 Then
+                    If iRecursiveLevel <= 1 Then
                         Return Nothing
                     End If
                     'Open a log in, and then try again. 
@@ -160,7 +161,7 @@ Public Module svnModule
 
                     'https://tortoisesvn.net/docs/nightly/TortoiseSVN_en/tsvn-automation.html
                     runTortoiseProcexeWithMonitor("/command:repostatus /remote /path: """ & myUserControl.localRepoPath.Text & """") 'log in
-                    Return getFileSVNStatus(bCheckServer, modDocArr, iRecursiveLevel:=1)
+                    Return getFileSVNStatus(bCheckServer, modDocArr, bUpdateStatusOfAllOpenModels, iRecursiveLevel:=(iRecursiveLevel + 1))
                 ElseIf sOutputErrorLines(i).Contains("E170013") Then
                     'Couldn't connect. Server is off or no internet connection
                     If iSwApp.SendMsgToUser2("SVN timed out while attempting to connect to the vault. " &
@@ -186,7 +187,7 @@ Public Module svnModule
                                             swMessageBoxBtn_e.swMbYesNo)
                     If response = swMessageBoxResult_e.swMbHitYes Then
                         If (myUserControl.pickFolder() = System.Windows.Forms.DialogResult.OK) Then
-                            Return getFileSVNStatus(bCheckServer, modDocArr, iRecursiveLevel:=(iRecursiveLevel + 1))
+                            Return getFileSVNStatus(bCheckServer, modDocArr, bUpdateStatusOfAllOpenModels, iRecursiveLevel:=(iRecursiveLevel + 1))
                         Else
                             Return Nothing
                         End If
@@ -387,7 +388,7 @@ Public Module svnModule
         unlockDocs(myUserControl.getComponentsOfAssemblyOptionalUpdateTree(myUserControl.GetSelectedModDocList(iSwApp)))
 
     End Sub
-    Public Function myUpRevEdit(modDocArr() As ModelDoc2) As Boolean
+    Public Function editNewRev(modDocArr() As ModelDoc2) As Boolean
         Dim modDocPath As String
         Dim extension As String
         Dim existingRevision, inputRevision As String
@@ -395,7 +396,7 @@ Public Module svnModule
         Dim i As Integer = 0
         Dim sFails As String = ""
 
-        modDocArr = FilterModelDocs(getMatchingDrawingForArray(modDocArr, iSwApp))
+        modDocArr = userFilePickerFromList(getMatchingDrawingForArray(modDocArr, iSwApp))
         If IsNothing(modDocArr) Then Return False
 
         getLocksOfDocs(modDocArr, bUseTortoise:=False, sMessage:="#UP REV EDIT#")
@@ -504,7 +505,7 @@ Public Module svnModule
         End If
 
         If componentAndDrawingModDoc(0) IsNot Nothing Then
-            If svnCommitDocs(getFilePathsFromModDocArr({componentAndDrawingModDoc(0)}), sCommitMessage:="#RELEASED# Revision: " & inputRevision) Then
+            If svnCommitDocs({componentAndDrawingModDoc(0)}, sCommitMessage:="#RELEASED# Revision: " & inputRevision) Then
                 bSuccess1 = createStep(componentAndDrawingModDoc(0), inputRevision)
             Else
                 'commit failed, so rollback the propset back to edit
@@ -516,7 +517,7 @@ Public Module svnModule
         End If
 
         If componentAndDrawingModDoc(1) IsNot Nothing Then
-            If svnCommitDocs(getFilePathsFromModDocArr({componentAndDrawingModDoc(1)}), sCommitMessage:="#RELEASED# Revision: " & inputRevision) Then
+            If svnCommitDocs({componentAndDrawingModDoc(1)}, sCommitMessage:="#RELEASED# Revision: " & inputRevision) Then
                 bSuccess2 = createPDF(componentAndDrawingModDoc(1))
             Else
                 'commit failed, so rollback the propset back to edit
@@ -527,8 +528,8 @@ Public Module svnModule
             End If
         End If
 
-        updateLockStatusPublic(bRefreshAllTreeViews:=True)
         myUserControl.switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
+        updateLockStatusPublic(bRefreshAllTreeViews:=True)
         statusOfAllOpenModels.setReadWriteFromLockStatus()
 
         'Message User
@@ -703,7 +704,7 @@ Public Module svnModule
             Exit Sub 'All Files were removed
         End If
         svnPropset(getFilePathsFromModDocArr(modDocArr), "addin:release_state", "||EDIT||")
-        save3AndShowErrorMessages(modDocArr)
+        If save3AndShowErrorMessages(modDocArr) <> swMessageBoxResult_e.swMbHitYes Then Exit Sub
 
         bSuccess = runTortoiseProcexeWithMonitor("/command:commit /path:" &
                                                  formatFilePathArrForProc(
@@ -827,11 +828,13 @@ Public Module svnModule
         'Dim modDocArr() As ModelDoc2 = {modDoc}
         'Dim sActiveDocPath() As String = getFilePathsFromModDocArr(modDocArr)
         Dim sDocPathsToCheckout(modDocArr.Length - 1) As String
+        Dim sPathsOfReleased() As String
         Dim status As SVNStatus
         Dim bSuccess As Boolean = False
         Dim sCatMessage As String = ""
         Dim sCatMessageLocked As String = ""
         Dim sFilter As String
+        Dim bEachSuccess() As Boolean
 
         status = getFileSVNStatus(bCheckServer:=True, modDocArr)
         If IsNothing(status) Then Exit Sub
@@ -850,6 +853,16 @@ Public Module svnModule
         Else
             sFilter = "K"
         End If
+
+        sPathsOfReleased = status.sFilterReleased("||RELEASED||")
+        If sPathsOfReleased IsNot Nothing Then
+            'There's Released files in here...
+            If sMessage <> "#UP REV EDIT#" Then
+                iSwApp.SendMsgToUser("Unable to lock the following files, since they are in 'RELEASED' state. Use 'EDIT New Revision' command to get edit access " & vbCrLf & String.Join(vbCrLf, sPathsOfReleased))
+                status.statusFilter(sFiltReleasedRemoved:="||RELEASED||") ' removes released files.
+            End If
+        End If
+
 
         sDocPathsToCheckout = status.sFilterUpToDate9(sFilter, bFilterNot:=True)
 
@@ -870,7 +883,8 @@ Public Module svnModule
             svnPropset(sDocPathsToCheckout, "addin:release_state", "||EDIT||")
             'status = getFileSVNStatus(bCheckServer:=False, modDocArr)
         Else
-            runSvnByArgs(getFilePathsFromModDocArr(modDocArr), "lock", "-m", """" & sMessage & """", bEach:=False)
+            bEachSuccess = svnlock(getFilePathsFromModDocArr(modDocArr), sMessage)
+            svnPropset(boolFilter(sDocPathsToCheckout, bEachSuccess), "addin:release_state", "||EDIT||")
         End If
         bSuccess = updateLockStatusPublic(bRefreshAllTreeViews:=True)
         If Not bSuccess Then Exit Sub
@@ -881,6 +895,50 @@ Public Module svnModule
         'Debug.WriteLine("getLocksOfDocs Time Taken: " + sw.Elapsed.TotalMilliseconds.ToString("#,##0.00 'milliseconds'"))
 
     End Sub
+    Function svnlock(sModDocPathArr() As String, Optional sMessage As String = "") As Boolean()
+        Dim sOutputLines() As String
+        Dim sOutputErrorLines() As String
+        Dim processOutputArr(0) As rawProcessReturn
+        Dim bSuccess(UBound(sModDocPathArr)) As Boolean
+        Dim i As Integer = 0
+        Dim iErr As Integer = 0
+        Dim sCumulativeErrorLines As New List(Of String)
+
+        processOutputArr = runSvnByArgs(sModDocPathArr, "lock", "-m", """" & sMessage & """", bEach:=False)
+
+        For Each processOutput In processOutputArr
+            sOutputLines = processOutput.output.Split(ControlChars.CrLf.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
+            sOutputErrorLines = processOutput.outputError.Split(ControlChars.CrLf.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
+            'Error Checking
+            '            If iErr > 10 Then Return Nothing 'Prevents user getting stuck with too many error messages
+            If (sOutputErrorLines Is Nothing) Or (sOutputLines Is Nothing) Then
+                sCumulativeErrorLines.Add("Error: SVN commit output is nothing!")
+                bSuccess(i) = False
+                iErr += 1
+            ElseIf sOutputErrorLines.Length <> 0 Then
+                'We got some errors if length > 0
+                'For i = 0 To UBound(sOutputErrorLines)
+                '    If sOutputErrorLines(i).Contains("E215004") Then
+                '        'Log in Failed!
+                '    End If
+                'Next
+
+                sCumulativeErrorLines.Add(String.Join(vbCrLf, sOutputErrorLines))
+
+                bSuccess(i) = False
+                iErr += 1
+            Else
+                bSuccess(i) = True
+            End If
+            i += 1
+        Next
+
+        If iErr > 0 Then iSwApp.SendMsgToUser("Error: " & String.Join(vbCrLf, sCumulativeErrorLines.ToArray))
+
+        Return bSuccess
+
+
+    End Function
     Function verifyLocalRepoPath(Optional bInteractive As Boolean = True, Optional bCheckLocalFolder As Boolean = True, Optional bCheckServer As Boolean = True) As Boolean
 
         Dim response As swMessageBoxResult_e
@@ -1016,12 +1074,15 @@ Public Module svnModule
         'End If
 
     End Function
-    Public Function svnCommitDocs(sModDocPathArr() As String, sCommitMessage As String) As Boolean
+    Public Function svnCommitDocs(modDocArr As ModelDoc2(), sCommitMessage As String) As Boolean
         Dim processOutputArr() As rawProcessReturn
         Dim sOutputLines() As String
         Dim sOutputErrorLines() As String
         Dim iErr As Integer = 0
         Dim bSuccess As Boolean = True
+        Dim sModDocPathArr As String() = getFilePathsFromModDocArr(modDocArr)
+
+        If save3AndShowErrorMessages(modDocArr) <> swMessageBoxResult_e.swMbHitYes Then Return False
 
         processOutputArr = runSvnByArgs(sModDocPathArr, "commit", "-m", """" & sCommitMessage & """", bEach:=False)
 
@@ -1056,6 +1117,8 @@ Public Module svnModule
         Dim sOutputErrorLines() As String
         Dim iErr As Integer = 0
         Dim bSuccess As Boolean = True
+
+        If sModDocPathArr Is Nothing Then Return Nothing
 
         processOutputArr = runSvnByArgs(sModDocPathArr, "propset", sPropertyName, sPropertyValue, bEach:=True)
 
@@ -1093,7 +1156,7 @@ Public Module svnModule
         Dim xmlOutput As String = String.Join(vbCrLf, rawXmlLines.output)
 
         If rawXmlLines.outputError.Length > 0 Then
-            iSwApp.SendMsgToUser(rawXmlLines.outputError(0))
+            iSwApp.SendMsgToUser(rawXmlLines.outputError)
             Return Nothing
         End If
         If xmlOutput Is Nothing Then Return Nothing

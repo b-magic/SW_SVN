@@ -143,7 +143,8 @@ Public Class SVNStatus
                                  Optional byFiltITemp As Byte = Nothing,
                                  Optional sFiltFileName As String = Nothing,
                                  Optional bFiltBReconnect As Boolean = Nothing,
-                                 Optional gltFiltRevertUpdate As getLatestType = Nothing) As SVNStatus
+                                 Optional gltFiltRevertUpdate As getLatestType = Nothing,
+                                 Optional sFiltReleasedRemoved As String = Nothing) As SVNStatus
         'Dim sFilePaths(UBound(fp)) As String
         Dim returnFunc As SVNStatus
         Dim newFP(UBound(fp)) As filePpty
@@ -153,7 +154,7 @@ Public Class SVNStatus
         Dim iNumFilters As Integer =
             (IsNothing(sFiltAddDelChg1) * 1 + IsNothing(sFiltPptyMods2) * 2 + IsNothing(sFiltWorkingDirLock3) * 4 + IsNothing(sFiltAddWithHist4) * 8 +
             IsNothing(sFiltSwitchWParent5) * 16 + IsNothing(sFiltLock6) * 32 + IsNothing(sFiltTree7) * 64 + IsNothing(sFiltUpToDate9) * 128 +
-            IsNothing(byFiltITemp) * 256 + IsNothing(sFiltFileName) * 512 + IsNothing(bFiltBReconnect) * 1024 + IsNothing(gltFiltRevertUpdate) * 2048)
+            IsNothing(byFiltITemp) * 256 + IsNothing(sFiltFileName) * 512 + IsNothing(bFiltBReconnect) * 1024 + IsNothing(gltFiltRevertUpdate) * 2048 + IsNothing(sFiltReleasedRemoved) * 4096)
 
         If iNumFilters = 0 Then
             Return Nothing
@@ -245,6 +246,13 @@ Public Class SVNStatus
                             j += 1
                         End If
                     Next
+                Case 4096
+                    For i = 0 To UBound(fp)
+                        If Not (fp(i).revertUpdate = sFiltReleasedRemoved) Then
+                            newFP(j) = fp(i)
+                            j += 1
+                        End If
+                    Next
             End Select
         Else
             'more than 1 option was selected
@@ -308,6 +316,15 @@ Public Class SVNStatus
                 If (IsNothing(gltFiltRevertUpdate)) Then
                 ElseIf fp(i).revertUpdate = gltFiltRevertUpdate Then
                 Else Continue For
+                End If
+
+                If (IsNothing(sFiltReleasedRemoved)) Then
+                    'Pass
+                ElseIf Not (fp(i).released = sFiltReleasedRemoved) Then
+                    'Pass
+                Else
+                    'Fail
+                    Continue For
                 End If
 
                 'made it this far, passed the filter
@@ -412,6 +429,18 @@ Public Class SVNStatus
         Dim j As Integer = 0
         For i As Integer = 0 To UBound(fp)
             If (fp(i).addDelChg1 = filter) Then
+                sPath(j) = fp(i).filename
+                j += 1
+            End If
+        Next
+        If j = 0 Then Return Nothing
+        Return sPath
+    End Function
+    Public Function sFilterReleased(ByRef filter As String) As String()
+        Dim sPath(UBound(fp)) As String
+        Dim j As Integer = 0
+        For i As Integer = 0 To UBound(fp)
+            If (fp(i).released = filter) Then
                 sPath(j) = fp(i).filename
                 j += 1
             End If
@@ -539,7 +568,7 @@ Public Class SVNStatus
             Catch
             End Try
 
-            sRelease = vLookup(fp(i).filename, sPropArr, 1)
+            sRelease = vLookup(fp(i).filename.Replace("\", "/"), sPropArr, 1)
             If Not IsNothing(sRelease) Then
                 fp(i).released = sRelease
             End If

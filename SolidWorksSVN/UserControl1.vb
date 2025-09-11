@@ -185,29 +185,6 @@ Public Class UserControl1
 
         refreshAddIn()
     End Sub
-    Private Sub butRelease_Click(sender As Object, e As EventArgs) Handles butRelease.Click
-        Dim modDocArr() As ModelDoc2 = GetSelectedModDocList(iSwApp)
-
-        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
-
-        If UBound(modDocArr) > 0 Then
-            If iSwApp.SendMsgToUser2("Only one component can be released at a time. Would you like to release the assembly " & vbCrLf & modDoc.GetTitle & " ?",
-                        swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbYesNoCancel) <> swMessageBoxResult_e.swMbHitOk Then
-                Exit Sub
-            End If
-        Else
-            modDoc = modDocArr(0)
-        End If
-
-        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Error: Document not found") : Exit Sub
-        myReleaseDoc(modDoc)
-    End Sub
-    Private Sub butUpRevEdit_Click(sender As Object, e As EventArgs) Handles butUpRevEdit.Click
-        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
-        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Error: Active Document not found") : Exit Sub
-        myUpRevEdit(GetSelectedModDocList(iSwApp))
-    End Sub
-
     ' ### Clean Up
     Private Sub butCleanup_Click(sender As Object, e As EventArgs) Handles butCleanup.Click
         iSwApp.SendMsgToUser("This unfortunately can't be run with SolidWorks Files open. Close all open files, then in Windows Explorer, right click > TortoiseSVN > Cleanup")
@@ -658,7 +635,7 @@ Public Class UserControl1
             parentUserControl2 = parentUserControl
         End Sub
         Sub upRevEditEventHandler(sender As Object, e As EventArgs)
-            myUpRevEdit({modDoc})
+            editNewRev({modDoc})
         End Sub
         Sub releaseEventHandler(sender As Object, e As EventArgs)
             myReleaseDoc(modDoc)
@@ -922,6 +899,8 @@ Public Class UserControl1
 
     End Function
     Class myColours
+        Public lighterPurple As Drawing.Color
+        Public darkerPurple As Drawing.Color
         Public lockedByYou As Drawing.Color
         Public lockedBySomeoneElse As Drawing.Color
         Public available As Drawing.Color
@@ -930,12 +909,14 @@ Public Class UserControl1
         Public notOnVault As Drawing.Color
         Public released As Drawing.Color
         Public Sub initialize()
+            lighterPurple = Drawing.Color.FromArgb(208, 207, 229) 'used in icons
+            darkerPurple = Drawing.Color.FromArgb(152, 150, 182) 'used in icons
             lockedByYou = Drawing.Color.FromArgb(159, 223, 159) 'Drawing.Color.Aquamarine
             lockedBySomeoneElse = Drawing.Color.FromArgb(255, 255, 153)
             available = Drawing.Color.White
             unknown = Drawing.Color.LightGray
             outOfDate = Drawing.Color.FromArgb(255, 129, 123)
-            released = Drawing.Color.FromArgb(174, 183, 207) 'Drawing.Color.Khaki 
+            released = darkerPurple
             notOnVault = unknown
             'Drawing.Color.Bisque 'Drawing.Color.FromArgb(255, 77, 77) 'light red
         End Sub
@@ -944,7 +925,32 @@ Public Class UserControl1
     Private Sub Label1_Click(sender As Object, e As EventArgs) Handles Label1.Click
 
     End Sub
-    'Private Sub ToolStripContainer1_ContentPanel_Load(sender As Object, e As EventArgs) Handles ToolStripContainer1.ContentPanel.Load
 
-    'End Sub
+    Private Sub ApproveReleaseToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ApproveReleaseToolStripMenuItem.Click
+        Dim modDocArr() As ModelDoc2 = GetSelectedModDocList(iSwApp)
+
+        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
+
+        If UBound(modDocArr) > 0 Then
+            If iSwApp.SendMsgToUser2("Only one component can be released at a time. Would you like to release the assembly " & vbCrLf & modDoc.GetTitle & " ?",
+                        swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbYesNoCancel) <> swMessageBoxResult_e.swMbHitOk Then
+                Exit Sub
+            End If
+        Else
+            modDoc = modDocArr(0)
+        End If
+
+        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Error: Document not found") : Exit Sub
+        myReleaseDoc(modDoc)
+    End Sub
+
+    Private Sub EditNewRevisionToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles EditNewRevisionToolStripMenuItem.Click
+        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
+        If modDoc Is Nothing Then iSwApp.SendMsgToUser("Error: Active Document not found") : Exit Sub
+        editNewRev(GetSelectedModDocList(iSwApp))
+    End Sub
+
+    Private Sub ToolStripDropDownButReleases_ButtonClick(sender As Object, e As EventArgs) Handles ToolStripDropDownButReleases.ButtonClick
+        ToolStripDropDownButReleases.ShowDropDown()
+    End Sub
 End Class

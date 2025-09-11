@@ -101,12 +101,13 @@ Module swModelFunctions
         swFrame.SetStatusBarText(numSaved & " Files Saved. & " & numFailed & " Files Failed to Save.")
 
     End Sub
-    Public Sub save3AndShowErrorMessages(ByRef modDocArr() As ModelDoc2)
+    Public Function save3AndShowErrorMessages(ByRef modDocArr() As ModelDoc2) As swMessageBoxResult_e
         Dim bSuccess As Boolean
         Dim swErrors As Long
         Dim swWarnings As Long
         Dim i As Integer
         Dim sErrorFiles As String = ""
+        Dim eReturn As Boolean = swMessageBoxResult_e.swMbHitYes
 
         For i = 0 To modDocArr.Length - 1
             If modDocArr(i) Is Nothing Then Continue For
@@ -114,15 +115,16 @@ Module swModelFunctions
             If Not bSuccess Then
                 sErrorFiles &= modDocArr(i).GetPathName & vbCrLf & " Errors: " & swErrors & vbCrLf &
                     "Warnings: " & swWarnings & vbCrLf
+                eReturn = swMessageBoxResult_e.swMbHitCancel
             End If
         Next
 
         If sErrorFiles <> "" Then
-            iSwApp.SendMsgToUser("Error could not save the following file. For Error Codes, google swFileSaveError_e " &
+            Return iSwApp.SendMsgToUser2("Error: Could not save the following file(s). Do you want to continue? " & vbCrLf & vbCrLf & "For Error Codes, google swFileSaveError_e " &
                      "and for Warnings google swFileSaveWarning_e " & vbCrLf &
-                     sErrorFiles)
-            Exit Sub
+                     sErrorFiles, swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbYesNo)
         End If
-    End Sub
+        Return eReturn
+    End Function
 
 End Module

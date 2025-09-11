@@ -264,6 +264,8 @@
     <Content Include="icons\Commit Icon Only.png" />
     <Content Include="icons\GetLatestIconOnly.png" />
     <Content Include="icons\GetLocksIconOnly.png" />
+    <None Include="icons\Released2IconOnly.png" />
+    <Content Include="icons\ReleasedIconOnly.png" />
     <Content Include="icons\unlockIconOnly.png" />
   </ItemGroup>
   <ItemGroup>

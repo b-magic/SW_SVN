@@ -22,7 +22,7 @@ Partial Class UserControl1
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
-        Dim TreeNode1 As System.Windows.Forms.TreeNode = New System.Windows.Forms.TreeNode("Open a File to See its Status")
+        Dim TreeNode3 As System.Windows.Forms.TreeNode = New System.Windows.Forms.TreeNode("Open a File to See its Status")
         Me.TreeView1 = New System.Windows.Forms.TreeView()
         Me.onlineCheckBox = New System.Windows.Forms.CheckBox()
         Me.localRepoPath = New System.Windows.Forms.TextBox()
@@ -46,12 +46,13 @@ Partial Class UserControl1
         Me.ToolStripDropDownButGetLatest = New System.Windows.Forms.ToolStripSplitButton()
         Me.dropDownGetLatestAllOpenFiles = New System.Windows.Forms.ToolStripMenuItem()
         Me.dropDownGetLatestAll = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripDropDownButReleases = New System.Windows.Forms.ToolStripSplitButton()
+        Me.ApproveReleaseToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.EditNewRevisionToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ContentPanel = New System.Windows.Forms.ToolStripContentPanel()
         Me.ContextMenu1 = New System.Windows.Forms.ContextMenu()
         Me.ContextMenu2 = New System.Windows.Forms.ContextMenu()
         Me.Label1 = New System.Windows.Forms.Label()
-        Me.butRelease = New System.Windows.Forms.Button()
-        Me.butUpRevEdit = New System.Windows.Forms.Button()
         Me.ToolStrip1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -63,9 +64,9 @@ Partial Class UserControl1
         Me.TreeView1.Location = New System.Drawing.Point(4, 621)
         Me.TreeView1.MinimumSize = New System.Drawing.Size(250, 194)
         Me.TreeView1.Name = "TreeView1"
-        TreeNode1.Name = "Node0"
-        TreeNode1.Text = "Open a File to See its Status"
-        Me.TreeView1.Nodes.AddRange(New System.Windows.Forms.TreeNode() {TreeNode1})
+        TreeNode3.Name = "Node0"
+        TreeNode3.Text = "Open a File to See its Status"
+        Me.TreeView1.Nodes.AddRange(New System.Windows.Forms.TreeNode() {TreeNode3})
         Me.TreeView1.ShowNodeToolTips = True
         Me.TreeView1.Size = New System.Drawing.Size(538, 329)
         Me.TreeView1.TabIndex = 10
@@ -128,7 +129,7 @@ Partial Class UserControl1
         '
         Me.butFindComponent.Enabled = False
         Me.butFindComponent.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.butFindComponent.Location = New System.Drawing.Point(394, 571)
+        Me.butFindComponent.Location = New System.Drawing.Point(146, 571)
         Me.butFindComponent.Name = "butFindComponent"
         Me.butFindComponent.Size = New System.Drawing.Size(89, 44)
         Me.butFindComponent.TabIndex = 23
@@ -174,14 +175,14 @@ Partial Class UserControl1
         Me.ToolStrip1.Dock = System.Windows.Forms.DockStyle.None
         Me.ToolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden
         Me.ToolStrip1.ImageScalingSize = New System.Drawing.Size(36, 50)
-        Me.ToolStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStripDropDownButGetLocks, Me.ToolStripDropDownButCommit, Me.ToolStripDropDownButUnlock, Me.ToolStripDropDownButGetLatest})
+        Me.ToolStrip1.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ToolStripDropDownButGetLocks, Me.ToolStripDropDownButCommit, Me.ToolStripDropDownButUnlock, Me.ToolStripDropDownButGetLatest, Me.ToolStripDropDownButReleases})
         Me.ToolStrip1.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.VerticalStackWithOverflow
         Me.ToolStrip1.Location = New System.Drawing.Point(4, 86)
         Me.ToolStrip1.MaximumSize = New System.Drawing.Size(400, 800)
         Me.ToolStrip1.MinimumSize = New System.Drawing.Size(100, 200)
         Me.ToolStrip1.Name = "ToolStrip1"
         Me.ToolStrip1.Padding = New System.Windows.Forms.Padding(4, 5, 4, 0)
-        Me.ToolStrip1.Size = New System.Drawing.Size(181, 347)
+        Me.ToolStrip1.Size = New System.Drawing.Size(181, 460)
         Me.ToolStrip1.Stretch = True
         Me.ToolStrip1.TabIndex = 0
         '
@@ -285,6 +286,32 @@ Partial Class UserControl1
         Me.dropDownGetLatestAll.Size = New System.Drawing.Size(205, 34)
         Me.dropDownGetLatestAll.Text = "All"
         '
+        'ToolStripDropDownButReleases
+        '
+        Me.ToolStripDropDownButReleases.DropDownButtonWidth = 40
+        Me.ToolStripDropDownButReleases.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.ApproveReleaseToolStripMenuItem, Me.EditNewRevisionToolStripMenuItem})
+        Me.ToolStripDropDownButReleases.Font = New System.Drawing.Font("Segoe UI", 8.0!)
+        Me.ToolStripDropDownButReleases.Image = Global.SolidWorksSVN.My.Resources.Resources.Released2IconOnly
+        Me.ToolStripDropDownButReleases.ImageTransparentColor = System.Drawing.Color.Magenta
+        Me.ToolStripDropDownButReleases.Margin = New System.Windows.Forms.Padding(0, 5, 0, 5)
+        Me.ToolStripDropDownButReleases.Name = "ToolStripDropDownButReleases"
+        Me.ToolStripDropDownButReleases.Padding = New System.Windows.Forms.Padding(2, 0, 2, 0)
+        Me.ToolStripDropDownButReleases.Size = New System.Drawing.Size(172, 75)
+        Me.ToolStripDropDownButReleases.Text = "Releases"
+        Me.ToolStripDropDownButReleases.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText
+        '
+        'ApproveReleaseToolStripMenuItem
+        '
+        Me.ApproveReleaseToolStripMenuItem.Name = "ApproveReleaseToolStripMenuItem"
+        Me.ApproveReleaseToolStripMenuItem.Size = New System.Drawing.Size(270, 34)
+        Me.ApproveReleaseToolStripMenuItem.Text = "RELEASE and Approve"
+        '
+        'EditNewRevisionToolStripMenuItem
+        '
+        Me.EditNewRevisionToolStripMenuItem.Name = "EditNewRevisionToolStripMenuItem"
+        Me.EditNewRevisionToolStripMenuItem.Size = New System.Drawing.Size(270, 34)
+        Me.EditNewRevisionToolStripMenuItem.Text = "EDIT New Revision"
+        '
         'ContentPanel
         '
         Me.ContentPanel.Size = New System.Drawing.Size(250, 525)
@@ -296,27 +323,7 @@ Partial Class UserControl1
         Me.Label1.Name = "Label1"
         Me.Label1.Size = New System.Drawing.Size(151, 20)
         Me.Label1.TabIndex = 24
-        Me.Label1.Text = "Version: 2025.09.03"
-        '
-        'butRelease
-        '
-        Me.butRelease.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.butRelease.Location = New System.Drawing.Point(146, 571)
-        Me.butRelease.Name = "butRelease"
-        Me.butRelease.Size = New System.Drawing.Size(118, 44)
-        Me.butRelease.TabIndex = 25
-        Me.butRelease.Text = "Release File"
-        Me.butRelease.UseVisualStyleBackColor = True
-        '
-        'butUpRevEdit
-        '
-        Me.butUpRevEdit.Font = New System.Drawing.Font("Microsoft Sans Serif", 8.0!, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.butUpRevEdit.Location = New System.Drawing.Point(270, 571)
-        Me.butUpRevEdit.Name = "butUpRevEdit"
-        Me.butUpRevEdit.Size = New System.Drawing.Size(118, 44)
-        Me.butUpRevEdit.TabIndex = 26
-        Me.butUpRevEdit.Text = "UpRev Edit"
-        Me.butUpRevEdit.UseVisualStyleBackColor = True
+        Me.Label1.Text = "Version: 2025.09.05"
         '
         'UserControl1
         '
@@ -325,8 +332,6 @@ Partial Class UserControl1
         Me.AutoScroll = True
         Me.AutoSize = True
         Me.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
-        Me.Controls.Add(Me.butUpRevEdit)
-        Me.Controls.Add(Me.butRelease)
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.ToolStrip1)
         Me.Controls.Add(Me.butFindComponent)
@@ -372,6 +377,7 @@ Partial Class UserControl1
     Friend WithEvents ContextMenu1 As ContextMenu
     Friend WithEvents ContextMenu2 As ContextMenu
     Friend WithEvents Label1 As Label
-    Friend WithEvents butRelease As Button
-    Friend WithEvents butUpRevEdit As Button
+    Friend WithEvents ToolStripDropDownButReleases As ToolStripSplitButton
+    Friend WithEvents ApproveReleaseToolStripMenuItem As ToolStripMenuItem
+    Friend WithEvents EditNewRevisionToolStripMenuItem As ToolStripMenuItem
 End Class

@@ -95,7 +95,7 @@ Public Module svnAddInUtils
         '        For j = 0 To UBound(modDocArr)
         '        Next
 
-        Dim mySVNStatus = getFileSVNStatus(bCheckServer:=False, modDocArr)
+        Dim mySVNStatus = getFileSVNStatus(bCheckServer:=False, modDocArr, bUpdateStatusOfAllOpenModels:=False)
         'Dim modDocArr_noNothing() As ModelDoc2 = RemoveNullsFromArray(modDocArr)
 
         Dim userHasLock(modDocArr.Length - 1) As Boolean
@@ -135,7 +135,7 @@ Public Module svnAddInUtils
     End Function
 
     Public Function checkNoLocks(modDocArr() As ModelDoc2) As Boolean
-        Dim mySVNStatus = getFileSVNStatus(bCheckServer:=False, modDocArr)
+        Dim mySVNStatus = getFileSVNStatus(bCheckServer:=False, modDocArr, bUpdateStatusOfAllOpenModels:=False)
         Dim userHasLock(modDocArr.Length - 1) As Boolean
 
         For i As Integer = 0 To modDocArr.Length - 1
@@ -216,7 +216,7 @@ Public Module svnAddInUtils
         End If
         Return result   'Important: Part/Assemble is always in position 0. Drawing always in position 1. 
     End Function
-    Public Function FilterModelDocs(modDocArr As ModelDoc2()) As ModelDoc2()
+    Public Function userFilePickerFromList(modDocArr As ModelDoc2()) As ModelDoc2()
         ' Create and show the form
         Dim filterForm As New ModelDocFilterForm(modDocArr)
         If filterForm.ShowDialog() = DialogResult.OK Then
@@ -277,6 +277,15 @@ Public Module svnAddInUtils
             Me.Close()
         End Sub
     End Class
+    Public Function boolFilter(ByVal sArr() As String, bFilter() As Boolean) As String()
+        Dim lsReturn As New List(Of String)
 
+        If UBound(sArr) <> UBound(bFilter) Then Return Nothing
+
+        For i As Integer = 0 To UBound(sArr)
+            If bFilter(i) Then lsReturn.Add(sArr(i))
+        Next
+        Return lsReturn.ToArray
+    End Function
 
 End Module
