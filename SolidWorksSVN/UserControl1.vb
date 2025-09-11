@@ -56,7 +56,7 @@ Public Class UserControl1
 
             If verifyLocalRepoPath(bInteractive:=True, bCheckLocalFolder:=True, bCheckServer:=False) Then
                 If iSwApp.SendMsgToUser2("Would you like to get latest CAD files from the SVN Server? (SVN Update)", swMessageBoxIcon_e.swMbQuestion, swMessageBoxBtn_e.swMbYesNo) = swMessageBoxResult_e.swMbHitYes Then
-                    runTortoiseProcexeWithMonitor("/command:update /path:" & My.Settings.localRepoPath & " /closeonend:3")
+                    runTortoiseProcexeWithMonitor("/command:update /path:""" & My.Settings.localRepoPath & """ /closeonend:3")
                 End If
             End If
         Else

@@ -83,6 +83,7 @@ Module swModelFunctions
         Dim warnings As Integer
 
         Dim modDocArr As ModelDoc2() = getAllOpenDocs(bMustBeVisible:=False)
+        If modDocArr Is Nothing Then Exit Sub
 
         For i = 0 To UBound(modDocArr)
 
