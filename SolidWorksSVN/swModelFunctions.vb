@@ -108,7 +108,7 @@ Module swModelFunctions
         Dim swWarnings As Long
         Dim i As Integer
         Dim sErrorFiles As String = ""
-        Dim eReturn As Boolean = swMessageBoxResult_e.swMbHitYes
+        Dim eReturn As swMessageBoxResult_e = swMessageBoxResult_e.swMbHitYes
 
         For i = 0 To modDocArr.Length - 1
             If modDocArr(i) Is Nothing Then Continue For

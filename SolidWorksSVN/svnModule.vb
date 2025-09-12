@@ -510,7 +510,7 @@ Public Module svnModule
             Else
                 'commit failed, so rollback the propset back to edit
                 svnPropset(getFilePathsFromModDocArr({componentAndDrawingModDoc(0)}), "addin:release_state", "||EDIT||")
-                svnPropset(getFilePathsFromModDocArr({componentAndDrawingModDoc(0)}), "addin:approved", "")
+                svnPropset(getFilePathsFromModDocArr({componentAndDrawingModDoc(0)}), "addin:approved", "unknown")
                 bSuccess1 = False
                 iSwApp.SendMsgToUser2("Failed to Commit " & componentAndDrawingModDoc(0).GetTitle, swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbOk)
             End If
@@ -522,7 +522,7 @@ Public Module svnModule
             Else
                 'commit failed, so rollback the propset back to edit
                 svnPropset(getFilePathsFromModDocArr({componentAndDrawingModDoc(1)}), "addin:release_state", "||EDIT||")
-                svnPropset(getFilePathsFromModDocArr({componentAndDrawingModDoc(1)}), "addin:approved", "")
+                svnPropset(getFilePathsFromModDocArr({componentAndDrawingModDoc(1)}), "addin:approved", "unknown")
                 bSuccess2 = False
                 iSwApp.SendMsgToUser2("Failed to Commit " & componentAndDrawingModDoc(1).GetTitle, swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbOk)
             End If
@@ -859,11 +859,12 @@ Public Module svnModule
             'There's Released files in here...
             If sMessage <> "#UP REV EDIT#" Then
                 iSwApp.SendMsgToUser("Unable to lock the following files, since they are in 'RELEASED' state. Use 'EDIT New Revision' command to get edit access " & vbCrLf & String.Join(vbCrLf, sPathsOfReleased))
-                status.statusFilter(sFiltReleasedRemoved:="||RELEASED||") ' removes released files.
+                status = status.statusFilter(sFiltReleasedRemoved:="||RELEASED||") ' removes released files.
+
             End If
         End If
 
-
+        If status Is Nothing Then Exit Sub
         sDocPathsToCheckout = status.sFilterUpToDate9(sFilter, bFilterNot:=True)
 
         sCatMessage = catWithNewLine(status.sFilterUpToDate9(sFilter))
@@ -1339,10 +1340,11 @@ Public Module svnModule
         Debug.WriteLine("myGetLatestOrRevert Time Taken: " + sw.Elapsed.TotalMilliseconds.ToString("#,##0.00 'milliseconds'"))
     End Sub
     Public Enum getLatestType
-        none
-        revert
-        update
-        both
+        undefined = -1
+        none = 0
+        revert = 1
+        update = 2
+        both = 3
     End Enum
     Function formatFilePathArrForProc(ByRef sFilePathArr() As String, Optional sDelimiter As String = "*") As String
         'Use "*" delimiter for tortoiseProc.exe, and " " (space) for SVN.exe

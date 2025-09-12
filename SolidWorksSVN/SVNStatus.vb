@@ -140,10 +140,10 @@ Public Class SVNStatus
                                  Optional sFiltLock6 As String = Nothing,
                                  Optional sFiltTree7 As String = Nothing, 'note: svn leave col 8 blank
                                  Optional sFiltUpToDate9 As String = Nothing,
-                                 Optional byFiltITemp As Byte = Nothing,
+                                 Optional byFiltITemp As Integer = Nothing,
                                  Optional sFiltFileName As String = Nothing,
-                                 Optional bFiltBReconnect As Boolean = Nothing,
-                                 Optional gltFiltRevertUpdate As getLatestType = Nothing,
+                                 Optional bFiltBReconnect As Integer = Nothing,
+                                 Optional gltFiltRevertUpdate As getLatestType = getLatestType.undefined,
                                  Optional sFiltReleasedRemoved As String = Nothing) As SVNStatus
         'Dim sFilePaths(UBound(fp)) As String
         Dim returnFunc As SVNStatus
@@ -151,187 +151,197 @@ Public Class SVNStatus
         Dim j As Integer = 0
         Dim iPassFilter As Integer = 0
 
-        Dim iNumFilters As Integer =
-            (IsNothing(sFiltAddDelChg1) * 1 + IsNothing(sFiltPptyMods2) * 2 + IsNothing(sFiltWorkingDirLock3) * 4 + IsNothing(sFiltAddWithHist4) * 8 +
-            IsNothing(sFiltSwitchWParent5) * 16 + IsNothing(sFiltLock6) * 32 + IsNothing(sFiltTree7) * 64 + IsNothing(sFiltUpToDate9) * 128 +
-            IsNothing(byFiltITemp) * 256 + IsNothing(sFiltFileName) * 512 + IsNothing(bFiltBReconnect) * 1024 + IsNothing(gltFiltRevertUpdate) * 2048 + IsNothing(sFiltReleasedRemoved) * 4096)
+        'Dim iNumFilters As Integer = 0
+        'If Not IsNothing(sFiltAddDelChg1) Then iNumFilters += 1
+        'If Not IsNothing(sFiltPptyMods2) Then iNumFilters += 2
+        'If Not IsNothing(sFiltWorkingDirLock3) Then iNumFilters += 4
+        'If Not IsNothing(sFiltAddWithHist4) Then iNumFilters += 8
+        'If Not IsNothing(sFiltSwitchWParent5) Then iNumFilters += 16
+        'If Not IsNothing(sFiltLock6) Then iNumFilters += 32
+        'If Not IsNothing(sFiltTree7) Then iNumFilters += 64
+        'If Not IsNothing(sFiltUpToDate9) Then iNumFilters += 128
+        'If Not byFiltITemp = 0 Then iNumFilters += 256
+        'If Not IsNothing(sFiltFileName) Then iNumFilters += 512
+        'If bFiltBReconnect Then iNumFilters += 1024 ' Because default is False
+        'If gltFiltRevertUpdate <> getLatestType.undefined Then iNumFilters += 2048
+        'If Not IsNothing(sFiltReleasedRemoved) Then iNumFilters += 4096
 
-        If iNumFilters = 0 Then
-            Return Nothing
-        ElseIf (iNumFilters = 2) Or (((Math.Log(iNumFilters) / Math.Log(2.0#)) Mod 2) = 0) Then
-            'Fancy way of determining that only one option was selected
+        'If iNumFilters = 0 Then
+        '    Return Nothing
+        'ElseIf (iNumFilters = 2) Or (((Math.Log(iNumFilters) / Math.Log(2.0#)) Mod 2) = 0) Then
+        '    'Fancy way of determining that only one option was selected
 
-            Select Case iNumFilters
-                Case 1
-                    For i = 0 To UBound(fp)
-                        If sFiltAddDelChg1.Contains(fp(i).addDelChg1) Then
-                            newFP(j) = fp(i)
-                            j += 1
-                        End If
-                    Next
-                Case 2
-                    For i = 0 To UBound(fp)
-                        If sFiltPptyMods2.Contains(fp(i).pptyMods2) Then
-                            newFP(j) = fp(i)
-                            j += 1
-                        End If
-                    Next
-                Case 4
-                    For i = 0 To UBound(fp)
-                        If sFiltWorkingDirLock3.Contains(fp(i).workingDirLock3) Then
-                            newFP(j) = fp(i)
-                            j += 1
-                        End If
-                    Next
-                Case 8
-                    For i = 0 To UBound(fp)
-                        If sFiltAddWithHist4.Contains(fp(i).addWithHist4) Then
-                            newFP(j) = fp(i)
-                            j += 1
-                        End If
-                    Next
-                Case 16
-                    For i = 0 To UBound(fp)
-                        If sFiltSwitchWParent5.Contains(fp(i).switchWParent5) Then
-                            newFP(j) = fp(i)
-                            j += 1
-                        End If
-                    Next
-                Case 32
-                    For i = 0 To UBound(fp)
-                        If sFiltLock6.Contains(fp(i).lock6) Then
-                            newFP(j) = fp(i)
-                            j += 1
-                        End If
-                    Next
-                Case 64
-                    For i = 0 To UBound(fp)
-                        If sFiltTree7.Contains(fp(i).tree7) Then
-                            newFP(j) = fp(i)
-                            j += 1
-                        End If
-                    Next
-                Case 128
-                    For i = 0 To UBound(fp)
-                        If sFiltUpToDate9.Contains(fp(i).upToDate9) Then
-                            newFP(j) = fp(i)
-                            j += 1
-                        End If
-                    Next
-                Case 256
-                    For i = 0 To UBound(fp)
-                        If fp(i).iTemp = byFiltITemp Then
-                            newFP(j) = fp(i)
-                            j += 1
-                        End If
-                    Next
-                Case 512
-                    For i = 0 To UBound(fp)
-                        If fp(i).filename = sFiltFileName Then
-                            newFP(j) = fp(i)
-                            j += 1
-                        End If
-                    Next
-                Case 1024
-                    For i = 0 To UBound(fp)
-                        If fp(i).bReconnect = bFiltBReconnect Then
-                            newFP(j) = fp(i)
-                            j += 1
-                        End If
-                    Next
-                Case 2048
-                    For i = 0 To UBound(fp)
-                        If fp(i).revertUpdate = gltFiltRevertUpdate Then
-                            newFP(j) = fp(i)
-                            j += 1
-                        End If
-                    Next
-                Case 4096
-                    For i = 0 To UBound(fp)
-                        If Not (fp(i).revertUpdate = sFiltReleasedRemoved) Then
-                            newFP(j) = fp(i)
-                            j += 1
-                        End If
-                    Next
-            End Select
-        Else
-            'more than 1 option was selected
+        '    Select Case iNumFilters
+        '        Case 1
+        '            For i = 0 To UBound(fp)
+        '                If sFiltAddDelChg1.Contains(fp(i).addDelChg1) Then
+        '                    newFP(j) = fp(i)
+        '                    j += 1
+        '                End If
+        '            Next
+        '        Case 2
+        '            For i = 0 To UBound(fp)
+        '                If sFiltPptyMods2.Contains(fp(i).pptyMods2) Then
+        '                    newFP(j) = fp(i)
+        '                    j += 1
+        '                End If
+        '            Next
+        '        Case 4
+        '            For i = 0 To UBound(fp)
+        '                If sFiltWorkingDirLock3.Contains(fp(i).workingDirLock3) Then
+        '                    newFP(j) = fp(i)
+        '                    j += 1
+        '                End If
+        '            Next
+        '        Case 8
+        '            For i = 0 To UBound(fp)
+        '                If sFiltAddWithHist4.Contains(fp(i).addWithHist4) Then
+        '                    newFP(j) = fp(i)
+        '                    j += 1
+        '                End If
+        '            Next
+        '        Case 16
+        '            For i = 0 To UBound(fp)
+        '                If sFiltSwitchWParent5.Contains(fp(i).switchWParent5) Then
+        '                    newFP(j) = fp(i)
+        '                    j += 1
+        '                End If
+        '            Next
+        '        Case 32
+        '            For i = 0 To UBound(fp)
+        '                If sFiltLock6.Contains(fp(i).lock6) Then
+        '                    newFP(j) = fp(i)
+        '                    j += 1
+        '                End If
+        '            Next
+        '        Case 64
+        '            For i = 0 To UBound(fp)
+        '                If sFiltTree7.Contains(fp(i).tree7) Then
+        '                    newFP(j) = fp(i)
+        '                    j += 1
+        '                End If
+        '            Next
+        '        Case 128
+        '            For i = 0 To UBound(fp)
+        '                If sFiltUpToDate9.Contains(fp(i).upToDate9) Then
+        '                    newFP(j) = fp(i)
+        '                    j += 1
+        '                End If
+        '            Next
+        '        Case 256
+        '            For i = 0 To UBound(fp)
+        '                If fp(i).iTemp = byFiltITemp Then
+        '                    newFP(j) = fp(i)
+        '                    j += 1
+        '                End If
+        '            Next
+        '        Case 512
+        '            For i = 0 To UBound(fp)
+        '                If fp(i).filename = sFiltFileName Then
+        '                    newFP(j) = fp(i)
+        '                    j += 1
+        '                End If
+        '            Next
+        '        Case 1024
+        '            For i = 0 To UBound(fp)
+        '                If fp(i).bReconnect = bFiltBReconnect Then
+        '                    newFP(j) = fp(i)
+        '                    j += 1
+        '                End If
+        '            Next
+        '        Case 2048
+        '            For i = 0 To UBound(fp)
+        '                If fp(i).revertUpdate = gltFiltRevertUpdate Then
+        '                    newFP(j) = fp(i)
+        '                    j += 1
+        '                End If
+        '            Next
+        '        Case 4096
+        '            For i = 0 To UBound(fp)
+        '                If Not (fp(i).revertUpdate = sFiltReleasedRemoved) Then
+        '                    newFP(j) = fp(i)
+        '                    j += 1
+        '                End If
+        '            Next
+        '    End Select
+        'Else
+        'more than 1 option was selected
 
-            For i = 0 To UBound(fp)
-                If (IsNothing(sFiltAddDelChg1)) Then
-                ElseIf sFiltAddDelChg1.Contains(fp(i).addDelChg1) Then
-                Else Continue For
-                End If
+        For i = 0 To UBound(fp)
+            If (IsNothing(sFiltAddDelChg1)) Then
+            ElseIf sFiltAddDelChg1.Contains(fp(i).addDelChg1) Then
+            Else Continue For
+            End If
 
-                If (IsNothing(sFiltPptyMods2)) Then
-                ElseIf sFiltPptyMods2.Contains(fp(i).pptyMods2) Then
-                Else Continue For
-                End If
+            If (IsNothing(sFiltPptyMods2)) Then
+            ElseIf sFiltPptyMods2.Contains(fp(i).pptyMods2) Then
+            Else Continue For
+            End If
 
-                If (IsNothing(sFiltWorkingDirLock3)) Then
-                ElseIf sFiltWorkingDirLock3.Contains(fp(i).workingDirLock3) Then
-                Else Continue For
-                End If
+            If (IsNothing(sFiltWorkingDirLock3)) Then
+            ElseIf sFiltWorkingDirLock3.Contains(fp(i).workingDirLock3) Then
+            Else Continue For
+            End If
 
-                If (IsNothing(sFiltAddWithHist4)) Then
-                ElseIf sFiltAddWithHist4.Contains(fp(i).addWithHist4) Then
-                Else Continue For
-                End If
+            If (IsNothing(sFiltAddWithHist4)) Then
+            ElseIf sFiltAddWithHist4.Contains(fp(i).addWithHist4) Then
+            Else Continue For
+            End If
 
-                If (IsNothing(sFiltSwitchWParent5)) Then
-                ElseIf sFiltSwitchWParent5.Contains(fp(i).switchWParent5) Then
-                Else Continue For
-                End If
+            If (IsNothing(sFiltSwitchWParent5)) Then
+            ElseIf sFiltSwitchWParent5.Contains(fp(i).switchWParent5) Then
+            Else Continue For
+            End If
 
-                If (IsNothing(sFiltLock6)) Then
-                ElseIf sFiltLock6.Contains(fp(i).lock6) Then
-                Else Continue For
-                End If
+            If (IsNothing(sFiltLock6)) Then
+            ElseIf sFiltLock6.Contains(fp(i).lock6) Then
+            Else Continue For
+            End If
 
-                If (IsNothing(sFiltTree7)) Then
-                ElseIf sFiltTree7.Contains(fp(i).tree7) Then
-                Else Continue For
-                End If
+            If (IsNothing(sFiltTree7)) Then
+            ElseIf sFiltTree7.Contains(fp(i).tree7) Then
+            Else Continue For
+            End If
 
-                If (IsNothing(sFiltUpToDate9)) Then
-                ElseIf sFiltUpToDate9.Contains(fp(i).upToDate9) Then
-                Else Continue For
-                End If
+            If (IsNothing(sFiltUpToDate9)) Then
+            ElseIf sFiltUpToDate9.Contains(fp(i).upToDate9) Then
+            Else Continue For
+            End If
 
-                If (IsNothing(byFiltITemp)) Then
-                ElseIf fp(i).iTemp = byFiltITemp Then
-                Else Continue For
-                End If
+            'If (IsNothing(byFiltITemp)) Then
+            'ElseIf fp(i).iTemp = byFiltITemp Then
+            'Else Continue For
+            'End If
 
-                If (IsNothing(sFiltFileName)) Then
-                ElseIf fp(i).filename = sFiltFileName Then
-                Else Continue For
-                End If
+            If (IsNothing(sFiltFileName)) Then
+            ElseIf fp(i).filename = sFiltFileName Then
+            Else Continue For
+            End If
 
-                If (IsNothing(bFiltBReconnect)) Then
-                ElseIf fp(i).bReconnect = bFiltBReconnect Then
-                Else Continue For
-                End If
+            'If (IsNothing(bFiltBReconnect)) Then
+            'ElseIf fp(i).bReconnect = bFiltBReconnect Then
+            'Else Continue For
+            'End If
 
-                If (IsNothing(gltFiltRevertUpdate)) Then
-                ElseIf fp(i).revertUpdate = gltFiltRevertUpdate Then
-                Else Continue For
-                End If
+            'If gltFiltRevertUpdate <> getLatestType.undefined Then
+            'ElseIf fp(i).revertUpdate = gltFiltRevertUpdate Then
+            'Else Continue For
+            'End If
 
-                If (IsNothing(sFiltReleasedRemoved)) Then
-                    'Pass
-                ElseIf Not (fp(i).released = sFiltReleasedRemoved) Then
-                    'Pass
-                Else
-                    'Fail
-                    Continue For
-                End If
+            If (IsNothing(sFiltReleasedRemoved)) Then
+                'Pass
+            ElseIf Not (fp(i).released = sFiltReleasedRemoved) Then
+                'Pass
+            Else
+                'Fail
+                Continue For
+            End If
 
-                'made it this far, passed the filter
-                newFP(j) = fp(i)
-                j += 1
-            Next
-        End If
+            'made it this far, passed the filter
+            newFP(j) = fp(i)
+            j += 1
+        Next
+        'End If
 
         If j <> 0 Then
             ReDim Preserve newFP(j - 1)
