@@ -184,8 +184,35 @@ Public Module svnAddInUtils
 
         Return outputList.ToArray()
     End Function
+    Public Function getMatchingDrawingForArrayPath(modDocArr As ModelDoc2()) As String()
+        Dim outputList As New List(Of String)
+        Dim folder As String
+        Dim baseName As String
+        Dim drwPath As String
+        Dim modDocPath As String
+        'Dim extension As String
 
-    Public Function getMatchingComponentAndDrawing(modDoc As ModelDoc2, iSwApp As SldWorks) As ModelDoc2()
+        For Each modDoc In modDocArr
+            modDocPath = modDoc.GetPathName()
+            folder = Path.GetDirectoryName(modDocPath)
+            baseName = Path.GetFileNameWithoutExtension(modDocPath)
+
+            If String.IsNullOrWhiteSpace(modDocPath) Then Continue For
+
+            outputList.Add(modDocPath)
+
+            drwPath = Path.Combine(folder, baseName & ".SLDDRW")
+
+            If File.Exists(drwPath) Then
+                outputList.Add(drwPath)
+            End If
+
+        Next
+
+        Return outputList.ToArray()
+    End Function
+
+    Public Function getMatchingComponentAndDrawing(modDoc As ModelDoc2, iSwApp As SldWorks, Optional bOpenFile As Boolean = True) As ModelDoc2()
         Dim modDocPath As String = modDoc.GetPathName()
         If String.IsNullOrWhiteSpace(modDocPath) Then Return Nothing
         Dim folder As String = Path.GetDirectoryName(modDocPath)

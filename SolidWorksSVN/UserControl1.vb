@@ -452,7 +452,8 @@ Public Class UserControl1
     Public Function getComponentsOfAssemblyOptionalUpdateTree(
                                     ByRef modDocArr() As ModelDoc2,
                                     Optional ByVal allTreeViewsIndexToUpdate As Integer = Nothing,
-                                    Optional ByVal bUniqueOnly As Boolean = True) As ModelDoc2()
+                                    Optional ByVal bUniqueOnly As Boolean = True,
+                                    Optional ByVal bResolveLightweight As Boolean = False) As ModelDoc2()
 
         ' Checkin and checkout needs the modDocArray. The others just want filepaths. 
 
@@ -500,6 +501,7 @@ Public Class UserControl1
             End If
 
             If modDocArr(i).GetType = swDocumentTypes_e.swDocASSEMBLY Then
+                If bResolveLightweight Then CType(modDocArr(i), AssemblyDoc).ResolveAllLightWeightComponents(WarnUser:=False)
                 swConfMgr = modDocArr(i).ConfigurationManager
                 swConf = swConfMgr.ActiveConfiguration
                 swRootComp = swConf.GetRootComponent3(True)
@@ -981,5 +983,26 @@ Public Class UserControl1
 
     Private Sub ToolStripDropDownButReleases_ButtonClick(sender As Object, e As EventArgs) Handles ToolStripDropDownButReleases.ButtonClick
         ToolStripDropDownButReleases.ShowDropDown()
+    End Sub
+
+    Private Sub FromSelectionToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles FromSelectionToolStripMenuItem.Click
+
+        If Not verifyLocalRepoPath() Then Exit Sub
+
+        Dim sDest As String = localRepoPath.Text & "\" & "fileList.txt"
+        Dim sFileNames As String
+        sFileNames = formatFilePathArrForProc(getMatchingDrawingForArrayPath(getComponentsOfAssemblyOptionalUpdateTree(GetSelectedModDocList(iSwApp), bResolveLightweight:=True)), sDelimiter:=vbCrLf)
+
+        Try
+            File.WriteAllText(sDest, sFileNames)
+            'Console.WriteLine("Text successfully saved to: " & filePath)
+        Catch ex As Exception
+            'Console.WriteLine("Error saving file: " & ex.Message)
+        End Try
+
+    End Sub
+
+    Private Sub ToolStripSplitButFolder_ButtonClick(sender As Object, e As EventArgs) Handles ToolStripSplitButFolder.ButtonClick
+        ToolStripSplitButFolder.ShowDropDown()
     End Sub
 End Class

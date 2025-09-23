@@ -1041,12 +1041,14 @@ Public Module svnModule
 
         If bEach Then
             For Each sPath As String In sModDocPathArr
+                If sPath Is Nothing Then Continue For
                 sPath = """" & sPath & """"
                 processOutputArr(i) = runSvnProcess(sSVNPath, arguments & sPath)
                 i += 1
             Next
         Else
             For Each sPath As String In sModDocPathArr
+                If sPath Is Nothing Then Continue For
                 sFullPath = sFullPath & """" & sPath & """ "
             Next
             processOutputArr(0) = runSvnProcess(sSVNPath, arguments & sFullPath)
@@ -1124,6 +1126,11 @@ Public Module svnModule
         processOutputArr = runSvnByArgs(sModDocPathArr, "propset", sPropertyName, sPropertyValue, bEach:=True)
 
         For Each processOutput In processOutputArr
+            If (processOutput.output Is Nothing) Or (processOutput.outputError Is Nothing) Then
+                bSuccess = False
+                Continue For
+            End If
+
             sOutputLines = processOutput.output.Split(ControlChars.CrLf.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
             sOutputErrorLines = processOutput.outputError.Split(ControlChars.CrLf.ToCharArray(), StringSplitOptions.RemoveEmptyEntries)
             'Error Checking
