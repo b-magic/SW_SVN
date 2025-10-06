@@ -5,6 +5,7 @@ Imports System.Configuration
 Imports System.IO
 Imports System.Linq
 Imports System.Runtime.Remoting.Messaging
+Imports System.Windows.Forms.LinkLabel
 Imports System.Windows.Forms.VisualStyles.VisualStyleElement
 Imports System.Xml
 
@@ -555,7 +556,7 @@ Public Module svnModule
         Dim drawingDirectory As String = System.IO.Path.GetDirectoryName(drawingPath)
         Dim pdfPath As String = System.IO.Path.Combine(drawingDirectory, drawingBaseName & sInputRevision & ".pdf")
 
-        iSwApp.ActivateDoc3(modDoc.GetTitle(), True, swRebuildOnActivation_e.swRebuildActiveDoc, 0)
+        iSwApp.ActivateDoc3(getTitleClean(modDoc), True, swRebuildOnActivation_e.swRebuildActiveDoc, 0)
         bSuccess = modDoc.Extension.SaveAs3(pdfPath,
                                 swSaveAsVersion_e.swSaveAsCurrentVersion,
                                 swSaveAsOptions_e.swSaveAsOptions_Copy,
@@ -577,7 +578,7 @@ Public Module svnModule
         Dim errors As Integer = 0
         Dim warnings As Integer = 0
 
-        iSwApp.ActivateDoc3(modDoc.GetTitle(), True, swRebuildOnActivation_e.swRebuildActiveDoc, 0)
+        iSwApp.ActivateDoc3(getTitleClean(modDoc), True, swRebuildOnActivation_e.swRebuildActiveDoc, 0)
         modDoc.ClearSelection2(True)
         componentDoc = iSwApp.ActiveDoc
         bSuccess = componentDoc.Extension.SaveAs3(stepPath,
@@ -763,10 +764,19 @@ Public Module svnModule
         End If
         If Not bSuccess Then iSwApp.SendMsgToUser("Status Check Failed.")
     End Sub
-    Sub myCleanupAndRelease()
+    Sub myCleanup()
         Dim bSuccessStatus As Boolean
         Dim bSuccessCleanup As Boolean
-        Dim allOpenDocs As ModelDoc2() = getAllOpenDocs(bMustBeVisible:=False)
+
+        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
+
+        If modDoc Is Nothing Then
+        Else
+            iSwApp.SendMsgToUser("This unfortunately can't be run with SolidWorks Files open. Close all open files, then in Windows Explorer, right click > TortoiseSVN > Cleanup")
+            Exit Sub
+        End If
+
+        If Not verifyLocalRepoPath(bCheckServer:=False) Then Exit Sub
 
         If Not iSwApp.SendMsgToUser2("Unsaved changes will be discarded. Continue?",
                                 swMessageBoxIcon_e.swMbWarning,
@@ -775,37 +785,18 @@ Public Module svnModule
         End If
 
         iSwApp.SendMsgToUser2("Running cleanup from the Add-in has a poor success rate due to Windows only allowing " &
-                              "a single program to edit a file at once. If this fails, save everything, close SolidWorks, 
+                              "a single program to edit a file at once. If this fails, close SolidWorks, 
                               and run cleanup from tortoiseSVN in Windows Explorer." & vbCrLf & vbCrLf &
-                              "Need write access to save? In Windows Explorer, Right click > Properties, and un-check Read-Only.",
+                              "If you need to save files, but are unable without a lock, In Windows Explorer, Right click > Properties, and un-check Read-Only. " &
+                              "This may create conflicts if another user is working on the file, so is typically not recommended.",
                                 swMessageBoxIcon_e.swMbWarning,
                                 swMessageBoxBtn_e.swMbOk)
 
-        bSuccessStatus = updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True)
+        'bSuccessStatus = updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True)
 
-        If Not verifyLocalRepoPath() Then Exit Sub
-        If bSuccessStatus Then
-            bSuccessCleanup = runTortoiseProcexeWithMonitor("/command:cleanup /cleanup /path:""" & myUserControl.localRepoPath.Text & """")
-        Else
-            'Manually release file system locks
-            For Each modDoc In allOpenDocs
-                modDoc.ForceReleaseLocks()
-            Next
+        bSuccessCleanup = runTortoiseProcexeWithMonitor("/command:cleanup /cleanup /path:""" & myUserControl.localRepoPath.Text & """")
 
-            bSuccessCleanup = runTortoiseProcexeWithMonitor("/command:cleanup /cleanup /path:""" & myUserControl.localRepoPath.Text & """")
-            For Each modDoc In allOpenDocs
-                'Manually reattach to file system
-                modDoc.ReloadOrReplace(ReadOnly:=True, ReplaceFileName:=False, DiscardChanges:=False)
-            Next
-        End If
-
-        If bSuccessCleanup Then
-            bSuccessStatus = updateStatusOfAllModelsVariable(bRefreshAllTreeViews:=True)
-            If bSuccessStatus Then
-                statusOfAllOpenModels.setReadWriteFromLockStatus()
-                myUserControl.switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
-            End If
-        Else
+        If Not bSuccessCleanup Then
             iSwApp.SendMsgToUser("Cleanup Failed. This is often because the SVN server is attempting " &
                     "to open a file that SolidWorks is currently accessing. This occurs even when the file is read only. " &
                     "Try closing all open files and trying again. Or close SolidWorks and use ToroiseSVN to clean up. ")
@@ -1021,6 +1012,89 @@ Public Module svnModule
         Return False ' code shouldn't get here...
 
     End Function
+    'Public Sub sendFilePathsToClipboard(modDocArr As ModelDoc2())
+
+    '    'Dim sModDocPathArr As String()
+    '    'Dim sFileNames As String
+
+    '    If modDocArr Is Nothing Then Exit Sub
+    '    'If Not verifyLocalRepoPath() Then Return Nothing
+
+    '    'Dim sDest As String = localRepoPath.Text & "\" & "fileList.txt"
+
+
+
+    'End Sub
+
+    Public Function getUrlfromPaths(sPaths As String()) As String()
+        ' Run the SVN command and get XML output
+        Dim rawXmlLines As svnModule.rawProcessReturn = runSvnProcess(sSVNPath, "info --xml " & formatFilePathArrForProc(sPaths, sDelimiter:=""" """) & """")
+        Dim xmlOutput As String = String.Join(vbCrLf, rawXmlLines.output)
+
+        ' Handle errors
+        If rawXmlLines.outputError.Length > 0 Then
+            iSwApp.SendMsgToUser(rawXmlLines.outputError)
+            Return Nothing
+        End If
+        If String.IsNullOrWhiteSpace(xmlOutput) Then
+            iSwApp.SendMsgToUser("Unable to get file info")
+            Return Nothing
+        End If
+
+        ' Parse XML
+        Dim doc As New XmlDocument()
+        Try
+            doc.LoadXml(xmlOutput)
+        Catch ex As Exception
+            iSwApp.SendMsgToUser("Invalid XML returned from SVN: " & ex.Message)
+            Return Nothing
+        End Try
+
+        ' Get all <entry> nodes under <info>
+        Dim entries As XmlNodeList = doc.SelectNodes("/info/entry")
+        Dim resultList As New List(Of String)
+
+        For Each entry As XmlNode In entries
+            Dim urlNode As XmlNode = entry.SelectSingleNode("url")
+            If urlNode IsNot Nothing AndAlso Not String.IsNullOrWhiteSpace(urlNode.InnerText) Then
+                resultList.Add(urlNode.InnerText.Trim())
+            End If
+        Next
+
+        Return resultList.ToArray()
+    End Function
+
+    Public Sub openFileNameInWebpage(sUrlInput As String, modDoc As ModelDoc2)
+        'requires '%s' in the url, which will be replaced by the search string
+
+
+        If modDoc Is Nothing Then
+            iSwApp.SendMsgToUser("No active document found.")
+            Exit Sub
+        End If
+
+        Dim title As String = Path.GetFileNameWithoutExtension(getTitleClean(modDoc))
+
+        If String.IsNullOrWhiteSpace(title) Then
+            iSwApp.SendMsgToUser("Document title is empty.")
+            Exit Sub
+        End If
+
+        ' URL encode the title to be safe for use in the URL
+        Dim encodedTitle As String = Uri.EscapeDataString(title)
+        Dim url As String = $"" & sUrlInput.Replace("%s", encodedTitle)
+
+        Try
+            Process.Start(New ProcessStartInfo With {
+                .FileName = url,
+                .UseShellExecute = True
+            })
+        Catch ex As Exception
+            MessageBox.Show("Failed to open browser: " & ex.Message)
+        End Try
+
+    End Sub
+
     Public Function runSvnByArgs(sModDocPathArr() As String, sArg1 As String, Optional sArg2 As String = "", Optional sArg3 As String = "", Optional bEach As Boolean = True) As rawProcessReturn()
 
         'sModDocPathArr()  = getFilePathsFromModDocArr(modDocArr)

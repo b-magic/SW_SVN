@@ -329,5 +329,7 @@ Public Module svnAddInUtils
         Next
         Return lsReturn.ToArray
     End Function
-
+    Public Function getTitleClean(modDoc As ModelDoc) As String
+        Return Path.GetFileName(modDoc.GetPathName())
+    End Function
 End Module

@@ -11,6 +11,9 @@ Imports System.IO
 Imports System.CodeDom.Compiler
 Imports System.Windows.Forms.Layout
 Imports SolidWorksSVN.SVNStatus
+Imports System.Linq
+Imports System.Xml
+Imports System.Security.Policy
 'Imports System.Configuration
 
 <ProgId("SVN_AddIn")>
@@ -190,7 +193,7 @@ Public Class UserControl1
     ' ### Clean Up
     Private Sub butCleanup_Click(sender As Object, e As EventArgs) Handles butCleanup.Click
         iSwApp.SendMsgToUser("This unfortunately can't be run with SolidWorks Files open. Close all open files, then in Windows Explorer, right click > TortoiseSVN > Cleanup")
-        'myCleanupAndRelease()
+        'myCleanup()
     End Sub
 
     ' ### Folder
@@ -299,6 +302,7 @@ Public Class UserControl1
         Return result
 
         verifyLocalRepoPath()
+        refreshAddIn()
     End Function
 
     Sub treeView1_NodeMouseClick(ByVal sender As Object,
@@ -867,6 +871,7 @@ Public Class UserControl1
         'Dim tempObj As Object
         'swSelectType_e.swSelSHEETS
         Dim activeModDoc As ModelDoc2 = iSwApp.ActiveDoc
+        If activeModDoc Is Nothing Then Return Nothing
         Dim swSelMgr As SolidWorks.Interop.sldworks.SelectionMgr = activeModDoc.SelectionManager
         Dim nSelCount As Long = swSelMgr.GetSelectedObjectCount2(-1)
 
@@ -984,25 +989,294 @@ Public Class UserControl1
     Private Sub ToolStripDropDownButReleases_ButtonClick(sender As Object, e As EventArgs) Handles ToolStripDropDownButReleases.ButtonClick
         ToolStripDropDownButReleases.ShowDropDown()
     End Sub
+    Private Sub ToolStripSplitButFolder_ButtonClick(sender As Object, e As EventArgs) Handles ToolStripSplitButFolder.ButtonClick
+        ToolStripSplitButFolder.ShowDropDown()
+    End Sub
 
-    Private Sub FromSelectionToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles FromSelectionToolStripMenuItem.Click
+    Private Sub PickSVNFolderToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles PickSVNFolderToolStripMenuItem.Click
+        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
+        If modDoc Is Nothing Then
+            pickFolder()
+            Exit Sub
+        Else
+            PickSVNFolderToolStripMenuItem.ShowDropDown()
+        End If
+    End Sub
 
+    Private Sub PickSVNFolderToolStripMenuItem_Opening(sender As Object, e As EventArgs) Handles PickSVNFolderToolStripMenuItem.DropDownOpening
+
+        Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
+        If modDoc Is Nothing Then
+            pickFolder()
+            Exit Sub
+        End If
+
+        ' Clear previous items if any
+        PickSVNFolderToolStripMenuItem.DropDownItems.Clear()
+
+        Dim docPath As String = modDoc.GetPathName
+        Dim currentDir As DirectoryInfo = New FileInfo(docPath).Directory
+        Dim svnRootPath As String = findSvnRoot(currentDir.FullName).TrimEnd("\"c)
+
+        ' Split the SVN root and current path into folder levels
+        Dim svnRootUri As New Uri(svnRootPath & "\")
+        Dim docUri As New Uri(currentDir.FullName & "\")
+
+        ' Get relative folders from SVN root to document directory
+        Dim relativeUri As Uri = svnRootUri.MakeRelativeUri(docUri)
+        Dim relativePath As String = Uri.UnescapeDataString(relativeUri.ToString()).Replace("/", "\")
+        Dim folders As List(Of String) = If(relativePath = "", New List(Of String)(), relativePath.Split("\"c).ToList())
+
+        ' Build full paths from root up to 5 levels
+        Dim fullPaths As New List(Of String)
+        Dim currentPath As String = svnRootPath
+
+        fullPaths.Add(currentPath) ' Include root
+        For Each folder As String In folders
+            If folder = "" Then Continue For
+            currentPath = Path.Combine(currentPath, folder)
+            fullPaths.Add(currentPath)
+            If fullPaths.Count = 8 Then Exit For
+        Next
+
+        ' Add folder menu items
+        For Each folderPath As String In fullPaths
+            Dim item As New ToolStripMenuItem(folderPath)
+            AddHandler item.Click,
+        Sub(sender2 As Object, e2 As EventArgs)
+            localRepoPath.Text = CType(sender2, ToolStripMenuItem).Text
+            refreshAddIn()
+        End Sub
+            PickSVNFolderToolStripMenuItem.DropDownItems.Add(item)
+        Next
+
+        ' Add separator
+        PickSVNFolderToolStripMenuItem.DropDownItems.Add(New ToolStripSeparator())
+
+        ' Add "Open Folder Picker" menu item
+        Dim openPickerItem As New ToolStripMenuItem("Open Folder Picker")
+        AddHandler openPickerItem.Click, Sub() pickFolder()
+        PickSVNFolderToolStripMenuItem.DropDownItems.Add(openPickerItem)
+
+    End Sub
+
+    Private Sub OpenFolderPickerToolStripMenuItem_Click(sender As Object, e As EventArgs)
+        pickFolder()
+        ToolStripSplitButFolder.HideDropDown()
+    End Sub
+
+    Private Sub SVNCleanupToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SVNCleanupToolStripMenuItem.Click
+        myCleanup()
+        ToolStripSplitButFolder.HideDropDown()
+    End Sub
+
+    Private Sub CopyFileNameToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CopyFileNameToolStripMenuItem.Click
+
+        Dim modDocArr As ModelDoc2() = GetSelectedModDocList(iSwApp)
+        If IsNothing(modDocArr) Then modDocArr = {iSwApp.ActiveDoc}
+        If IsNothing(modDocArr) Then
+            iSwApp.SendMsgToUser("Couldn't find an active document! Exiting.")
+        End If
+
+        Clipboard.SetText(String.Join(vbCrLf, getFilePathsFromModDocArr(modDocArr, bTitleOnly:=True)))
+
+        ToolStripSplitButFolder.HideDropDown()
+    End Sub
+
+    Private Sub CopyFileNameWithDependentsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CopyFileNameWithDependentsToolStripMenuItem.Click
+
+        Dim modDocArr As ModelDoc2() = getComponentsOfAssemblyOptionalUpdateTree(GetSelectedModDocList(iSwApp), bResolveLightweight:=True)
+        If IsNothing(modDocArr) Then modDocArr = getComponentsOfAssemblyOptionalUpdateTree(iSwApp.ActiveDoc, bResolveLightweight:=True)
+        If IsNothing(modDocArr) Then
+            iSwApp.SendMsgToUser("Couldn't find an active document! Exiting.")
+        End If
+
+        Clipboard.SetText(String.Join(vbCrLf, getFilePathsFromModDocArr(modDocArr, bTitleOnly:=True)))
+        ToolStripSplitButFolder.HideDropDown()
+    End Sub
+
+    Private Sub CopyActiveFilesParentFolderToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CopyActiveFilesParentFolderToolStripMenuItem.Click
+
+        Dim modDocArr As ModelDoc2() = GetSelectedModDocList(iSwApp)
+        If IsNothing(modDocArr) Then modDocArr = {iSwApp.ActiveDoc}
+        If IsNothing(modDocArr) Then
+            iSwApp.SendMsgToUser("Couldn't find an active document! Exiting.")
+        End If
+
+        Dim currentDir As DirectoryInfo = New FileInfo(modDocArr(0).GetPathName).Directory
+
+        Clipboard.SetText(currentDir.ToString)
+        ToolStripSplitButFolder.HideDropDown()
+
+    End Sub
+
+    Private Sub CopyFullPathToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CopyFullPathToolStripMenuItem.Click
+        Dim modDocArr As ModelDoc2() = GetSelectedModDocList(iSwApp)
+        If IsNothing(modDocArr) Then modDocArr = {iSwApp.ActiveDoc}
+        If IsNothing(modDocArr) Then
+            iSwApp.SendMsgToUser("Couldn't find an active document! Exiting.")
+        End If
+
+        Clipboard.SetText(String.Join(vbCrLf, getFilePathsFromModDocArr(modDocArr, bTitleOnly:=False)))
+        ToolStripSplitButFolder.HideDropDown()
+    End Sub
+
+    Private Sub CopyFilesPathsWithDependentsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CopyFilesPathsWithDependentsToolStripMenuItem.Click
+        Dim modDocArr As ModelDoc2() = getComponentsOfAssemblyOptionalUpdateTree(GetSelectedModDocList(iSwApp), bResolveLightweight:=True)
+        If IsNothing(modDocArr) Then modDocArr = getComponentsOfAssemblyOptionalUpdateTree(iSwApp.ActiveDoc, bResolveLightweight:=True)
+        If IsNothing(modDocArr) Then
+            iSwApp.SendMsgToUser("Couldn't find an active document! Exiting.")
+        End If
+
+        Clipboard.SetText(String.Join(vbCrLf, getFilePathsFromModDocArr(modDocArr, bTitleOnly:=False)))
+        ToolStripSplitButFolder.HideDropDown()
+    End Sub
+
+    Private Sub CopySvnUrlToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CopySvnUrlToolStripMenuItem.Click
+        'copy url to clipboard
+        Dim modDocArr As ModelDoc2() = GetSelectedModDocList(iSwApp)
+        If IsNothing(modDocArr) Then modDocArr = getComponentsOfAssemblyOptionalUpdateTree(iSwApp.ActiveDoc, bResolveLightweight:=True)
+        If IsNothing(modDocArr) Then
+            iSwApp.SendMsgToUser("Couldn't find an active document! Exiting.")
+        End If
+
+        Dim urls As String() = getUrlfromPaths(getFilePathsFromModDocArr(modDocArr))
+
+        Clipboard.SetText(String.Join(vbCrLf, urls))
+        ToolStripSplitButFolder.HideDropDown()
+    End Sub
+    Private Sub CopySvnUrlWithDependentsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CopySvnUrlWithDependentsToolStripMenuItem.Click
+        'copy url to clipboard, with dependents
+        Dim modDocArr As ModelDoc2() = getComponentsOfAssemblyOptionalUpdateTree(GetSelectedModDocList(iSwApp), bResolveLightweight:=True)
+        If IsNothing(modDocArr) Then modDocArr = getComponentsOfAssemblyOptionalUpdateTree(iSwApp.ActiveDoc, bResolveLightweight:=True)
+        If IsNothing(modDocArr) Then
+            iSwApp.SendMsgToUser("Couldn't find an active document! Exiting.")
+        End If
+
+        Dim urls As String() = getUrlfromPaths(getFilePathsFromModDocArr(modDocArr))
+
+        Clipboard.SetText(String.Join(vbCrLf, urls))
+        ToolStripSplitButFolder.HideDropDown()
+    End Sub
+
+    Private Sub ShareWithColleagueToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ShareWithColleagueToolStripMenuItem.Click
+
+        Dim stringArr As String()
+
+        Dim modDocArr As ModelDoc2() = GetSelectedModDocList(iSwApp)
+        If IsNothing(modDocArr) Then modDocArr = {iSwApp.ActiveDoc}
+
+        If IsNothing(modDocArr) Then
+            iSwApp.SendMsgToUser("Couldn't find an active document! Exiting.")
+        End If
+        If IsNothing(modDocArr(0)) Then
+            iSwApp.SendMsgToUser("Couldn't find an active document! Exiting.")
+        End If
+
+        stringArr = getUrlfromPaths({modDocArr(0).GetPathName})
+
+        If IsNothing(stringArr) Then
+            iSwApp.SendMsgToUser("Couldn't find get URL(s)")
+        End If
+
+        Dim stringToClip As String = "CAD is available on svn" & vbCrLf & "My Local Path (yours may be different):" & vbCrLf
+
+        stringToClip &= modDocArr(0).GetPathName & vbCrLf & vbCrLf & "or remote path: " & vbCrLf
+        stringToClip &= stringArr(0)
+
+        Clipboard.SetText(stringToClip)
+        ToolStripSplitButFolder.HideDropDown()
+    End Sub
+
+    Private Sub CreateSvnFilelistToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CreateSvnFilelistToolStripMenuItem.Click
+        'filelist, file only
         If Not verifyLocalRepoPath() Then Exit Sub
 
         Dim sDest As String = localRepoPath.Text & "\" & "fileList.txt"
         Dim sFileNames As String
-        sFileNames = formatFilePathArrForProc(getMatchingDrawingForArrayPath(getComponentsOfAssemblyOptionalUpdateTree(GetSelectedModDocList(iSwApp), bResolveLightweight:=True)), sDelimiter:=vbCrLf)
+        Dim eIncludeDrawings As Integer = iSwApp.SendMsgToUser2("Include drawings with names matching files?", swMessageBoxIcon_e.swMbQuestion, swMessageBoxBtn_e.swMbYesNoCancel)
+        Dim bIncludeDrawings As Boolean = False
+
+        If eIncludeDrawings = swMessageBoxResult_e.swMbHitCancel Then Exit Sub
+        If eIncludeDrawings = swMessageBoxResult_e.swMbHitYes Then bIncludeDrawings = True
+
+        If bIncludeDrawings Then
+            sFileNames = formatFilePathArrForProc(getMatchingDrawingForArrayPath(GetSelectedModDocList(iSwApp)), sDelimiter:=vbCrLf)
+        Else
+            sFileNames = formatFilePathArrForProc(GetSelectedModDocList(iSwApp), sDelimiter:=vbCrLf)
+        End If
 
         Try
             File.WriteAllText(sDest, sFileNames)
-            'Console.WriteLine("Text successfully saved to: " & filePath)
+            iSwApp.SendMsgToUser("Wrote Filelist to " & vbCrLf & sDest)
         Catch ex As Exception
-            'Console.WriteLine("Error saving file: " & ex.Message)
+            iSwApp.SendMsgToUser("ERROR writing Filelist to " & vbCrLf & sDest)
         End Try
+        ToolStripSplitButFolder.HideDropDown()
+    End Sub
+
+    Private Sub CreateSvnFilelistWithDependentsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CreateSvnFilelistWithDependentsToolStripMenuItem.Click
+        'filelist with dependents
+        If Not verifyLocalRepoPath() Then Exit Sub
+
+        Dim sDest As String = localRepoPath.Text & "\" & "fileList.txt"
+        Dim sFileNames As String
+        Dim eMsgBoxResult As Integer = iSwApp.SendMsgToUser2("Include drawings with names matching files?", swMessageBoxIcon_e.swMbQuestion, swMessageBoxBtn_e.swMbYesNoCancel)
+        Dim bIncludeDrawings As Boolean = False
+        Dim bIncludeDependents As Boolean = False
+        Dim modDocArr As ModelDoc2()
+
+        If eMsgBoxResult = swMessageBoxResult_e.swMbHitCancel Then Exit Sub
+        If eMsgBoxResult = swMessageBoxResult_e.swMbHitYes Then bIncludeDrawings = True
+
+        eMsgBoxResult = iSwApp.SendMsgToUser2("Include Dependents?", swMessageBoxIcon_e.swMbQuestion, swMessageBoxBtn_e.swMbYesNoCancel)
+        If eMsgBoxResult = swMessageBoxResult_e.swMbHitCancel Then Exit Sub
+        If eMsgBoxResult = swMessageBoxResult_e.swMbHitYes Then bIncludeDependents = True
+
+        If bIncludeDependents Then
+            modDocArr = getComponentsOfAssemblyOptionalUpdateTree(GetSelectedModDocList(iSwApp), bResolveLightweight:=True)
+        Else
+            modDocArr = GetSelectedModDocList(iSwApp)
+        End If
+
+        If IsNothing(modDocArr) Then
+            iSwApp.SendMsgToUser("Error Getting Files")
+            Exit Sub
+        End If
+
+        If bIncludeDrawings Then
+            sFileNames = formatFilePathArrForProc(getMatchingDrawingForArrayPath(modDocArr), sDelimiter:=vbCrLf)
+        Else
+            sFileNames = formatFilePathArrForProc(getFilePathsFromModDocArr(modDocArr), sDelimiter:=vbCrLf)
+        End If
+
+        Try
+            File.WriteAllText(sDest, sFileNames)
+            iSwApp.SendMsgToUser("Wrote Filelist to " & vbCrLf & sDest)
+        Catch ex As Exception
+            iSwApp.SendMsgToUser("ERROR writing Filelist to " & vbCrLf & sDest)
+        End Try
+        ToolStripSplitButFolder.HideDropDown()
+    End Sub
+
+    Private Sub OpenFileFromURLToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles OpenFileFromURLToolStripMenuItem.Click
 
     End Sub
 
-    Private Sub ToolStripSplitButFolder_ButtonClick(sender As Object, e As EventArgs) Handles ToolStripSplitButFolder.ButtonClick
-        ToolStripSplitButFolder.ShowDropDown()
+    Private Sub GoogleToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles GoogleToolStripMenuItem.Click
+        Dim modDocArr As ModelDoc2() = GetSelectedModDocList(iSwApp)
+        openFileNameInWebpage("https://www.google.com/search?q=%s", modDocArr(0))
     End Sub
+
+    Private Sub McToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles McToolStripMenuItem.Click
+        Dim modDocArr As ModelDoc2() = GetSelectedModDocList(iSwApp)
+        openFileNameInWebpage("https://www.mcmaster.com/%s", modDocArr(0))
+    End Sub
+
+    Private Sub DigikeyToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles DigikeyToolStripMenuItem.Click
+        Dim modDocArr As ModelDoc2() = GetSelectedModDocList(iSwApp)
+        openFileNameInWebpage("https://www.digikey.com/en/products/result?keywords=%s", modDocArr(0))
+    End Sub
+
+
 End Class

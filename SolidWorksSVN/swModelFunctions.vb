@@ -10,7 +10,7 @@ Module swModelFunctions
         iSwApp = mySwAppPass
     End Sub
 
-    Public Function getFilePathsFromModDocArr(modDocArr() As ModelDoc2) As String()
+    Public Function getFilePathsFromModDocArr(modDocArr() As ModelDoc2, Optional bTitleOnly As Boolean = False) As String()
         If IsNothing(modDocArr) Then Return Nothing
         Dim i, j As Integer
         j = 0
@@ -18,7 +18,11 @@ Module swModelFunctions
         For i = 0 To modDocArr.Length - 1
             If modDocArr(i) Is Nothing Then Continue For
             Try
-                getFilePathsArr(i - j) = modDocArr(i).GetPathName()
+                If bTitleOnly Then
+                    getFilePathsArr(i - j) = getTitleClean(modDocArr(i))
+                Else
+                    getFilePathsArr(i - j) = modDocArr(i).GetPathName()
+                End If
             Catch
                 j += 1
             End Try
