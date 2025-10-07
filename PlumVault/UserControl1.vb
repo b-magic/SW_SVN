@@ -301,7 +301,7 @@ Public Class UserControl1
 
         Return result
 
-        verifyLocalRepoPath()
+        If verifyLocalRepoPath(bInteractive:=False) Then onlineCheckBox.Checked = True
         refreshAddIn()
     End Function
 
@@ -1045,8 +1045,8 @@ Public Class UserControl1
             AddHandler item.Click,
         Sub(sender2 As Object, e2 As EventArgs)
             localRepoPath.Text = CType(sender2, ToolStripMenuItem).Text
+            If verifyLocalRepoPath(bInteractive:=False) Then onlineCheckBox.Checked = True
             refreshAddIn()
-            onlineCheckBox.Checked = True
         End Sub
             PickSVNFolderToolStripMenuItem.DropDownItems.Add(item)
         Next
