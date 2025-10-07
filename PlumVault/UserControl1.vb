@@ -56,7 +56,7 @@ Public Class UserControl1
         svnModuleInitialize(iSwApp, Me, statusOfAllOpenModels)
 
         localRepoPath.Text = My.Settings.localRepoPath
-        versionLabel.Text = "Version: 2025-10-07E"
+        versionLabel.Text = "Version: 2025-10-07F"
 
         If iSwApp.GetDocumentCount = 0 Then
 
