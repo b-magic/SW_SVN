@@ -194,13 +194,31 @@ Public Class SwAddin
         'sInstallDirectory
         'sInstallDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)
         'svnModule
-        Dim imageList1() As String = {"C:\Users\\source\repos\SolidWorksVB\PlumVault\icons\VaultLogo20.png",
-            "C:\Users\\source\repos\SolidWorksVB\PlumVault\icons\VaultLogo40.png",
-            "C:\Users\\source\repos\SolidWorksVB\PlumVault\icons\VaultLogo64.png",
-            "C:\Users\\source\repos\SolidWorksVB\PlumVault\icons\VaultLogo96.png",
-            "C:\Users\\source\repos\SolidWorksVB\PlumVault\icons\VaultLogo128.png"}
+        'Dim imageList1() As String = {"C:\Users\\source\repos\SolidWorksVB\PlumVault\icons\PlumVault_20.png",
+        '    "C:\Users\\source\repos\SolidWorksVB\PlumVault\icons\PlumVault_40.png",
+        '    "C:\Users\\source\repos\SolidWorksVB\PlumVault\icons\PlumVault_64.png",
+        '    "C:\Users\\source\repos\SolidWorksVB\PlumVault\icons\PlumVault_96.png",
+        '    "C:\Users\\source\repos\SolidWorksVB\PlumVault\icons\PlumVault_128.png"}
 
-        myTaskPaneView = iSwApp.CreateTaskpaneView3(imageList1, "SVN Task Pane")
+        Dim dllPath As String = System.Reflection.Assembly.GetExecutingAssembly().Location
+        Dim installFolder As String = System.IO.Path.GetDirectoryName(dllPath)
+
+        Dim imageList() As String = {
+        System.IO.Path.Combine(installFolder, "PlumVault_20.png"),
+        System.IO.Path.Combine(installFolder, "PlumVault_32.png"),
+        System.IO.Path.Combine(installFolder, "PlumVault_40.png"),
+        System.IO.Path.Combine(installFolder, "PlumVault_64.png"),
+        System.IO.Path.Combine(installFolder, "PlumVault_96.png"),
+        System.IO.Path.Combine(installFolder, "PlumVault_128.png")
+    }
+
+        'If Not My.Computer.FileSystem.FileExists(imageList(3)) Then
+        '    iSwApp.SendMsgToUser2("File does NOT exist " & vbCrLf & imageList(3), swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbOk)
+        'Else
+        '    iSwApp.SendMsgToUser2("File Found! " & vbCrLf & imageList(3), swMessageBoxIcon_e.swMbInformation, swMessageBoxBtn_e.swMbOk)
+        'End If
+
+        myTaskPaneView = iSwApp.CreateTaskpaneView3(imageList, "SVN Task Pane")
         myTaskPaneHost = myTaskPaneView.AddControl("SVN_AddIn", "")
         'myTaskPaneHost.ContextMenu = New ContextMenu
         myTaskPaneHost.myInitialize(iSwApp)

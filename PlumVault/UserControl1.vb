@@ -39,8 +39,8 @@ Public Class UserControl1
         Dim myrefreshItem, myCollapseItem As ToolStripMenuItem
 
         docMenu = New ContextMenuStrip()
-        myrefreshItem = New ToolStripMenuItem("Refresh", My.Resources.VaultLogo128, AddressOf RefreshToolStripMenuItemEventHandler)
-        myCollapseItem = New ToolStripMenuItem("Collapse", My.Resources.VaultLogo128, AddressOf collapseTreeViewHandler2)
+        myrefreshItem = New ToolStripMenuItem("Refresh", My.Resources.PlumVault_128, AddressOf RefreshToolStripMenuItemEventHandler)
+        myCollapseItem = New ToolStripMenuItem("Collapse", My.Resources.PlumVault_128, AddressOf collapseTreeViewHandler2)
 
         docMenu.Items.AddRange({myrefreshItem, myCollapseItem})
 
@@ -56,6 +56,7 @@ Public Class UserControl1
         svnModuleInitialize(iSwApp, Me, statusOfAllOpenModels)
 
         localRepoPath.Text = My.Settings.localRepoPath
+        versionLabel.Text = "Version: 2025-10-07E"
 
         If iSwApp.GetDocumentCount = 0 Then
 
@@ -650,8 +651,8 @@ Public Class UserControl1
         Dim modDocArr As ModelDoc2()
         Dim parentUserControl2 As UserControl1
         'Dim comp As Component2
-        Public collapse As New ToolStripMenuItem("Collapse", My.Resources.VaultLogo128, AddressOf collapseTreeViewHandler)
-        Public openLabel As New ToolStripMenuItem("Open", My.Resources.VaultLogo128, AddressOf openEventHandler)
+        Public collapse As New ToolStripMenuItem("Collapse", My.Resources.PlumVault_128, AddressOf collapseTreeViewHandler)
+        Public openLabel As New ToolStripMenuItem("Open", My.Resources.PlumVault_128, AddressOf openEventHandler)
         Public unlockLabel As New ToolStripMenuItem("Unlock", My.Resources.unlockIconOnly1, AddressOf unlockEventHandler)
         Public unlockWithDependentsLabel As New ToolStripMenuItem("Unlock With Dependents", My.Resources.unlockIconOnly1, AddressOf unlockWithDependentsEventHandler)
         Public commitLabel As New ToolStripMenuItem("Commit", My.Resources.Commit_Icon_Only, AddressOf commitEventHandler)
@@ -659,10 +660,10 @@ Public Class UserControl1
         Public getLocksStealLabel As New ToolStripMenuItem("Get Lock (Steal Locks)", My.Resources.GetLocksIconOnly, AddressOf getLockStealLockEventHandler)
         Public getLockActiveDoc As New ToolStripMenuItem("Get Lock", My.Resources.GetLocksIconOnly, AddressOf getLockActiveDocEventHandler)
         Public getLockWithDependents As New ToolStripMenuItem("Get Lock With Dependents", My.Resources.GetLocksIconOnly, AddressOf getLocksActiveWithDependentsEventHandler)
-        Public addToRepo As New ToolStripMenuItem("Add & Initial Commit", My.Resources.VaultLogo128, AddressOf addToRepoEventHandler)
-        Public showLog As New ToolStripMenuItem("View SVN Log", My.Resources.VaultLogo128, AddressOf showLogEventHandler)
-        Public upRevEdit As New ToolStripMenuItem("Up Rev to Edit", My.Resources.VaultLogo128, AddressOf upRevEditEventHandler)
-        Public release As New ToolStripMenuItem("Approve & Release", My.Resources.VaultLogo128, AddressOf releaseEventHandler)
+        Public addToRepo As New ToolStripMenuItem("Add & Initial Commit", My.Resources.PlumVault_128, AddressOf addToRepoEventHandler)
+        Public showLog As New ToolStripMenuItem("View SVN Log", My.Resources.PlumVault_128, AddressOf showLogEventHandler)
+        Public upRevEdit As New ToolStripMenuItem("Up Rev to Edit", My.Resources.PlumVault_128, AddressOf upRevEditEventHandler)
+        Public release As New ToolStripMenuItem("Approve & Release", My.Resources.PlumVault_128, AddressOf releaseEventHandler)
         Public Sub New(modDocInput As ModelDoc2, iSwAppInput As SldWorks, parentUserControl As UserControl1)
             modDoc = modDocInput 'compInput.GetModelDoc2
             'comp = compInput
@@ -958,7 +959,7 @@ Public Class UserControl1
         End Sub
     End Class
 
-    Private Sub Label1_Click(sender As Object, e As EventArgs) Handles Label1.Click
+    Private Sub Label1_Click(sender As Object, e As EventArgs) Handles versionLabel.Click
 
     End Sub
 
@@ -1077,6 +1078,7 @@ Public Class UserControl1
         If IsNothing(modDocArr) Then modDocArr = {iSwApp.ActiveDoc}
         If IsNothing(modDocArr) Then
             iSwApp.SendMsgToUser("Couldn't find an active document! Exiting.")
+            Exit Sub
         End If
 
         Clipboard.SetText(String.Join(vbCrLf, getFilePathsFromModDocArr(modDocArr, bTitleOnly:=True)))
@@ -1090,6 +1092,7 @@ Public Class UserControl1
         If IsNothing(modDocArr) Then modDocArr = getComponentsOfAssemblyOptionalUpdateTree(iSwApp.ActiveDoc, bResolveLightweight:=True)
         If IsNothing(modDocArr) Then
             iSwApp.SendMsgToUser("Couldn't find an active document! Exiting.")
+            Exit Sub
         End If
 
         Clipboard.SetText(String.Join(vbCrLf, getFilePathsFromModDocArr(modDocArr, bTitleOnly:=True)))
@@ -1102,6 +1105,7 @@ Public Class UserControl1
         If IsNothing(modDocArr) Then modDocArr = {iSwApp.ActiveDoc}
         If IsNothing(modDocArr) Then
             iSwApp.SendMsgToUser("Couldn't find an active document! Exiting.")
+            Exit Sub
         End If
 
         Dim currentDir As DirectoryInfo = New FileInfo(modDocArr(0).GetPathName).Directory
@@ -1116,6 +1120,7 @@ Public Class UserControl1
         If IsNothing(modDocArr) Then modDocArr = {iSwApp.ActiveDoc}
         If IsNothing(modDocArr) Then
             iSwApp.SendMsgToUser("Couldn't find an active document! Exiting.")
+            Exit Sub
         End If
 
         Clipboard.SetText(String.Join(vbCrLf, getFilePathsFromModDocArr(modDocArr, bTitleOnly:=False)))
@@ -1127,6 +1132,7 @@ Public Class UserControl1
         If IsNothing(modDocArr) Then modDocArr = getComponentsOfAssemblyOptionalUpdateTree(iSwApp.ActiveDoc, bResolveLightweight:=True)
         If IsNothing(modDocArr) Then
             iSwApp.SendMsgToUser("Couldn't find an active document! Exiting.")
+            Exit Sub
         End If
 
         Clipboard.SetText(String.Join(vbCrLf, getFilePathsFromModDocArr(modDocArr, bTitleOnly:=False)))
@@ -1139,6 +1145,7 @@ Public Class UserControl1
         If IsNothing(modDocArr) Then modDocArr = getComponentsOfAssemblyOptionalUpdateTree(iSwApp.ActiveDoc, bResolveLightweight:=True)
         If IsNothing(modDocArr) Then
             iSwApp.SendMsgToUser("Couldn't find an active document! Exiting.")
+            Exit Sub
         End If
 
         Dim urls As String() = getUrlfromPaths(getFilePathsFromModDocArr(modDocArr))
@@ -1152,6 +1159,7 @@ Public Class UserControl1
         If IsNothing(modDocArr) Then modDocArr = getComponentsOfAssemblyOptionalUpdateTree(iSwApp.ActiveDoc, bResolveLightweight:=True)
         If IsNothing(modDocArr) Then
             iSwApp.SendMsgToUser("Couldn't find an active document! Exiting.")
+            Exit Sub
         End If
 
         Dim urls As String() = getUrlfromPaths(getFilePathsFromModDocArr(modDocArr))
@@ -1169,15 +1177,18 @@ Public Class UserControl1
 
         If IsNothing(modDocArr) Then
             iSwApp.SendMsgToUser("Couldn't find an active document! Exiting.")
+            Exit Sub
         End If
         If IsNothing(modDocArr(0)) Then
             iSwApp.SendMsgToUser("Couldn't find an active document! Exiting.")
+            Exit Sub
         End If
 
         stringArr = getUrlfromPaths({modDocArr(0).GetPathName})
 
         If IsNothing(stringArr) Then
-            iSwApp.SendMsgToUser("Couldn't find get URL(s)")
+            iSwApp.SendMsgToUser("Couldn't find get URL(s)! Exiting.")
+            Exit Sub
         End If
 
         Dim stringToClip As String = "CAD is available on svn" & vbCrLf & "My Local Path (yours may be different):" & vbCrLf
@@ -1197,14 +1208,22 @@ Public Class UserControl1
         Dim sFileNames As String
         Dim eIncludeDrawings As Integer = iSwApp.SendMsgToUser2("Include drawings with names matching files?", swMessageBoxIcon_e.swMbQuestion, swMessageBoxBtn_e.swMbYesNoCancel)
         Dim bIncludeDrawings As Boolean = False
+        Dim modDocArr As ModelDoc2()
 
         If eIncludeDrawings = swMessageBoxResult_e.swMbHitCancel Then Exit Sub
         If eIncludeDrawings = swMessageBoxResult_e.swMbHitYes Then bIncludeDrawings = True
 
+        modDocArr = GetSelectedModDocList(iSwApp)
+
+        If IsNothing(modDocArr) Then
+            iSwApp.SendMsgToUser("Couldn't find document! Exiting.")
+            Exit Sub
+        End If
+
         If bIncludeDrawings Then
-            sFileNames = formatFilePathArrForProc(getMatchingDrawingForArrayPath(GetSelectedModDocList(iSwApp)), sDelimiter:=vbCrLf)
+            sFileNames = formatFilePathArrForProc(getMatchingDrawingForArrayPath(modDocArr), sDelimiter:=vbCrLf)
         Else
-            sFileNames = formatFilePathArrForProc(GetSelectedModDocList(iSwApp), sDelimiter:=vbCrLf)
+            sFileNames = formatFilePathArrForProc(getFilePathsFromModDocArr(modDocArr), sDelimiter:=vbCrLf)
         End If
 
         Try
@@ -1266,16 +1285,28 @@ Public Class UserControl1
 
     Private Sub GoogleToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles GoogleToolStripMenuItem.Click
         Dim modDocArr As ModelDoc2() = GetSelectedModDocList(iSwApp)
+        If IsNothing(modDocArr) Then
+            iSwApp.SendMsgToUser("Error Getting Files")
+            Exit Sub
+        End If
         openFileNameInWebpage("https://www.google.com/search?q=%s", modDocArr(0))
     End Sub
 
     Private Sub McToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles McToolStripMenuItem.Click
         Dim modDocArr As ModelDoc2() = GetSelectedModDocList(iSwApp)
+        If IsNothing(modDocArr) Then
+            iSwApp.SendMsgToUser("Error Getting Files")
+            Exit Sub
+        End If
         openFileNameInWebpage("https://www.mcmaster.com/%s", modDocArr(0))
     End Sub
 
     Private Sub DigikeyToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles DigikeyToolStripMenuItem.Click
         Dim modDocArr As ModelDoc2() = GetSelectedModDocList(iSwApp)
+        If IsNothing(modDocArr) Then
+            iSwApp.SendMsgToUser("Error Getting Files")
+            Exit Sub
+        End If
         openFileNameInWebpage("https://www.digikey.com/en/products/result?keywords=%s", modDocArr(0))
     End Sub
 

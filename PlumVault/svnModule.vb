@@ -765,7 +765,7 @@ Public Module svnModule
         If Not bSuccess Then iSwApp.SendMsgToUser("Status Check Failed.")
     End Sub
     Sub myCleanup()
-        Dim bSuccessStatus As Boolean
+        'Dim bSuccessStatus As Boolean
         Dim bSuccessCleanup As Boolean
 
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc

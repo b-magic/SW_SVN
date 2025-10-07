@@ -22,7 +22,7 @@ Partial Class UserControl1
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
-        Dim TreeNode1 As System.Windows.Forms.TreeNode = New System.Windows.Forms.TreeNode("Open a File to See its Status")
+        Dim TreeNode2 As System.Windows.Forms.TreeNode = New System.Windows.Forms.TreeNode("Open a File to See its Status")
         Me.TreeView1 = New System.Windows.Forms.TreeView()
         Me.onlineCheckBox = New System.Windows.Forms.CheckBox()
         Me.localRepoPath = New System.Windows.Forms.TextBox()
@@ -72,7 +72,7 @@ Partial Class UserControl1
         Me.ContentPanel = New System.Windows.Forms.ToolStripContentPanel()
         Me.ContextMenu1 = New System.Windows.Forms.ContextMenu()
         Me.ContextMenu2 = New System.Windows.Forms.ContextMenu()
-        Me.Label1 = New System.Windows.Forms.Label()
+        Me.versionLabel = New System.Windows.Forms.Label()
         Me.ToolStrip1.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -84,9 +84,9 @@ Partial Class UserControl1
         Me.TreeView1.Location = New System.Drawing.Point(4, 621)
         Me.TreeView1.MinimumSize = New System.Drawing.Size(250, 194)
         Me.TreeView1.Name = "TreeView1"
-        TreeNode1.Name = "Node0"
-        TreeNode1.Text = "Open a File to See its Status"
-        Me.TreeView1.Nodes.AddRange(New System.Windows.Forms.TreeNode() {TreeNode1})
+        TreeNode2.Name = "Node0"
+        TreeNode2.Text = "Open a File to See its Status"
+        Me.TreeView1.Nodes.AddRange(New System.Windows.Forms.TreeNode() {TreeNode2})
         Me.TreeView1.ShowNodeToolTips = True
         Me.TreeView1.Size = New System.Drawing.Size(562, 329)
         Me.TreeView1.TabIndex = 10
@@ -477,14 +477,14 @@ Partial Class UserControl1
         '
         Me.ContentPanel.Size = New System.Drawing.Size(250, 525)
         '
-        'Label1
+        'versionLabel
         '
-        Me.Label1.AutoSize = True
-        Me.Label1.Location = New System.Drawing.Point(251, 112)
-        Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(151, 20)
-        Me.Label1.TabIndex = 24
-        Me.Label1.Text = "Version: 2025.10.07"
+        Me.versionLabel.AutoSize = True
+        Me.versionLabel.Location = New System.Drawing.Point(251, 112)
+        Me.versionLabel.Name = "versionLabel"
+        Me.versionLabel.Size = New System.Drawing.Size(121, 20)
+        Me.versionLabel.TabIndex = 24
+        Me.versionLabel.Text = "Version number"
         '
         'UserControl1
         '
@@ -493,7 +493,7 @@ Partial Class UserControl1
         Me.AutoScroll = True
         Me.AutoSize = True
         Me.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
-        Me.Controls.Add(Me.Label1)
+        Me.Controls.Add(Me.versionLabel)
         Me.Controls.Add(Me.ToolStrip1)
         Me.Controls.Add(Me.butFindComponent)
         Me.Controls.Add(Me.butRefresh)
@@ -537,7 +537,7 @@ Partial Class UserControl1
     Friend WithEvents ContentPanel As ToolStripContentPanel
     Friend WithEvents ContextMenu1 As ContextMenu
     Friend WithEvents ContextMenu2 As ContextMenu
-    Friend WithEvents Label1 As Label
+    Friend WithEvents versionLabel As Label
     Friend WithEvents ToolStripDropDownButReleases As ToolStripSplitButton
     Friend WithEvents ApproveReleaseToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents EditNewRevisionToolStripMenuItem As ToolStripMenuItem

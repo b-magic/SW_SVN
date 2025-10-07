@@ -232,19 +232,21 @@
     <Folder Include="Resources\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="icons\VaultLogo20.png" />
+    <None Include="icons\PlumVault_20.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="icons\VaultLogo40.png" />
+    <None Include="icons\PlumVault_40.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="icons\VaultLogo64.png" />
+    <None Include="icons\PlumVault_64.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="icons\VaultLogo96.png" />
+    <None Include="icons\PlumVault_96.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="icons\VaultLogo128.png" />
+    <None Include="icons\PlumVault_128.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <None Include="icons\GetLocksPlusDependents.png" />
@@ -266,6 +268,7 @@
     <Content Include="icons\GetLatestIconOnly.png" />
     <Content Include="icons\GetLocksIconOnly.png" />
     <None Include="icons\Released2IconOnly.png" />
+    <None Include="icons\PlumVault_32.png" />
     <Content Include="icons\ReleasedIconOnly.png" />
     <Content Include="icons\unlockIconOnly.png" />
   </ItemGroup>

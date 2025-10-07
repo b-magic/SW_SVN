@@ -145,12 +145,6 @@
   <data name="Cleanup" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\icons\Cleanup.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="VaultLogo20" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\icons\VaultLogo20.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="VaultLogo128" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\icons\VaultLogo128.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="GetLocksIconOnly" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\icons\GetLocksIconOnly.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
@@ -178,17 +172,11 @@
   <data name="unlockIconOnly1" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\icons\unlockIconOnly.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="VaultLogo40" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\icons\VaultLogo40.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="GetLatestAllRepo1" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\icons\GetLatestAllRepo.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="unlockIconOnly" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\icons\unlockIconOnly.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="VaultLogo96" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\icons\VaultLogo96.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="GetLatestAllOpen" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\icons\GetLatestAllOpen.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -196,13 +184,28 @@
   <data name="ReleaseActive" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\icons\ReleaseActive.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="VaultLogo64" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\icons\VaultLogo64.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="Commit" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\icons\Commit.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Released2IconOnly" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\icons\Released2IconOnly.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="PlumVault_128" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\PlumVault_128.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="PlumVault_20" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\PlumVault_20.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="PlumVault_40" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\PlumVault_40.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="PlumVault_64" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\PlumVault_64.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="PlumVault_96" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\PlumVault_96.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="PlumVault_32" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\icons\PlumVault_32.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

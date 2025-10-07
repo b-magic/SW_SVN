@@ -21,6 +21,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_52EEB710CEA34AE7BF2321361D8E6627"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_62958CA6902661E195939041D9BF1E11"
         "OwnerKey" = "8:_C1A6513773194ECFA2AF56DE96F45B79"
         "MsmSig" = "8:_UNDEFINED"
@@ -33,13 +39,37 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_B4BDE5139C7B4655A21751BF4F0E11B5"
+        "MsmKey" = "8:_95A9A95902A64846A43200FC85127B9E"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_97E4935556FC4F8A9D7502288F680111"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_9A2539946B4C440EAD5B0AFA896931E3"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_9EFD6265EC594C779DA805008CAD9A43"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_C1A6513773194ECFA2AF56DE96F45B79"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_ED1D78D89A2B40A3BF4890BAE2D3342F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -170,6 +200,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_52EEB710CEA34AE7BF2321361D8E6627"
+            {
+            "SourcePath" = "8:..\\PlumVault\\icons\\PlumVault_20.png"
+            "TargetName" = "8:PlumVault_20.png"
+            "Tag" = "8:"
+            "Folder" = "8:_EE7E9DD25247421E87492B320EF561BD"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_62958CA6902661E195939041D9BF1E11"
             {
             "AssemblyRegister" = "3:1"
@@ -221,10 +271,90 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B4BDE5139C7B4655A21751BF4F0E11B5"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_95A9A95902A64846A43200FC85127B9E"
             {
-            "SourcePath" = "8:..\\SolidWorksSVN\\icons\\VaultLogo128.ico"
-            "TargetName" = "8:VaultLogo128.ico"
+            "SourcePath" = "8:..\\PlumVault\\icons\\PlumVault_128.png"
+            "TargetName" = "8:PlumVault_128.png"
+            "Tag" = "8:"
+            "Folder" = "8:_EE7E9DD25247421E87492B320EF561BD"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_97E4935556FC4F8A9D7502288F680111"
+            {
+            "SourcePath" = "8:..\\PlumVault\\icons\\PlumVault_64.png"
+            "TargetName" = "8:PlumVault_64.png"
+            "Tag" = "8:"
+            "Folder" = "8:_EE7E9DD25247421E87492B320EF561BD"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9A2539946B4C440EAD5B0AFA896931E3"
+            {
+            "SourcePath" = "8:..\\PlumVault\\icons\\PlumVault_40.png"
+            "TargetName" = "8:PlumVault_40.png"
+            "Tag" = "8:"
+            "Folder" = "8:_EE7E9DD25247421E87492B320EF561BD"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9EFD6265EC594C779DA805008CAD9A43"
+            {
+            "SourcePath" = "8:..\\PlumVault\\icons\\PlumVault_32.png"
+            "TargetName" = "8:PlumVault_32.png"
+            "Tag" = "8:"
+            "Folder" = "8:_EE7E9DD25247421E87492B320EF561BD"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_ED1D78D89A2B40A3BF4890BAE2D3342F"
+            {
+            "SourcePath" = "8:..\\PlumVault\\icons\\PlumVault_96.png"
+            "TargetName" = "8:PlumVault_96.png"
             "Tag" = "8:"
             "Folder" = "8:_EE7E9DD25247421E87492B320EF561BD"
             "Condition" = "8:"
@@ -319,15 +449,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:SVN_Vault"
-        "ProductCode" = "8:{145A8855-7E9F-4A9B-8F95-85E2DEB38676}"
-        "PackageCode" = "8:{30FD6F07-E23F-499D-8801-E8144A326980}"
+        "ProductCode" = "8:{EF1B36DE-C7BB-4BDE-963E-EC9F4A9120DE}"
+        "PackageCode" = "8:{96A21A39-8C21-43A0-98AC-97799179A7D8}"
         "UpgradeCode" = "8:{DFE55A88-84D2-4146-8D97-E4179D874B4A}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:25.09.1201"
+        "ProductVersion" = "8:25.10.0705"
         "Manufacturer" = "8:SVN Vault"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -337,7 +467,7 @@
         "Keywords" = "8:"
         "ARPCOMMENTS" = "8:"
         "ARPURLINFOABOUT" = "8:"
-        "ARPPRODUCTICON" = "8:_B4BDE5139C7B4655A21751BF4F0E11B5"
+        "ARPPRODUCTICON" = "8:"
         "ARPIconIndex" = "3:0"
         "SearchPath" = "8:"
         "UseSystemSearchPath" = "11:TRUE"
@@ -391,6 +521,30 @@
                                                 }
                                                 "Values"
                                                 {
+                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_0B8EBF2CDCAF4DCBAFCAD7FE8461AE0D"
+                                                    {
+                                                    "Name" = "8:Icon Path 64"
+                                                    "Condition" = "8:"
+                                                    "Transitive" = "11:FALSE"
+                                                    "ValueTypes" = "3:1"
+                                                    "Value" = "8:[TARGETDIR]PlumVault_64.png"
+                                                    }
+                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_139869ED8CC94455983CD060444358F1"
+                                                    {
+                                                    "Name" = "8:Icon Path 128"
+                                                    "Condition" = "8:"
+                                                    "Transitive" = "11:FALSE"
+                                                    "ValueTypes" = "3:1"
+                                                    "Value" = "8:[TARGETDIR]PlumVault_128.png"
+                                                    }
+                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_2FB7DFD78E8A424F8AC17204602DDAA5"
+                                                    {
+                                                    "Name" = "8:Icon Path 20"
+                                                    "Condition" = "8:"
+                                                    "Transitive" = "11:FALSE"
+                                                    "ValueTypes" = "3:1"
+                                                    "Value" = "8:[TARGETDIR]PlumVault_20.png"
+                                                    }
                                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_47FD6FE8A48A4DB2B8B6243DB05B35A6"
                                                     {
                                                     "Name" = "8:Description"
@@ -398,6 +552,14 @@
                                                     "Transitive" = "11:FALSE"
                                                     "ValueTypes" = "3:1"
                                                     "Value" = "8:Version Control from a Central SVN Server AddIn"
+                                                    }
+                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_5D67CAF2144847A28E0962F146B279E0"
+                                                    {
+                                                    "Name" = "8:Icon Path 96"
+                                                    "Condition" = "8:"
+                                                    "Transitive" = "11:FALSE"
+                                                    "ValueTypes" = "3:1"
+                                                    "Value" = "8:[TARGETDIR]PlumVault_96.png"
                                                     }
                                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_8B44786AD69D413694D4A6A6279C9A51"
                                                     {
@@ -407,13 +569,21 @@
                                                     "ValueTypes" = "3:3"
                                                     "Value" = "3:1"
                                                     }
+                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_BEFEC36C70E2459B8F23CDAE57391C77"
+                                                    {
+                                                    "Name" = "8:Icon Path 40"
+                                                    "Condition" = "8:"
+                                                    "Transitive" = "11:FALSE"
+                                                    "ValueTypes" = "3:1"
+                                                    "Value" = "8:[TARGETDIR]PlumVault_40.png"
+                                                    }
                                                     "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_E4BCE16DAE56438697303FABA070493E"
                                                     {
                                                     "Name" = "8:Title"
                                                     "Condition" = "8:"
                                                     "Transitive" = "11:FALSE"
                                                     "ValueTypes" = "3:1"
-                                                    "Value" = "8:SVN_Vault"
+                                                    "Value" = "8:PlumVault"
                                                     }
                                                 }
                                             }
@@ -833,7 +1003,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_C1A6513773194ECFA2AF56DE96F45B79"
             {
-            "SourcePath" = "8:..\\SolidWorksSVN\\obj\\Debug\\SolidWorksSVN.dll"
+            "SourcePath" = "8:..\\PlumVault\\obj\\Debug\\PlumVault.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_EE7E9DD25247421E87492B320EF561BD"
