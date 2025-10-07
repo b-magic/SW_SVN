@@ -76,9 +76,9 @@ Namespace My
     Friend Module MySettingsProperty
         
         <Global.System.ComponentModel.Design.HelpKeywordAttribute("My.Settings")>  _
-        Friend ReadOnly Property Settings() As Global.SolidWorksSVN.My.MySettings
+        Friend ReadOnly Property Settings() As Global.PlumVault.My.MySettings
             Get
-                Return Global.SolidWorksSVN.My.MySettings.Default
+                Return Global.PlumVault.My.MySettings.Default
             End Get
         End Property
     End Module

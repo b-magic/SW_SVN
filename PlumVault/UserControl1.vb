@@ -10,7 +10,7 @@ Imports System.Drawing
 Imports System.IO
 Imports System.CodeDom.Compiler
 Imports System.Windows.Forms.Layout
-Imports SolidWorksSVN.SVNStatus
+Imports PlumVault.SVNStatus
 Imports System.Linq
 Imports System.Xml
 Imports System.Security.Policy
@@ -1046,6 +1046,7 @@ Public Class UserControl1
         Sub(sender2 As Object, e2 As EventArgs)
             localRepoPath.Text = CType(sender2, ToolStripMenuItem).Text
             refreshAddIn()
+            onlineCheckBox.Checked = True
         End Sub
             PickSVNFolderToolStripMenuItem.DropDownItems.Add(item)
         Next

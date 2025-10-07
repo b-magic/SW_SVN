@@ -194,11 +194,11 @@ Public Class SwAddin
         'sInstallDirectory
         'sInstallDirectory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location)
         'svnModule
-        Dim imageList1() As String = {"C:\Users\\source\repos\SolidWorksVB\SolidWorksSVN\icons\VaultLogo20.png",
-            "C:\Users\\source\repos\SolidWorksVB\SolidWorksSVN\icons\VaultLogo40.png",
-            "C:\Users\\source\repos\SolidWorksVB\SolidWorksSVN\icons\VaultLogo64.png",
-            "C:\Users\\source\repos\SolidWorksVB\SolidWorksSVN\icons\VaultLogo96.png",
-            "C:\Users\\source\repos\SolidWorksVB\SolidWorksSVN\icons\VaultLogo128.png"}
+        Dim imageList1() As String = {"C:\Users\\source\repos\SolidWorksVB\PlumVault\icons\VaultLogo20.png",
+            "C:\Users\\source\repos\SolidWorksVB\PlumVault\icons\VaultLogo40.png",
+            "C:\Users\\source\repos\SolidWorksVB\PlumVault\icons\VaultLogo64.png",
+            "C:\Users\\source\repos\SolidWorksVB\PlumVault\icons\VaultLogo96.png",
+            "C:\Users\\source\repos\SolidWorksVB\PlumVault\icons\VaultLogo128.png"}
 
         myTaskPaneView = iSwApp.CreateTaskpaneView3(imageList1, "SVN Task Pane")
         myTaskPaneHost = myTaskPaneView.AddControl("SVN_AddIn", "")
@@ -262,10 +262,10 @@ Public Class SwAddin
 
 
 
-    '    cmdGroup.LargeIconList = iBmp.CreateFileFromResourceBitmap("SolidWorksSVN.ToolbarLarge.bmp", thisAssembly)
-    '    cmdGroup.SmallIconList = iBmp.CreateFileFromResourceBitmap("SolidWorksSVN.ToolbarSmall.bmp", thisAssembly)
-    '    cmdGroup.LargeMainIcon = iBmp.CreateFileFromResourceBitmap("SolidWorksSVN.MainIconLarge.bmp", thisAssembly)
-    '    cmdGroup.SmallMainIcon = iBmp.CreateFileFromResourceBitmap("SolidWorksSVN.MainIconSmall.bmp", thisAssembly)
+    '    cmdGroup.LargeIconList = iBmp.CreateFileFromResourceBitmap("PlumVault.ToolbarLarge.bmp", thisAssembly)
+    '    cmdGroup.SmallIconList = iBmp.CreateFileFromResourceBitmap("PlumVault.ToolbarSmall.bmp", thisAssembly)
+    '    cmdGroup.LargeMainIcon = iBmp.CreateFileFromResourceBitmap("PlumVault.MainIconLarge.bmp", thisAssembly)
+    '    cmdGroup.SmallMainIcon = iBmp.CreateFileFromResourceBitmap("PlumVault.MainIconSmall.bmp", thisAssembly)
 
     '    'Dim menuToolbarOption As Integer = swCommandItemType_e.swMenuItem Or swCommandItemType_e.swToolbarItem
 

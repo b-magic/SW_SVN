@@ -10,7 +10,7 @@
     </ApplicationIcon>
     <AssemblyKeyContainerName>
     </AssemblyKeyContainerName>
-    <AssemblyName>SolidWorksSVN</AssemblyName>
+    <AssemblyName>PlumVault</AssemblyName>
     <AssemblyOriginatorKeyFile>
     </AssemblyOriginatorKeyFile>
     <AssemblyOriginatorKeyMode>None</AssemblyOriginatorKeyMode>
@@ -22,7 +22,7 @@
     <OptionCompare>Binary</OptionCompare>
     <OptionExplicit>On</OptionExplicit>
     <OptionStrict>Off</OptionStrict>
-    <RootNamespace>SolidWorksSVN</RootNamespace>
+    <RootNamespace>PlumVault</RootNamespace>
     <StartupObject>
     </StartupObject>
     <FileUpgradeFlags>
