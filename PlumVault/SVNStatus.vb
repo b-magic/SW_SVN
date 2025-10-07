@@ -546,18 +546,20 @@ Public Class SVNStatus
         Dim newOutput As SVNStatus = getFileSVNStatus(bCheckServer:=False,, bUpdateStatusOfAllOpenModels:=False)
         Dim newOutputFilteredLocked As SVNStatus
         Dim newOutputFilteredUnlocked As SVNStatus
-        Dim i As Integer
+        Dim i, oldIndex, oldUboundFp As Integer
+        Dim filePptyToAdd As New List(Of filePpty)
+        'Dim nToAdd As Integer = 0
         Dim sPropArr(,) As String
         Dim sRelease As String
 
         If newOutput Is Nothing Then Return False
 
-        Try
-            newOutputFilteredLocked = newOutput.statusFilter(sFiltLock6:="K")
-            newOutputFilteredUnlocked = newOutput.statusFilter(sFiltLock6:=" OTB")
-        Catch
-            Return Nothing
-        End Try
+        'Try
+        '    newOutputFilteredLocked = newOutput.statusFilter(sFiltLock6:="K")
+        '    newOutputFilteredUnlocked = newOutput.statusFilter(sFiltLock6:=" OTB")
+        'Catch
+        '    Return Nothing
+        'End Try
         If IsNothing(newOutput) Then
             'iSwApp.EnableBackgroundProcessing = False 'bProcessingTemp
             Return False
@@ -567,45 +569,43 @@ Public Class SVNStatus
         End If
 
         sPropArr = svnPropget()
-
         For i = 0 To UBound(fp)
-
-            Try 'need to do try to prevent 'outside of bounds' error with newOutput.fp(i)
-                If fp(i).filename = newOutput.fp(i).filename Then
-                    'First Try worked
-                    fp(i).lock6 = newOutput.fp(i).lock6
-                End If
-            Catch
-            End Try
-
             sRelease = vLookup(fp(i).filename.Replace("\", "/"), sPropArr, 1)
-            If Not IsNothing(sRelease) Then
-                fp(i).released = sRelease
-            End If
-
-            If (fp(i).lock6 = "K") And (Not IsNothing(newOutputFilteredUnlocked)) Then
-                If Not IsNothing(newOutputFilteredUnlocked.fp) Then
-                    'Search through the unlocked ones from the new svnstatus
-                    'there's no point searching through the locked ones from the new svn status
-                    For j = 0 To UBound(newOutputFilteredUnlocked.fp)
-                        If fp(i).filename = newOutputFilteredUnlocked.fp(j).filename Then
-                            fp(i).lock6 = newOutputFilteredUnlocked.fp(j).lock6
-                            Exit For
-                        End If
-                    Next
-                End If
-            ElseIf Not IsNothing(newOutputFilteredLocked) Then
-                'Old was unlocked; search through the new locked... 
-                If Not IsNothing(newOutputFilteredLocked.fp) Then
-                    For j = 0 To UBound(newOutputFilteredLocked.fp)
-                        If fp(i).filename = newOutputFilteredLocked.fp(j).filename Then
-                            fp(i).lock6 = newOutputFilteredLocked.fp(j).lock6
-                            Exit For
-                        End If
-                    Next
-                End If
-            End If
         Next
+
+        For Each newFilePtty In newOutput.fp
+            oldIndex = -1
+            If IsNothing(newFilePtty) Then Continue For
+            If IsNothing(newFilePtty.lock6) Then Continue For
+
+            'Search for match in old fp
+            For k = 0 To UBound(fp)
+                If (Strings.InStr(fp(k).filename, newFilePtty.filename, CompareMethod.Text) <> 0) Then
+                    oldIndex = k
+                    Exit For
+                End If
+            Next
+            If oldIndex = -1 Then
+                'didn't find a match
+                filePptyToAdd.Add(newFilePtty)
+                Continue For
+            End If
+            If IsNothing(newFilePtty.lock6) Or IsNothing(fp(oldIndex).lock6) Then Continue For
+            If ((fp(oldIndex).lock6 = "O") Or (fp(oldIndex).lock6 = "T") Or (fp(oldIndex).lock6 = "B")) And (Not (newFilePtty.lock6 = "K")) Then Continue For 'we're not calling the server, so don't want to overwrite info only available from server. 
+
+
+            fp(oldIndex).lock6 = newFilePtty.lock6
+
+        Next
+
+        oldUboundFp = UBound(fp)
+        If filePptyToAdd.Count > 0 Then
+            ReDim Preserve fp(UBound(fp) + filePptyToAdd.Count)
+            filePptyToAdd.CopyTo(fp, oldUboundFp + 1)
+        Else
+            ' list is empty
+        End If
+
         Return True
     End Function
     Function updateFromSvnServer(Optional bRefreshAllTreeViews As Boolean = False) As Boolean

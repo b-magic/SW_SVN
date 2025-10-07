@@ -672,6 +672,7 @@ Public Module svnModule
         Dim sErrorFiles As String = ""
         Dim i As Integer
         Dim j As Integer = 0
+        Dim sModDocPathArr As String()
 
         Dim activeDoc As ModelDoc2 = iSwApp.ActiveDoc
         If activeDoc Is Nothing Then Exit Sub
@@ -704,13 +705,19 @@ Public Module svnModule
                                  "If you believe you have the file locked, you can try File > Reload")
             Exit Sub 'All Files were removed
         End If
-        svnPropset(getFilePathsFromModDocArr(modDocArr), "addin:release_state", "||EDIT||")
+        sModDocPathArr = getFilePathsFromModDocArr(modDocArr)
+
+        runSvnByArgs(sModDocPathArr, "add", bEach:=True)  'adds any not added. 
+        svnPropset(sModDocPathArr, "addin:release_state", "||EDIT||")
+
         If save3AndShowErrorMessages(modDocArr) <> swMessageBoxResult_e.swMbHitYes Then Exit Sub
 
         bSuccess = runTortoiseProcexeWithMonitor("/command:commit /path:" &
                                                  formatFilePathArrForProc(
                                                     getFilePathsFromModDocArr(modDocArr)) & " /logmsg:""" & sCommitMessage & """" & " /closeonend:3")
         If Not bSuccess Then iSwApp.SendMsgToUser("Tortoise App Failed.") : Exit Sub
+
+        'If Filter() files -> any In list have 'unknown' status before, then call server for updates.
 
         bSuccess = updateLockStatusPublic(bRefreshAllTreeViews:=True)
         If Not bSuccess Then Exit Sub
