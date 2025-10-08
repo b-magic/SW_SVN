@@ -1003,62 +1003,60 @@ Public Class UserControl1
             PickSVNFolderToolStripMenuItem.ShowDropDown()
         End If
     End Sub
-
-    Private Sub PickSVNFolderToolStripMenuItem_Opening(sender As Object, e As EventArgs) Handles PickSVNFolderToolStripMenuItem.DropDownOpening
+    Private Sub ToolStripSplitButFolder_DropDownOpening(sender As Object, e As EventArgs) Handles ToolStripSplitButFolder.DropDownOpening
 
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc
-        If modDoc Is Nothing Then
-            pickFolder()
-            Exit Sub
-        End If
 
         ' Clear previous items if any
         PickSVNFolderToolStripMenuItem.DropDownItems.Clear()
+        If IsNothing(modDoc) Then
 
-        Dim docPath As String = modDoc.GetPathName
-        Dim currentDir As DirectoryInfo = New FileInfo(docPath).Directory
-        Dim svnRootPath As String = findSvnRoot(currentDir.FullName).TrimEnd("\"c)
+        Else
+            Dim docPath As String = modDoc.GetPathName
+            Dim currentDir As DirectoryInfo = New FileInfo(docPath).Directory
+            Dim svnRootPath As String = findSvnRoot(currentDir.FullName).TrimEnd("\"c)
 
-        ' Split the SVN root and current path into folder levels
-        Dim svnRootUri As New Uri(svnRootPath & "\")
-        Dim docUri As New Uri(currentDir.FullName & "\")
+            ' Split the SVN root and current path into folder levels
+            Dim svnRootUri As New Uri(svnRootPath & "\")
+            Dim docUri As New Uri(currentDir.FullName & "\")
 
-        ' Get relative folders from SVN root to document directory
-        Dim relativeUri As Uri = svnRootUri.MakeRelativeUri(docUri)
-        Dim relativePath As String = Uri.UnescapeDataString(relativeUri.ToString()).Replace("/", "\")
-        Dim folders As List(Of String) = If(relativePath = "", New List(Of String)(), relativePath.Split("\"c).ToList())
+            ' Get relative folders from SVN root to document directory
+            Dim relativeUri As Uri = svnRootUri.MakeRelativeUri(docUri)
+            Dim relativePath As String = Uri.UnescapeDataString(relativeUri.ToString()).Replace("/", "\")
+            Dim folders As List(Of String) = If(relativePath = "", New List(Of String)(), relativePath.Split("\"c).ToList())
 
-        ' Build full paths from root up to 5 levels
-        Dim fullPaths As New List(Of String)
-        Dim currentPath As String = svnRootPath
+            ' Build full paths from root up to 5 levels
+            Dim fullPaths As New List(Of String)
+            Dim currentPath As String = svnRootPath
 
-        fullPaths.Add(currentPath) ' Include root
-        For Each folder As String In folders
-            If folder = "" Then Continue For
-            currentPath = Path.Combine(currentPath, folder)
-            fullPaths.Add(currentPath)
-            If fullPaths.Count = 8 Then Exit For
-        Next
+            fullPaths.Add(currentPath) ' Include root
+            For Each folder As String In folders
+                If folder = "" Then Continue For
+                currentPath = Path.Combine(currentPath, folder)
+                fullPaths.Add(currentPath)
+                If fullPaths.Count = 8 Then Exit For
+            Next
 
-        ' Add folder menu items
-        For Each folderPath As String In fullPaths
-            Dim item As New ToolStripMenuItem(folderPath)
-            AddHandler item.Click,
-        Sub(sender2 As Object, e2 As EventArgs)
-            localRepoPath.Text = CType(sender2, ToolStripMenuItem).Text
-            If verifyLocalRepoPath(bInteractive:=False) Then onlineCheckBox.Checked = True
-            refreshAddIn()
-        End Sub
-            PickSVNFolderToolStripMenuItem.DropDownItems.Add(item)
-        Next
+            ' Add folder menu items
+            For Each folderPath As String In fullPaths
+                Dim item As New ToolStripMenuItem(folderPath)
+                AddHandler item.Click,
+            Sub(sender2 As Object, e2 As EventArgs)
+                localRepoPath.Text = CType(sender2, ToolStripMenuItem).Text
+                If verifyLocalRepoPath(bInteractive:=False) Then onlineCheckBox.Checked = True
+                refreshAddIn()
+            End Sub
+                PickSVNFolderToolStripMenuItem.DropDownItems.Add(item)
+            Next
 
-        ' Add separator
-        PickSVNFolderToolStripMenuItem.DropDownItems.Add(New ToolStripSeparator())
+            ' Add separator
+            PickSVNFolderToolStripMenuItem.DropDownItems.Add(New ToolStripSeparator())
 
-        ' Add "Open Folder Picker" menu item
-        Dim openPickerItem As New ToolStripMenuItem("Open Folder Picker")
-        AddHandler openPickerItem.Click, Sub() pickFolder()
-        PickSVNFolderToolStripMenuItem.DropDownItems.Add(openPickerItem)
+            ' Add "Open Folder Picker" menu item
+            Dim openPickerItem As New ToolStripMenuItem("Open Folder Picker")
+            AddHandler openPickerItem.Click, Sub() pickFolder()
+            PickSVNFolderToolStripMenuItem.DropDownItems.Add(openPickerItem)
+        End If
 
     End Sub
 
@@ -1309,6 +1307,5 @@ Public Class UserControl1
         End If
         openFileNameInWebpage("https://www.digikey.com/en/products/result?keywords=%s", modDocArr(0))
     End Sub
-
 
 End Class
