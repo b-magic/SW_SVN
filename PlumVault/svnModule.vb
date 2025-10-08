@@ -92,6 +92,7 @@ Public Module svnModule
         Dim sFileStartIndex As String
         Dim sCatMessage As String = ""
         Dim statusArguments As String
+        Dim bCheckAllFiles As Boolean = False
 
         Dim statusProcessOutput As rawProcessReturn
         Dim sPropArr(,) As String
@@ -117,7 +118,9 @@ Public Module svnModule
         If Not verifyLocalRepoPath(, bCheckLocalFolder:=True, bCheckServer = False) Then Return Nothing 'Don't check server because we will in runSVNProcess
         If Not IsNothing(modDocArr) Then sModDocPathArr = getFilePathsFromModDocArr(modDocArr)
 
-        If bCheckServer Or (IsNothing(modDocArr)) Then
+        If bCheckServer Or (IsNothing(modDocArr)) Then bCheckAllFiles = True
+
+        If bCheckAllFiles Then
             'Have to just check the whole file path, because otherwise, svn sends a separate server request for ech individual path sent
             'if you  format it, like ""C:/file1" "C:/file2"" (including the quotes, starting with double start and end) then it will only send one server request, however, the server has trouble finding the file names... 
             statusArguments = "status -v" & If(bCheckServer, "u", "") & " --non-interactive """ & myUserControl.localRepoPath.Text.TrimEnd("\\") & """" 'sFilePathCat 
@@ -255,7 +258,7 @@ Public Module svnModule
             If Not IsNothing(sModDocPathArr) Then
                 Index = svnAddInUtils.findIndexContains(sModDocPathArr, sFilePathTemp)
                 If Index = -1 Then Continue For
-                svnStatusOfPassedModDoc.addOutputLineToSVNStatus(sOutputLines(i), j, sFilePathTemp, modDocTemp, bCheckServer, vLookup(sFilePathTemp.Replace("\", "/"), sPropArr, 1))
+                svnStatusOfPassedModDoc.addOutputLineToSVNStatus(sOutputLines(i), j, sFilePathTemp, modDocTemp, bCheckServer, vLookup(sFilePathTemp.Replace("\", "/"), sPropArr, returnColumn:=1))
                 j += 1
             End If
         Next i
