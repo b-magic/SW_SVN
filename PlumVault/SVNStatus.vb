@@ -11,10 +11,15 @@ Public Class SVNStatus
 
     Public Function Clone() As SVNStatus
         Dim myClone As SVNStatus = DirectCast(Me.MemberwiseClone(), SVNStatus)
-        'myClone.fp = New filePpty
-        'myClone.statError = New statusError
+
+        ' Deep copy of fp array (structure array)
+        If Me.fp IsNot Nothing Then
+            myClone.fp = CType(Me.fp.Clone(), filePpty())
+        End If
+
         Return myClone
     End Function
+
     Structure filePpty
         Public filename As String
         Public modDoc As ModelDoc2
