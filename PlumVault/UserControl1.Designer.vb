@@ -22,7 +22,7 @@ Partial Class UserControl1
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
-        Dim TreeNode2 As System.Windows.Forms.TreeNode = New System.Windows.Forms.TreeNode("Open a File to See its Status")
+        Dim TreeNode1 As System.Windows.Forms.TreeNode = New System.Windows.Forms.TreeNode("Open a File to See its Status")
         Me.TreeView1 = New System.Windows.Forms.TreeView()
         Me.onlineCheckBox = New System.Windows.Forms.CheckBox()
         Me.localRepoPath = New System.Windows.Forms.TextBox()
@@ -84,9 +84,9 @@ Partial Class UserControl1
         Me.TreeView1.Location = New System.Drawing.Point(4, 621)
         Me.TreeView1.MinimumSize = New System.Drawing.Size(250, 194)
         Me.TreeView1.Name = "TreeView1"
-        TreeNode2.Name = "Node0"
-        TreeNode2.Text = "Open a File to See its Status"
-        Me.TreeView1.Nodes.AddRange(New System.Windows.Forms.TreeNode() {TreeNode2})
+        TreeNode1.Name = "Node0"
+        TreeNode1.Text = "Open a File to See its Status"
+        Me.TreeView1.Nodes.AddRange(New System.Windows.Forms.TreeNode() {TreeNode1})
         Me.TreeView1.ShowNodeToolTips = True
         Me.TreeView1.Size = New System.Drawing.Size(562, 329)
         Me.TreeView1.TabIndex = 10
@@ -204,7 +204,7 @@ Partial Class UserControl1
         Me.ToolStrip1.MinimumSize = New System.Drawing.Size(100, 200)
         Me.ToolStrip1.Name = "ToolStrip1"
         Me.ToolStrip1.Padding = New System.Windows.Forms.Padding(4, 5, 4, 0)
-        Me.ToolStrip1.Size = New System.Drawing.Size(183, 481)
+        Me.ToolStrip1.Size = New System.Drawing.Size(183, 509)
         Me.ToolStrip1.Stretch = True
         Me.ToolStrip1.TabIndex = 0
         '
@@ -234,7 +234,7 @@ Partial Class UserControl1
         'OpenFolderPickerToolStripMenuItem
         '
         Me.OpenFolderPickerToolStripMenuItem.Name = "OpenFolderPickerToolStripMenuItem"
-        Me.OpenFolderPickerToolStripMenuItem.Size = New System.Drawing.Size(264, 34)
+        Me.OpenFolderPickerToolStripMenuItem.Size = New System.Drawing.Size(270, 34)
         Me.OpenFolderPickerToolStripMenuItem.Text = "Open Folder Picker"
         '
         'SVNCleanupToolStripMenuItem

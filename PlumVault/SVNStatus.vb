@@ -549,8 +549,6 @@ Public Class SVNStatus
         'Updates locks and release status without contacting server
 
         Dim newOutput As SVNStatus = getFileSVNStatus(bCheckServer:=False,, bUpdateStatusOfAllOpenModels:=False)
-        Dim newOutputFilteredLocked As SVNStatus
-        Dim newOutputFilteredUnlocked As SVNStatus
         Dim i, oldIndex, oldUboundFp As Integer
         Dim filePptyToAdd As New List(Of filePpty)
         'Dim nToAdd As Integer = 0
