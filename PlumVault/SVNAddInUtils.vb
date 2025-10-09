@@ -184,7 +184,7 @@ Public Module svnAddInUtils
 
         Return outputList.ToArray()
     End Function
-    Public Function getMatchingDrawingForArrayPath(modDocArr As ModelDoc2()) As String()
+    Public Function getMatchingDrawingForArrayPath(modDocArr As ModelDoc2(), Optional bTitleOnly As Boolean = False) As String()
         Dim outputList As New List(Of String)
         Dim folder As String
         Dim baseName As String
@@ -199,12 +199,21 @@ Public Module svnAddInUtils
 
             If String.IsNullOrWhiteSpace(modDocPath) Then Continue For
 
-            outputList.Add(modDocPath)
+            If bTitleOnly Then
+                outputList.Add(Path.GetFileName(modDocPath))
+            Else
+                outputList.Add(modDocPath)
+            End If
 
             drwPath = Path.Combine(folder, baseName & ".SLDDRW")
 
             If File.Exists(drwPath) Then
-                outputList.Add(drwPath)
+                If bTitleOnly Then
+                    outputList.Add(Path.GetFileName(drwPath))
+                Else
+                    outputList.Add(drwPath)
+                End If
+
             End If
 
         Next

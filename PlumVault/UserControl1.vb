@@ -1069,72 +1069,52 @@ Public Class UserControl1
         myCleanup()
         ToolStripSplitButFolder.HideDropDown()
     End Sub
+    Public Sub copyFileToClipboard(bWithDependents As Boolean, bTitleOnly As Boolean)
+        Dim modDocArr As ModelDoc2()
+        Dim sOutput As String() = {""}
+        Dim eIncludeDrawings As swMessageBoxResult_e
 
+        If bWithDependents Then
+            modDocArr = getComponentsOfAssemblyOptionalUpdateTree(GetSelectedModDocList(iSwApp), bResolveLightweight:=True)
+            If IsNothing(modDocArr) Then modDocArr = getComponentsOfAssemblyOptionalUpdateTree(iSwApp.ActiveDoc, bResolveLightweight:=True)
+            eIncludeDrawings = iSwApp.SendMsgToUser2("Include drawings with names matching files?", swMessageBoxIcon_e.swMbQuestion, swMessageBoxBtn_e.swMbYesNoCancel)
+        Else
+            modDocArr = GetSelectedModDocList(iSwApp)
+            If IsNothing(modDocArr) Then modDocArr = {iSwApp.ActiveDoc}
+            eIncludeDrawings = swMessageBoxResult_e.swMbHitNo
+        End If
+
+        If IsNothing(modDocArr) Then
+            iSwApp.SendMsgToUser("Couldn't find an active document! Exiting.")
+            Exit Sub
+        End If
+
+        Select Case eIncludeDrawings
+            Case swMessageBoxResult_e.swMbHitYes
+                sOutput = getMatchingDrawingForArrayPath(modDocArr, bTitleOnly)
+            Case swMessageBoxResult_e.swMbHitNo
+                sOutput = getFilePathsFromModDocArr(modDocArr, bTitleOnly)
+            Case swMessageBoxResult_e.swMbHitCancel
+                ToolStripSplitButFolder.HideDropDown()
+                Exit Sub
+        End Select
+
+        Clipboard.SetText(String.Join(vbCrLf, sOutput))
+
+        ToolStripSplitButFolder.HideDropDown()
+    End Sub
     Private Sub CopyFileNameToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CopyFileNameToolStripMenuItem.Click
-
-        Dim modDocArr As ModelDoc2() = GetSelectedModDocList(iSwApp)
-        If IsNothing(modDocArr) Then modDocArr = {iSwApp.ActiveDoc}
-        If IsNothing(modDocArr) Then
-            iSwApp.SendMsgToUser("Couldn't find an active document! Exiting.")
-            Exit Sub
-        End If
-
-        Clipboard.SetText(String.Join(vbCrLf, getFilePathsFromModDocArr(modDocArr, bTitleOnly:=True)))
-
-        ToolStripSplitButFolder.HideDropDown()
+        copyFileToClipboard(bWithDependents:=False, bTitleOnly:=True)
     End Sub
-
     Private Sub CopyFileNameWithDependentsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CopyFileNameWithDependentsToolStripMenuItem.Click
-
-        Dim modDocArr As ModelDoc2() = getComponentsOfAssemblyOptionalUpdateTree(GetSelectedModDocList(iSwApp), bResolveLightweight:=True)
-        If IsNothing(modDocArr) Then modDocArr = getComponentsOfAssemblyOptionalUpdateTree(iSwApp.ActiveDoc, bResolveLightweight:=True)
-        If IsNothing(modDocArr) Then
-            iSwApp.SendMsgToUser("Couldn't find an active document! Exiting.")
-            Exit Sub
-        End If
-
-        Clipboard.SetText(String.Join(vbCrLf, getFilePathsFromModDocArr(modDocArr, bTitleOnly:=True)))
-        ToolStripSplitButFolder.HideDropDown()
+        copyFileToClipboard(bWithDependents:=True, bTitleOnly:=True)
     End Sub
-
-    Private Sub CopyActiveFilesParentFolderToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CopyActiveFilesParentFolderToolStripMenuItem.Click
-
-        Dim modDocArr As ModelDoc2() = GetSelectedModDocList(iSwApp)
-        If IsNothing(modDocArr) Then modDocArr = {iSwApp.ActiveDoc}
-        If IsNothing(modDocArr) Then
-            iSwApp.SendMsgToUser("Couldn't find an active document! Exiting.")
-            Exit Sub
-        End If
-
-        Dim currentDir As DirectoryInfo = New FileInfo(modDocArr(0).GetPathName).Directory
-
-        Clipboard.SetText(currentDir.ToString)
-        ToolStripSplitButFolder.HideDropDown()
-
-    End Sub
-
     Private Sub CopyFullPathToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CopyFullPathToolStripMenuItem.Click
-        Dim modDocArr As ModelDoc2() = GetSelectedModDocList(iSwApp)
-        If IsNothing(modDocArr) Then modDocArr = {iSwApp.ActiveDoc}
-        If IsNothing(modDocArr) Then
-            iSwApp.SendMsgToUser("Couldn't find an active document! Exiting.")
-            Exit Sub
-        End If
-
-        Clipboard.SetText(String.Join(vbCrLf, getFilePathsFromModDocArr(modDocArr, bTitleOnly:=False)))
-        ToolStripSplitButFolder.HideDropDown()
+        copyFileToClipboard(bWithDependents:=False, bTitleOnly:=False)
     End Sub
 
     Private Sub CopyFilesPathsWithDependentsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CopyFilesPathsWithDependentsToolStripMenuItem.Click
-        Dim modDocArr As ModelDoc2() = getComponentsOfAssemblyOptionalUpdateTree(GetSelectedModDocList(iSwApp), bResolveLightweight:=True)
-        If IsNothing(modDocArr) Then modDocArr = getComponentsOfAssemblyOptionalUpdateTree(iSwApp.ActiveDoc, bResolveLightweight:=True)
-        If IsNothing(modDocArr) Then
-            iSwApp.SendMsgToUser("Couldn't find an active document! Exiting.")
-            Exit Sub
-        End If
-
-        Clipboard.SetText(String.Join(vbCrLf, getFilePathsFromModDocArr(modDocArr, bTitleOnly:=False)))
-        ToolStripSplitButFolder.HideDropDown()
+        copyFileToClipboard(bWithDependents:=True, bTitleOnly:=False)
     End Sub
 
     Private Sub CopySvnUrlToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CopySvnUrlToolStripMenuItem.Click
@@ -1153,6 +1133,7 @@ Public Class UserControl1
     End Sub
     Private Sub CopySvnUrlWithDependentsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CopySvnUrlWithDependentsToolStripMenuItem.Click
         'copy url to clipboard, with dependents
+        Dim sOutput As String() = {""}
         Dim modDocArr As ModelDoc2() = getComponentsOfAssemblyOptionalUpdateTree(GetSelectedModDocList(iSwApp), bResolveLightweight:=True)
         If IsNothing(modDocArr) Then modDocArr = getComponentsOfAssemblyOptionalUpdateTree(iSwApp.ActiveDoc, bResolveLightweight:=True)
         If IsNothing(modDocArr) Then
@@ -1160,10 +1141,36 @@ Public Class UserControl1
             Exit Sub
         End If
 
-        Dim urls As String() = getUrlfromPaths(getFilePathsFromModDocArr(modDocArr))
+        Dim eIncludeDrawings As swMessageBoxResult_e = iSwApp.SendMsgToUser2("Include drawings with names matching files?", swMessageBoxIcon_e.swMbQuestion, swMessageBoxBtn_e.swMbYesNoCancel)
 
-        Clipboard.SetText(String.Join(vbCrLf, urls))
+        Select Case eIncludeDrawings
+            Case swMessageBoxResult_e.swMbHitYes
+                sOutput = getUrlfromPaths(getMatchingDrawingForArrayPath(modDocArr))
+            Case swMessageBoxResult_e.swMbHitNo
+                sOutput = getUrlfromPaths(getFilePathsFromModDocArr(modDocArr))
+            Case swMessageBoxResult_e.swMbHitCancel
+                ToolStripSplitButFolder.HideDropDown()
+                CopySvnUrlToolStripMenuItem.HideDropDown()
+                Exit Sub
+        End Select
+
+        Clipboard.SetText(String.Join(vbCrLf, sOutput))
         ToolStripSplitButFolder.HideDropDown()
+    End Sub
+    Private Sub CopyActiveFilesParentFolderToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CopyActiveFilesParentFolderToolStripMenuItem.Click
+
+        Dim modDocArr As ModelDoc2() = GetSelectedModDocList(iSwApp)
+        If IsNothing(modDocArr) Then modDocArr = {iSwApp.ActiveDoc}
+        If IsNothing(modDocArr) Then
+            iSwApp.SendMsgToUser("Couldn't find an active document! Exiting.")
+            Exit Sub
+        End If
+
+        Dim currentDir As DirectoryInfo = New FileInfo(modDocArr(0).GetPathName).Directory
+
+        Clipboard.SetText(currentDir.ToString)
+        ToolStripSplitButFolder.HideDropDown()
+
     End Sub
 
     Private Sub ShareWithColleagueToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ShareWithColleagueToolStripMenuItem.Click

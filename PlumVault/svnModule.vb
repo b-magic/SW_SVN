@@ -768,6 +768,7 @@ Public Module svnModule
         Else
             modDoc = iSwApp.ActiveDoc
             modDocArr = myUserControl.getComponentsOfAssemblyOptionalUpdateTree(iSwApp.ActiveDoc)
+            If IsNothing(modDocArr) Then Exit Sub
             bSuccess = runTortoiseProcexeWithMonitor("/command:repostatus /path:" &
                                                  formatModDocArrForTortoiseProc(modDocArr) &
                                                  " /remote")
