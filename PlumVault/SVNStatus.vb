@@ -553,7 +553,7 @@ Public Class SVNStatus
         Dim filePptyToAdd As New List(Of filePpty)
         'Dim nToAdd As Integer = 0
         Dim sPropArr(,) As String
-        Dim sRelease As String
+        Dim sRelease(UBound(fp)) As String
 
         If newOutput Is Nothing Then Return False
 
@@ -572,33 +572,33 @@ Public Class SVNStatus
         End If
 
         sPropArr = svnPropget()
-        For i = 0 To UBound(fp)
-            sRelease = vLookup(fp(i).filename.Replace("\", "/"), sPropArr, 1)
+        For j = 0 To UBound(fp)
+            sRelease(j) = vLookup(fp(j).filename.Replace("\", "/"), sPropArr, 1)
         Next
 
-        For Each newFilePtty In newOutput.fp
+        For i = 0 To UBound(newOutput.fp)
             oldIndex = -1
-            If IsNothing(newFilePtty) Then Continue For
-            If IsNothing(newFilePtty.lock6) Then Continue For
+            If IsNothing(newOutput.fp(i)) Then Continue For
+            If IsNothing(newOutput.fp(i).lock6) Then Continue For
 
             'Search for match in old fp
             For k = 0 To UBound(fp)
-                If (Strings.InStr(fp(k).filename, newFilePtty.filename, CompareMethod.Text) <> 0) Then
+                If (Strings.InStr(fp(k).filename, newOutput.fp(i).filename, CompareMethod.Text) <> 0) Then
                     oldIndex = k
                     Exit For
                 End If
             Next
             If oldIndex = -1 Then
                 'didn't find a match
-                filePptyToAdd.Add(newFilePtty)
+                filePptyToAdd.Add(newOutput.fp(i))
                 Continue For
             End If
-            If IsNothing(newFilePtty.lock6) Or IsNothing(fp(oldIndex).lock6) Then Continue For
-            If ((fp(oldIndex).lock6 = "O") Or (fp(oldIndex).lock6 = "T") Or (fp(oldIndex).lock6 = "B")) And (Not (newFilePtty.lock6 = "K")) Then Continue For 'we're not calling the server, so don't want to overwrite info only available from server. 
+            If IsNothing(newOutput.fp(i).lock6) Or IsNothing(fp(oldIndex).lock6) Then Continue For
+            If ((fp(oldIndex).lock6 = "O") Or (fp(oldIndex).lock6 = "T") Or (fp(oldIndex).lock6 = "B")) And (Not (newOutput.fp(i).lock6 = "K")) Then Continue For 'we're not calling the server, so don't want to overwrite info only available from server. 
 
 
-            fp(oldIndex).lock6 = newFilePtty.lock6
-
+            fp(oldIndex).lock6 = newOutput.fp(i).lock6
+            If Not IsNothing(sRelease(oldIndex)) Then fp(oldIndex).released = sRelease(oldIndex)
         Next
 
         oldUboundFp = UBound(fp)
