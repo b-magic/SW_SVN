@@ -440,6 +440,7 @@ Public Module svnModule
     End Function
     Sub myReleaseDoc(modDoc As ModelDoc2)
         If modDoc Is Nothing Then iSwApp.SendMsgToUser("Active Document not found") : Exit Sub
+        Dim activeModDoc As ModelDoc2 = iSwApp.ActiveDoc
         Dim modelType As Integer = modDoc.GetType()
         Dim componentAndDrawingModDoc() As ModelDoc2
         Dim inputRevision As String = ""
@@ -458,6 +459,13 @@ Public Module svnModule
             If Not (iSwApp.SendMsgToUser2("Drawing not found. Do you want to continue releasing Component without its Drawing?", swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbYesNoCancel) = swMessageBoxResult_e.swMbHitYes) Then Exit Sub
             If Not ensureUserHasLocks({componentAndDrawingModDoc(0)}).All(Function(b) b) Then iSwApp.SendMsgToUser("Error. Couldn't get locks. Exiting") : Exit Sub
         Else
+            If activeModDoc Is Nothing Then iSwApp.SendMsgToUser("Couldn't find an active Doc.") : Exit Sub
+            If StrComp(activeModDoc.GetPathName, componentAndDrawingModDoc(1).GetPathName, vbTextCompare) Then
+                'Drawing exists, but is not open!
+                iSwApp.SendMsgToUser("A drawing was found, but it is not the active document! Try again with the Drawing Active.")
+                Exit Sub
+            End If
+
             bSuccess3 = ensureUserHasLocks(componentAndDrawingModDoc)
             If bSuccess3(0) Then
                 If bSuccess3(1) Then
@@ -510,10 +518,15 @@ Public Module svnModule
 
         If componentAndDrawingModDoc(0) IsNot Nothing Then
             If svnCommitDocs({componentAndDrawingModDoc(0)}, sCommitMessage:="#RELEASED# Revision: " & inputRevision) Then
-                bSuccess1 = createStep(componentAndDrawingModDoc(0), inputRevision)
+                If iSwApp.SendMsgToUser2("Export Step?" & componentAndDrawingModDoc(0).GetTitle, swMessageBoxIcon_e.swMbQuestion, swMessageBoxBtn_e.swMbYesNo) = swMessageBoxResult_e.swMbHitYes Then
+                    bSuccess1 = createStep(componentAndDrawingModDoc(0), inputRevision)
+                Else
+                    bSuccess1 = True
+                End If
+
             Else
-                'commit failed, so rollback the propset back to edit
-                svnPropset(getFilePathsFromModDocArr({componentAndDrawingModDoc(0)}), "addin:release_state", "||EDIT||")
+                    'commit failed, so rollback the propset back to edit
+                    svnPropset(getFilePathsFromModDocArr({componentAndDrawingModDoc(0)}), "addin:release_state", "||EDIT||")
                 svnPropset(getFilePathsFromModDocArr({componentAndDrawingModDoc(0)}), "addin:approved", "unknown")
                 bSuccess1 = False
                 iSwApp.SendMsgToUser2("Failed to Commit " & componentAndDrawingModDoc(0).GetTitle, swMessageBoxIcon_e.swMbWarning, swMessageBoxBtn_e.swMbOk)
@@ -522,7 +535,11 @@ Public Module svnModule
 
         If componentAndDrawingModDoc(1) IsNot Nothing Then
             If svnCommitDocs({componentAndDrawingModDoc(1)}, sCommitMessage:="#RELEASED# Revision: " & inputRevision) Then
-                bSuccess2 = createPDF(componentAndDrawingModDoc(1))
+                If iSwApp.SendMsgToUser2("Export PDF?" & componentAndDrawingModDoc(0).GetTitle, swMessageBoxIcon_e.swMbQuestion, swMessageBoxBtn_e.swMbYesNo) = swMessageBoxResult_e.swMbHitYes Then
+                    bSuccess2 = createPDF(componentAndDrawingModDoc(1))
+                Else
+                    bSuccess2 = True
+                End If
             Else
                 'commit failed, so rollback the propset back to edit
                 svnPropset(getFilePathsFromModDocArr({componentAndDrawingModDoc(1)}), "addin:release_state", "||EDIT||")
@@ -535,6 +552,7 @@ Public Module svnModule
         myUserControl.switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
         updateLockStatusPublic(bRefreshAllTreeViews:=True)
         statusOfAllOpenModels.setReadWriteFromLockStatus()
+        myUserControl.switchTreeViewToCurrentModel(bRetryWithRefresh:=False)
 
         'Message User
         If bSuccess1 Then
