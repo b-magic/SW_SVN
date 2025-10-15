@@ -56,7 +56,9 @@ Public Class UserControl1
         svnModuleInitialize(iSwApp, Me, statusOfAllOpenModels)
 
         localRepoPath.Text = My.Settings.localRepoPath
-        versionLabel.Text = "Version: 2025-10-13_01"
+        versionLabel.Text = "Version: 2025-10-15_01"
+
+        ToolStripSplitButFolder.DropDown.AutoClose = True
 
         If iSwApp.GetDocumentCount = 0 Then
 
@@ -1062,12 +1064,12 @@ Public Class UserControl1
 
     Private Sub OpenFolderPickerToolStripMenuItem_Click(sender As Object, e As EventArgs)
         pickFolder()
-        ToolStripSplitButFolder.HideDropDown()
+        hideButton(ToolStripSplitButFolder)
     End Sub
 
     Private Sub SVNCleanupToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SVNCleanupToolStripMenuItem.Click
         myCleanup()
-        ToolStripSplitButFolder.HideDropDown()
+        hideButton(ToolStripSplitButFolder)
     End Sub
     Public Sub copyFileToClipboard(bWithDependents As Boolean, bTitleOnly As Boolean)
         Dim modDocArr As ModelDoc2()
@@ -1095,13 +1097,14 @@ Public Class UserControl1
             Case swMessageBoxResult_e.swMbHitNo
                 sOutput = getFilePathsFromModDocArr(modDocArr, bTitleOnly)
             Case swMessageBoxResult_e.swMbHitCancel
-                ToolStripSplitButFolder.HideDropDown()
+                hideButton(ToolStripSplitButFolder)
                 Exit Sub
         End Select
 
-        Clipboard.SetText(String.Join(vbCrLf, sOutput))
+        CopyToClipboard(String.Join(vbCrLf, sOutput))
 
-        ToolStripSplitButFolder.HideDropDown()
+        hideButton(ToolStripSplitButFolder)
+
     End Sub
     Private Sub CopyFileNameToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CopyFileNameToolStripMenuItem.Click
         copyFileToClipboard(bWithDependents:=False, bTitleOnly:=True)
@@ -1128,8 +1131,8 @@ Public Class UserControl1
 
         Dim urls As String() = getUrlfromPaths(getFilePathsFromModDocArr(modDocArr))
 
-        Clipboard.SetText(String.Join(vbCrLf, urls))
-        ToolStripSplitButFolder.HideDropDown()
+        CopyToClipboard(String.Join(vbCrLf, urls))
+        hideButton(ToolStripSplitButFolder)
     End Sub
     Private Sub CopySvnUrlWithDependentsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CopySvnUrlWithDependentsToolStripMenuItem.Click
         'copy url to clipboard, with dependents
@@ -1149,13 +1152,13 @@ Public Class UserControl1
             Case swMessageBoxResult_e.swMbHitNo
                 sOutput = getUrlfromPaths(getFilePathsFromModDocArr(modDocArr))
             Case swMessageBoxResult_e.swMbHitCancel
-                ToolStripSplitButFolder.HideDropDown()
-                CopySvnUrlToolStripMenuItem.HideDropDown()
+                hideButton(ToolStripSplitButFolder)
+                CloseDropDown(CopySvnUrlToolStripMenuItem)
                 Exit Sub
         End Select
 
-        Clipboard.SetText(String.Join(vbCrLf, sOutput))
-        ToolStripSplitButFolder.HideDropDown()
+        CopyToClipboard(String.Join(vbCrLf, sOutput))
+        hideButton(ToolStripSplitButFolder)
     End Sub
     Private Sub CopyActiveFilesParentFolderToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CopyActiveFilesParentFolderToolStripMenuItem.Click
 
@@ -1168,8 +1171,8 @@ Public Class UserControl1
 
         Dim currentDir As DirectoryInfo = New FileInfo(modDocArr(0).GetPathName).Directory
 
-        Clipboard.SetText(currentDir.ToString)
-        ToolStripSplitButFolder.HideDropDown()
+        CopyToClipboard(currentDir.ToString)
+        hideButton(ToolStripSplitButFolder)
 
     End Sub
 
@@ -1201,8 +1204,8 @@ Public Class UserControl1
         stringToClip &= modDocArr(0).GetPathName & vbCrLf & vbCrLf & "or remote path: " & vbCrLf
         stringToClip &= stringArr(0)
 
-        Clipboard.SetText(stringToClip)
-        ToolStripSplitButFolder.HideDropDown()
+        CopyToClipboard(stringToClip)
+        hideButton(ToolStripSplitButFolder)
     End Sub
 
     Private Sub CreateSvnFilelistToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CreateSvnFilelistToolStripMenuItem.Click
@@ -1237,7 +1240,7 @@ Public Class UserControl1
         Catch ex As Exception
             iSwApp.SendMsgToUser("ERROR writing Filelist to " & vbCrLf & sDest)
         End Try
-        ToolStripSplitButFolder.HideDropDown()
+        hideButton(ToolStripSplitButFolder)
     End Sub
 
     Private Sub CreateSvnFilelistWithDependentsToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles CreateSvnFilelistWithDependentsToolStripMenuItem.Click
@@ -1281,7 +1284,7 @@ Public Class UserControl1
         Catch ex As Exception
             iSwApp.SendMsgToUser("ERROR writing Filelist to " & vbCrLf & sDest)
         End Try
-        ToolStripSplitButFolder.HideDropDown()
+        hideButton(ToolStripSplitButFolder)
     End Sub
 
     Private Sub OpenFileFromURLToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles OpenFileFromURLToolStripMenuItem.Click
