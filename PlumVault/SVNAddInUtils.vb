@@ -4,6 +4,7 @@ Imports System.Linq
 Imports System.Windows.Forms
 Imports SolidWorks.Interop.sldworks
 Imports SolidWorks.Interop.swconst
+Imports System.Threading
 
 Public Module svnAddInUtils
     Public Function findSvnRoot(filePath As String) As String
@@ -39,6 +40,39 @@ Public Module svnAddInUtils
         Next
         Return output
     End Function
+    Public Sub CopyToClipboard(text As String)
+
+        Clipboard.SetText(text)
+
+    End Sub
+    Public Sub hideButton(button As ToolStripSplitButton)
+        'ToolStripSplitButFolder.HideDropDown()
+
+        button.DropDown.Close()
+
+        'If button.Owner IsNot Nothing AndAlso button.Owner.InvokeRequired Then
+        'If button.Owner IsNot Nothing Then
+
+        '    button.Owner.BeginInvoke(New MethodInvoker(Sub()
+        '                                                   button.HideDropDown()
+        '                                               End Sub))
+        'Else
+
+        'End If
+    End Sub
+
+    Public Sub CloseDropDown(menuItem As ToolStripMenuItem)
+        'ToolStripSplitButFolder.HideDropDown()
+        'If menuItem.Owner IsNot Nothing AndAlso menuItem.Owner.InvokeRequired Then
+        '    menuItem.Owner.BeginInvoke(New MethodInvoker(Sub()
+        '                                                     menuItem.HideDropDown()
+        '                                                 End Sub))
+        'Else
+
+        'End If
+        menuItem.DropDown.Close()
+    End Sub
+
     Public Function vLookup(lookupValue As String,
                              tableArray As String(,),
                              returnColumn As Integer) As String
