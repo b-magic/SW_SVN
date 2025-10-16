@@ -125,7 +125,7 @@
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:Release\\plumVault_25.10.1301.msi"
+        "OutputFilename" = "8:Release\\plumVault_25.10.1601.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -450,7 +450,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:PlumVault"
         "ProductCode" = "8:{668179A1-6385-4796-9459-485EBFE762AA}"
-        "PackageCode" = "8:{7C728492-C544-49E8-B7EA-C8185A098285}"
+        "PackageCode" = "8:{E1BA8466-7E11-4BFE-9FC4-D29A8BB52139}"
         "UpgradeCode" = "8:{DFE55A88-84D2-4146-8D97-E4179D874B4A}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"
@@ -1003,7 +1003,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_C1A6513773194ECFA2AF56DE96F45B79"
             {
-            "SourcePath" = "8:"
+            "SourcePath" = "8:..\\PlumVault\\obj\\Release\\PlumVault.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_EE7E9DD25247421E87492B320EF561BD"
