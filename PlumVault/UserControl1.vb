@@ -56,7 +56,7 @@ Public Class UserControl1
         svnModuleInitialize(iSwApp, Me, statusOfAllOpenModels)
 
         localRepoPath.Text = My.Settings.localRepoPath
-        versionLabel.Text = "Version: 2025-10-16_01"
+        versionLabel.Text = "Version: 2025-11-17"
 
         ToolStripSplitButFolder.DropDown.AutoClose = True
 
@@ -212,7 +212,7 @@ Public Class UserControl1
             If (ModifierKeys And Keys.Shift) = Keys.Shift Then
                 sSuggestedPath = currentDir.FullName.TrimEnd("\\")
             Else
-                sSuggestedPath = findSvnRoot(currentDir.FullName).TrimEnd("\\")
+                sSuggestedPath = findSvnRoot(currentDir.FullName)
             End If
 
             eResponse = iSwApp.SendMsgToUser2("Would you like to use " & vbCrLf & sSuggestedPath, swMessageBoxIcon_e.swMbQuestion, swMessageBoxBtn_e.swMbYesNoCancel)
@@ -383,6 +383,7 @@ Public Class UserControl1
 
         If Not onlineCheckBox.Checked Then Exit Sub
 
+        Dim treeNodeTemp As TreeNode
         Dim modDoc As ModelDoc2 = iSwApp.ActiveDoc()
         If modDoc Is Nothing Then Exit Sub
 
@@ -390,7 +391,12 @@ Public Class UserControl1
         If IsNothing(treeNodeIndex) Or IsNothing(allTreeViews) Then Exit Sub
         If Not onlineCheckBox.Checked Then Exit Sub
 
-        Dim treeNodeTemp As TreeNode = allTreeViews(treeNodeIndex).Nodes(0)
+        Try
+            treeNodeTemp = allTreeViews(treeNodeIndex).Nodes(0)
+        Catch
+            TreeView1.Nodes.Clear()
+            Exit Sub
+        End Try
 
         Dim clonedNode As TreeNode = CType(treeNodeTemp.Clone(), TreeNode)
 
@@ -464,7 +470,7 @@ Public Class UserControl1
 
         ' Checkin and checkout needs the modDocArray. The others just want filepaths. 
 
-        Dim bUpdateTreeView As Boolean = If(IsNothing(allTreeViewsIndexToUpdate), False, True)
+        Dim bUpdateTreeView As Boolean = If(IsNothing(allTreeViewsIndexToUpdate) And Not IsNothing(allTreeViews), False, True)
         Dim sFileNameTemp As String
         Dim parentNode As TreeNode = Nothing
         Dim modelDocList As New List(Of ModelDoc2)()
@@ -1016,7 +1022,7 @@ Public Class UserControl1
         Else
             Dim docPath As String = modDoc.GetPathName
             Dim currentDir As DirectoryInfo = New FileInfo(docPath).Directory
-            Dim svnRootPath As String = findSvnRoot(currentDir.FullName).TrimEnd("\"c)
+            Dim svnRootPath As String = findSvnRoot(currentDir.FullName)
 
             ' Split the SVN root and current path into folder levels
             Dim svnRootUri As New Uri(svnRootPath & "\")

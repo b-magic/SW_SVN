@@ -449,15 +449,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:PlumVault"
-        "ProductCode" = "8:{668179A1-6385-4796-9459-485EBFE762AA}"
-        "PackageCode" = "8:{E1BA8466-7E11-4BFE-9FC4-D29A8BB52139}"
+        "ProductCode" = "8:{8FEBCC77-7C87-47A1-8CA0-FFF30A15B7D1}"
+        "PackageCode" = "8:{7C839DB5-71BE-455A-9D82-A7BCA4CC0D5F}"
         "UpgradeCode" = "8:{DFE55A88-84D2-4146-8D97-E4179D874B4A}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:25.10.1601"
+        "ProductVersion" = "8:25.11.17"
         "Manufacturer" = "8:PlumVault"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -1003,7 +1003,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_C1A6513773194ECFA2AF56DE96F45B79"
             {
-            "SourcePath" = "8:..\\PlumVault\\obj\\Release\\PlumVault.dll"
+            "SourcePath" = "8:..\\PlumVault\\obj\\Debug\\PlumVault.dll"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_EE7E9DD25247421E87492B320EF561BD"
