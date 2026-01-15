@@ -37,13 +37,29 @@ Public Module svnAddInUtils
         Next
         Return output
     End Function
-    Public Function catWithNewLine(stringArr() As String) As String
+    Public Function catWithNewLine(stringArr() As String, Optional wrapLength As Integer = 9999) As String
         Dim i As Integer
         Dim output As String = ""
         If stringArr Is Nothing Then Return ""
         For i = 0 To UBound(stringArr)
             If stringArr(i) Is Nothing Then Continue For
-            output &= vbCrLf & stringArr(i)
+
+            ' wraplength creates a newline if the original line is too long, essentially wrapping the text to prevent too many in a single line. sendmsgtouser2 truncates if too many char in one line
+            If stringArr(i).Length > wrapLength * 2 Then
+                output &= vbCrLf & stringArr(i).Substring(0, wrapLength)
+                output &= vbCrLf & stringArr(i).Substring(wrapLength, wrapLength)
+                output &= vbCrLf & stringArr(i).Substring(wrapLength * 2)
+
+            ElseIf stringArr(i).Length > wrapLength Then
+
+                output &= vbCrLf & stringArr(i).Substring(0, wrapLength)
+                output &= vbCrLf & stringArr(i).Substring(wrapLength)
+
+            Else
+
+                output &= vbCrLf & stringArr(i)
+            End If
+
         Next
         Return output
     End Function
