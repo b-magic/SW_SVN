@@ -37,7 +37,7 @@ Public Module svnAddInUtils
         Next
         Return output
     End Function
-    Public Function catWithNewLine(stringArr() As String, Optional wrapLength As Integer = 9999) As String
+    Public Function catWithNewLine(stringArr() As String, Optional wrapLength As Integer = 50) As String
         Dim i As Integer
         Dim output As String = ""
         If stringArr Is Nothing Then Return ""
