@@ -56,7 +56,7 @@ Public Class UserControl1
         svnModuleInitialize(iSwApp, Me, statusOfAllOpenModels)
 
         localRepoPath.Text = My.Settings.localRepoPath
-        versionLabel.Text = "Version: 2025-11-17"
+        versionLabel.Text = "Version: 2026.02.02"
 
         ToolStripSplitButFolder.DropDown.AutoClose = True
 
