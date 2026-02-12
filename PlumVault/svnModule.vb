@@ -312,6 +312,9 @@ Public Module svnModule
         SVNstartInfo.RedirectStandardOutput = True
         SVNstartInfo.RedirectStandardError = True
         SVNstartInfo.CreateNoWindow = True
+        SVNstartInfo.EnvironmentVariables.Remove("SVN_SSH") 'Fixes issue #47: SolidWorks Simulation breaking svn+ssh, so unable to contact repo 
+        SVNstartInfo.EnvironmentVariables("PATH") = myUserControl.savedPATH 'Fixes issue #47: SolidWorks Simulation breaking svn+ssh, so unable to contact repo 
+
         oSVNProcess.StartInfo = SVNstartInfo
 
         System.Windows.Forms.Cursor.Current = System.Windows.Forms.Cursors.WaitCursor

@@ -28,6 +28,7 @@ Public Class UserControl1
 
     Public statusOfAllOpenModels As SVNStatus = New SVNStatus
     Public allOpenDocs As ModelDoc2()
+    Public savedPATH As String = Nothing 'Fixes issue #47: SolidWorks Simulation breaking svn+ssh, so unable to contact repo 
 
     'Dim modelDocList As New List(Of ModelDoc2)()
     Public allTreeViews As TreeView() = {New TreeView}
@@ -37,6 +38,7 @@ Public Class UserControl1
 
         Dim docMenu As ContextMenuStrip
         Dim myrefreshItem, myCollapseItem As ToolStripMenuItem
+        savedPATH = System.Environment.GetEnvironmentVariable("PATH") 'Fixes issue #47: SolidWorks Simulation breaking svn+ssh, so unable to contact repo 
 
         docMenu = New ContextMenuStrip()
         myrefreshItem = New ToolStripMenuItem("Refresh", My.Resources.PlumVault_128, AddressOf RefreshToolStripMenuItemEventHandler)
@@ -45,6 +47,7 @@ Public Class UserControl1
         docMenu.Items.AddRange({myrefreshItem, myCollapseItem})
 
         Me.ContextMenuStrip = docMenu
+
 
     End Sub
 
@@ -56,7 +59,7 @@ Public Class UserControl1
         svnModuleInitialize(iSwApp, Me, statusOfAllOpenModels)
 
         localRepoPath.Text = My.Settings.localRepoPath
-        versionLabel.Text = "Version: 2026.02.02"
+        versionLabel.Text = "Version: 2026.02.12"
 
         ToolStripSplitButFolder.DropDown.AutoClose = True
 
