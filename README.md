@@ -1,19 +1,34 @@
-# SW SVN - SVN Integration for SolidWorks
+# Plum Vault (SW SVN) - SVN Integration for SolidWorks
 ## Disclaimer
 This project is not endorsed by, affiliated with, maintained, authorized, or sponsored by SolidWorks or Dassault Systems. All product and company names are the registered trademarks of their original owners. The use of any trade name or trademark is for identification and reference purposes only and does not imply any association with the trademark holder of their product brand.
 
-## Getting Set Up - End User
-### What is SVN?
-SVN = Subversion. The OG version control system. Written by software developers for collaborating on software development. It is very similar to git, but git by default stores the entire history of the repository (yes even files you think you deleted) locally on every users computer, which is fine for text files that are source code. SVN meanwhile has a central server that stores history and provides some useful collaboration features. The most useful feature for CAD users is the ability to 'lock' out files, which prevents others from editing them at the same time as you and overwriting each other. 
+## What is PlumVault (SW SVN)?
+Open Source Collaboration and Version Control for SolidWorks
+* Version Control: revert to old versions, view file history, etc.
+* Collaboration Features: Seamlessly allow multiple people to edit components in a large shared assembly without overwriting each others work. 
+* File Storage
 
-### How this all works
+### How does it Work?
+#### At a High Level
+* Adds a SolidWorks add-in for seamless integration with long-standing open source software for version control- SubVersion (SVN) and TortoiseSVN.
+* SVN = Subversion. The OG version control system. Written by software developers for collaborating on software development. It is very similar to git, but git by default stores the entire history of the repository (yes even files you think you deleted) locally on every users computer, which is fine for text files like source code. SVN meanwhile has a central server that stores history and provides some useful collaboration features. The most useful feature for CAD users is the ability to 'lock' out files, which prevents others from editing them at the same time as you and overwriting each other. 
+
+#### How do I use it?
 * There's a central server that stores all the CAD files and their history. 
 * Everyone "checks out" a local copy of the repository from the server. All local files are 'read-only' by default.
 * Want to edit a file? Take the 'lock', which 1) checks with the server that you have the latest version, then 2) tells the server no one else is allowed to get write-access. 
 * Finished your changes? "Commit" your changes to the server. You can keep your lock to continue working, or release your lock so the next person can lock & edit it.
 * Don't like your changes? You can release your lock and revert your copy to the latest on the server. 
 
-## Getting Set up - Developing The Project
+## Getting Setup up
+You will need to set up an SVN Server. Complete Setup assistance and training are available for Eligible Student Teams via Sponsorship.  
+
+
+
+
+## Joining the Developer Team
+#### Want to add new features to the project? 
+### Getting Set up to code and improve the project as a developer
 
 ### Integrated Development Enviornment (IDE)
 1. Pre-requisite: Windows computer. Not Mac. sorry. 
@@ -55,41 +70,13 @@ Ignore this error. Things work fine while its there.
 3. Close and re-open visual studio
 4. Restart computer
 
-### SVN Server
-There's lots of options to set up an SVN Server. I decided to use an amazon web services server.
-#### Amazon Web Server
-I've created an image, which is not currently available to the public though.
 
-** These instructions are obsolete now. Sorry! **
-You'll want to navigate to elastic computing (EC2), and create a new free instance. 
-1. Use free-tier ubuntu
-2. Make sure you also get elastic storage.
-3. You'll have to log into it using putty or another ssh client. Amazon has instructions. You also have to open security rules to accept port 22 and your ip address. 
-You'll have to open up any ports you're using for svn as well. 
-4. If my amazon web image is available then skip to the next step. The below is how I set up the image.
-create new user svnrunner
-add sudo privledges
-Download and unpack svnedge. I put it in /u1/
-https://ctf.open.collab.net/sf/projects/svnedge/
-I downloaded it in windows, then sent to server using winscp 
-Install and setup java: https://vitux.com/how-to-setup-java_home-path-in-ubuntu/
-Follow https://ctf.open.collab.net/sf/wiki/do/viewPage/projects.svnedge/wiki/LinuxInstaller
-Set automatic property to needs-lock, on a client PC that’s connected to the repo, and has svn installed do navigate to the repo then: 
-svn propset -R svn:auto-props “*.* = svn:needs-lock=yes” .
-OR Can also use TortoiseSVN > settings > general > subversion configuration file > edit 
-*.* = svn:needs-lock=yes
-Only works for new files. To change all existing files, on a client PC that’s connected to the repo, and has svn installed do 
-svn propset svn:needs-lock 'yes' -R .
-5. Using a web browser, go to the server instance's public ip address (shown on the EC2 dashboard) put a ":" and then the port number. 
-The default port for administratoring the vault is 3343 so for example: http://3.15.7.77:3343 if my public ip address was 3.15.7.77
-6. To access the vault as a user you'll have to go to that port (default is 18080) then slash "svn". example http://3.15.7.77:18080/svn/
-
-# Running
-## Visual Studio
+### Debugging
+#### Visual Studio
 1. Always start visual studio as administrator (start > visual studio > right click > run as administrator) otherwise you can't change the registry to actually open up 
 the add-in inside solidworks. 
 
-# Creating an installer
+#### Creating an installer
 1. Follow https://www.codestack.net/solidworks-api/deployment/installer/vsi/
 2. After you right click on the SVN_Vault_installer project and click rebuild, the .msi installer file should show up in C:\Users\<username>\source\repos\SolidWorksVB\SW_SVN\Debug
 
