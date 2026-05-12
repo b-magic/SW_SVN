@@ -27,6 +27,6 @@ You will need to set up an SVN Server. Complete Setup assistance and training ar
 
 
 # Demonstration picture:
-![Example]("Examples/Lemonade Example.png" "Demonstration Picture")
+![Example](Examples/LemonadeExample.png "Demonstration Picture")
 
 Good Luck :) Have Fun :)
