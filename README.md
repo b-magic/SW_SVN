@@ -27,6 +27,6 @@ You will need to set up an SVN Server. Complete Setup assistance and training ar
 
 
 # Demonstration picture:
-![Example](Examples/SW_SVN_Add-In_Example.png "Demonstration Picture")
+![Example](Examples/Lemonade Example.png "Demonstration Picture")
 
 Good Luck :) Have Fun :)
