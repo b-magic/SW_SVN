@@ -14,7 +14,7 @@ Open Source Collaboration and Version Control for SolidWorks
 * SVN = Subversion. The OG version control system. Written by software developers for collaborating on software development. It is very similar to git, but git by default stores the entire history of the repository (yes even files you think you deleted) locally on every users computer, which is fine for text files like source code. SVN meanwhile has a central server that stores history and provides some useful collaboration features. The most useful feature for CAD users is the ability to 'lock' out files, which prevents others from editing them at the same time as you and overwriting each other. 
 
 #### How do I use it?
-* There's a central server that stores all the CAD files and their history. 
+* A central linux server that stores all the CAD files and their history is needed. this can be run on your company hardware, a cloud provider like AWS, or PlumVault can provide cloud hosting. 
 * Everyone "checks out" a local copy of the repository from the server. All local files are 'read-only' by default.
 * Want to edit a file? Take the 'lock', which 1) checks with the server that you have the latest version, then 2) tells the server no one else is allowed to get write-access. 
 * Finished your changes? "Commit" your changes to the server. You can keep your lock to continue working, or release your lock so the next person can lock & edit it.
