@@ -1,6 +1,6 @@
 # Plum Vault (SW SVN) - SVN Integration for SolidWorks
 ## Disclaimer
-This project is not endorsed by, affiliated with, maintained, authorized, or sponsored by SolidWorks or Dassault Systems. All product and company names are the registered trademarks of their original owners. The use of any trade name or trademark is for identification and reference purposes only and does not imply any association with the trademark holder of their product brand.
+This project is not endorsed by, affiliated with, maintained, authorized, or sponsored by SolidWorks, Dassault Systems, Apache, TortoiseSVN, or Subversion. All product and company names are the registered trademarks of their original owners. The use of any trade name or trademark is for identification and reference purposes only and does not imply any association with the trademark holder of their product brand.
 See license for more. 
 
 ## What is PlumVault (SW SVN)?
